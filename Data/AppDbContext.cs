@@ -40,6 +40,8 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<Role> Roles { get; set; }
     public virtual DbSet<RolePermission> RolePermissions { get; set; }
     public virtual DbSet<User> Users { get; set; }
+    public virtual DbSet<ForgottenPassword> ForgottenPassword { get; set; }
+    public virtual DbSet<RegisterLink> RegisterLink { get; set; }
     public virtual DbSet<UserRole> UserRoles { get; set; }
 
 //     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

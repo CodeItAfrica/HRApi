@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HRApi.Models
@@ -37,6 +38,44 @@ namespace HRApi.Models
         public string? Name { get; set; }
         public string? EmployeeId { get; set; }
         public List<string> Roles { get; set; }
+    }
+
+
+    public class RegisterLink
+    {
+        public int Id { get; set; }
+        public string Email { get; set; }
+        public string Code { get; set; }
+        public DateTime CreatedDate { get; set; }
+        public DateTime ExpiredDate { get; set; }
+    }
+
+    public class ForgottenPassword
+    {
+        public int Id { get; set; }
+        public string Email { get; set; }
+        public string Code { get; set; }
+        public DateTime CreatedDate { get; set; }
+        public DateTime ExpiredDate { get; set; }
+    }
+
+
+    public class CodeVerificationRequest
+    {
+        public string Email { get; set; }
+        public string Code { get; set; }
+    }
+
+
+    public class ResetPasswordCodeRequest
+    {
+        public string Email { get; set; }
+        public string Code { get; set; }
+        public string NewPassword { get; set; }
+    }
+    public class EmailRequest
+    {
+        public string Email { get; set; }
     }
 
 

@@ -1,5 +1,7 @@
-﻿using HRApi.Data;
+﻿using Azure.Core;
+using HRApi.Data;
 using HRApi.Models;
+using HRApi.Repository;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
@@ -15,11 +17,13 @@ public class AuthController : ControllerBase
 {
     private readonly AppDbContext _context;
     private readonly IConfiguration _config;
+    private readonly AuthRepository _authRepository;
 
-    public AuthController(AppDbContext context, IConfiguration config)
+    public AuthController(AppDbContext context, IConfiguration config, AuthRepository authRepository)
     {
         _context = context;
         _config = config;
+        _authRepository = authRepository;
     }
 
     [HttpPost("login")]
@@ -35,7 +39,7 @@ public class AuthController : ControllerBase
             .Select(r => r.RoleName)
             .ToListAsync();
 
-        var token = GenerateJwt(user.Email, user.Id, roles);
+        var token = _authRepository.GenerateJwt(user.Email, user.Id, roles);
 
         var response = new LoginResponse
         {
@@ -49,31 +53,35 @@ public class AuthController : ControllerBase
         return Ok(response);
     }
 
-    private string GenerateJwt(string email, int userId, List<string> roles)
+
+    [HttpPost("registerlink")]
+    public async Task<IActionResult> SendRegisterLink([FromBody] EmailRequest request)
     {
-        var claims = new List<Claim>
-        {
-            new Claim(ClaimTypes.Name, email),
-            new Claim(ClaimTypes.NameIdentifier, userId.ToString())
-        };
+        var email = request.Email;
+        var result = await _authRepository.CreateRegisterLinkAsync(email);
+        return result ? Ok("Registration link sent.") : BadRequest("Failed to send link.");
+    }
 
-        foreach (var role in roles)
-        {
-            claims.Add(new Claim(ClaimTypes.Role, role));
-        }
+    [HttpPost("verifyregister")]
+    public async Task<IActionResult> VerifyRegisterCode([FromBody] CodeVerificationRequest model)
+    {
+        var token = await _authRepository.VerifyRegisterCodeAsync(model.Email, model.Code);
+        return token == null ? Unauthorized("Invalid or expired code.") : Ok(new { token });
+    }
 
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
-        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+    [HttpPost("forgot-password")]
+    public async Task<IActionResult> SendForgottenPassword([FromBody] EmailRequest request)
+    {
+        var email = request.Email;
+        var result = await _authRepository.CreateForgottenPasswordAsync(email);
+        return result ? Ok("Reset code sent.") : BadRequest("Failed to send code.");
+    }
 
-        var token = new JwtSecurityToken(
-            issuer: _config["Jwt:Issuer"],
-            audience: _config["Jwt:Audience"],
-            claims: claims,
-            expires: DateTime.UtcNow.AddHours(2),
-            signingCredentials: creds
-        );
-
-        return new JwtSecurityTokenHandler().WriteToken(token);
+    [HttpPost("reset-password")]
+    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest model)
+    {
+        var result = await _authRepository.ResetPasswordAsync(model.Email, model.ResetCode, model.NewPassword);
+        return result ? Ok("Password reset successful.") : BadRequest("Failed to reset password.");
     }
 
     [Authorize(Roles = "Admin")]
@@ -82,5 +90,6 @@ public class AuthController : ControllerBase
     {
         return Ok("This is protected for Admins");
     }
-
 }
+
+
