@@ -4,7 +4,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HRApi.Models
 {
-    [Table("role_permissions")]
     public partial class RolePermission
     {
         public int Id { get; set; }

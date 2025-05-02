@@ -4,7 +4,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HRApi.Models
 {
-    [Table("password_resets")]
     public partial class PasswordReset
     {
         public int Id { get; set; }

@@ -4,7 +4,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HRApi.Models
 {
-    [Table("payroll_payments")]
     public partial class PayrollPayment
     {
         public string Id { get; set; } = null!;
