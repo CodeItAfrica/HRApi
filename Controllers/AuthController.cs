@@ -71,14 +71,17 @@ public class AuthController : ControllerBase
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] HRApi.Models.RegisterRequest request)
     {
+        // This ensures that the email and password fields are not empty, i needed to be sure because i was getting an error yesterday
         if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password))
                 return BadRequest("Email and password are required.");
 
+        // This is to ensure that a user with the same email does not exist so that each user will have a unique email address
         if (_context.Users.Any(u => u.Email == request.Email))
         {
             return BadRequest("User with this email already exists.");
         }
 
+        // This is where the system will check if the user is verified, it collects the email and the code and returns true or false depending on if the user is verified or not
         bool isVerified = await _authRepository.VerifyRegisterCodeAsync(request.Email, request.code);
         if (!isVerified)
         {
@@ -86,6 +89,8 @@ public class AuthController : ControllerBase
         }
 
         using var transaction = await _context.Database.BeginTransactionAsync();
+
+        // This is where the auto generated id will be set, both for the employeeId and the staffId ----- we might need to add a a foreign key constraint linking the employee table to the user table
         var staffIdNo = await _employeeService.GenerateUniqueStaffIdAsync();
         var employeeIdNo = await _employeeService.GenerateUniqueEmployeeIdAsync();
 
