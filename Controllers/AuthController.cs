@@ -34,7 +34,10 @@ public class AuthController : ControllerBase
     {
         var user = await _context.Users.FirstOrDefaultAsync(x => x.Email == request.Email);
 
-        if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
+        // if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
+        //     return Unauthorized("Invalid email or password");
+
+        if (user == null || user.PasswordHash != request.Password)
             return Unauthorized("Invalid email or password");
 
         var roles = await _context.UserRoles
@@ -155,7 +158,8 @@ public class AuthController : ControllerBase
                 EmployeeId = employeeIdNo,
                 EmployeeName = request.OtherNames + " " + request.Surname,
                 Email = request.Email,
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
+                // PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
+                PasswordHash = request.Password,
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
