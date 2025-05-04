@@ -84,12 +84,12 @@ public class AuthController : ControllerBase
         return result ? Ok("Password reset successful.") : BadRequest("Failed to reset password.");
     }
 
-    [Authorize(Roles = "Admin")]
-    [HttpGet("admin-data")]
-    public IActionResult GetAdminData()
-    {
-        return Ok("This is protected for Admins");
-    }
+    //[Authorize(Roles = "Admin")]
+    //[HttpGet("admin-data")]
+    //public IActionResult GetAdminData()
+    //{
+    //    return Ok("This is protected for Admins");
+    //}
 }
 
 
