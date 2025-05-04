@@ -158,11 +158,8 @@ namespace HRApi.Migrations
 
             modelBuilder.Entity("HRApi.Models.Employee", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("AccountName1")
                         .HasColumnType("nvarchar(max)");
