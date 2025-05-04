@@ -47,8 +47,18 @@ namespace HRApi.Repository
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
         public async Task<bool> CreateRegisterLinkAsync(string email)
         {
+            var existingLink = await _context.RegisterLink
+                                      .FirstOrDefaultAsync(r => r.Email == email && r.ExpiredDate > DateTime.UtcNow);
+
+            if (existingLink != null)
+            {
+                _context.RegisterLink.Remove(existingLink);
+                await _context.SaveChangesAsync();
+            }
+            
             var code = new Random().Next(100000, 999999).ToString(); // 6-digit code
             var link = new RegisterLink
             {
@@ -59,6 +69,7 @@ namespace HRApi.Repository
             };
             _context.RegisterLink.Add(link);
             await _context.SaveChangesAsync();
+            // Console.WriteLine("I ran 33")
 
             string registerUrl = $"https://yourfrontend.com/register";
             string body = $"Click this link to register: {registerUrl}. Your code: {code}";
@@ -67,15 +78,19 @@ namespace HRApi.Repository
             return true;
         }
 
-        public async Task<string> VerifyRegisterCodeAsync(string email, string code)
+        public async Task<bool> VerifyRegisterCodeAsync(string email, string code)
         {
             var record = await _context.RegisterLink.FirstOrDefaultAsync(x => x.Email == email && x.Code == code);
             if (record == null || record.ExpiredDate < DateTime.UtcNow)
             {
-                return null;
+                return false;
             }
 
-            return GenerateJwt(email, 0, new List<string> { "register" });
+            // return GenerateJwt(email, 0, new List<string> { "register" });
+            _context.RegisterLink.Remove(record);
+            await _context.SaveChangesAsync();
+
+            return true;
         }
 
         public async Task<bool> CreateForgottenPasswordAsync(string email)
@@ -123,24 +138,32 @@ namespace HRApi.Repository
             var smtpPass = _config["Smtp:Password"];
             var sender = _config["Smtp:Sender"];
 
-            using var client = new SmtpClient(smtpHost, smtpPort)
+            using (var client = new SmtpClient(smtpHost, smtpPort))
             {
-                Credentials = new NetworkCredential(smtpUser, smtpPass),
-                EnableSsl = true
-            };
+                client.Credentials = new NetworkCredential(smtpUser, smtpPass);
+                client.EnableSsl = true;
 
-            var mailMessage = new MailMessage
-            {
-                From = new MailAddress(smtpUser, sender),
-                Subject = subject,
-                Body = body,
-                IsBodyHtml = true
-            };
+                var mailMessage = new MailMessage
+                {
+                    From = new MailAddress(smtpUser, "Edward Philip"),  // Replace with your name
+                    Subject = subject,
+                    Body = body,
+                    IsBodyHtml = true
+                };
 
-            mailMessage.To.Add(toEmail);
+                mailMessage.To.Add(toEmail);
 
-            await client.SendMailAsync(mailMessage);
+                try
+                {
+                    // Console.WriteLine("I ran 22")
+                    await client.SendMailAsync(mailMessage);
+                }
+                catch (SmtpException ex)
+                {
+                    // Print more detailed exception message for debugging
+                    Console.WriteLine($"Error sending email: {ex.ToString()}");
+                }
+            }
         }
-
     }
 }

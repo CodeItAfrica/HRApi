@@ -2,6 +2,7 @@
 using System.Text;
 using HRApi.Data;
 using HRApi.Repository;
+using HRApi.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -15,6 +16,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddScoped<AuthRepository>();
+builder.Services.AddScoped<EmployeeService>();
 
 builder.Services.AddSwaggerGen(s =>
 {
@@ -102,7 +104,10 @@ var app = builder.Build();
     app.UseSwaggerUI();
 
 
-app.UseHttpsRedirection();
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseAuthentication();
 app.UseAuthorization();
@@ -110,3 +115,4 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+

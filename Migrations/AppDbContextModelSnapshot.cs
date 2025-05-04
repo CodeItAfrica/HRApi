@@ -53,7 +53,7 @@ namespace HRApi.Migrations
                     b.HasKey("Id")
                         .HasName("PK__announce__3213E83FA5E09B80");
 
-                    b.ToTable("announcements");
+                    b.ToTable("Announcements");
                 });
 
             modelBuilder.Entity("HRApi.Models.AuditLog", b =>
@@ -124,7 +124,7 @@ namespace HRApi.Migrations
                     b.HasIndex(new[] { "DepartmentName" }, "UQ__departme__226ED15700BC291A")
                         .IsUnique();
 
-                    b.ToTable("departments");
+                    b.ToTable("Departments");
                 });
 
             modelBuilder.Entity("HRApi.Models.Document", b =>
@@ -153,7 +153,7 @@ namespace HRApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("documents");
+                    b.ToTable("Documents");
                 });
 
             modelBuilder.Entity("HRApi.Models.Employee", b =>
@@ -331,7 +331,7 @@ namespace HRApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("employees");
+                    b.ToTable("Employees");
                 });
 
             modelBuilder.Entity("HRApi.Models.EmploymentType", b =>
@@ -348,7 +348,34 @@ namespace HRApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("employment_types");
+                    b.ToTable("EmploymentTypes");
+                });
+
+            modelBuilder.Entity("HRApi.Models.ForgottenPassword", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("ExpiredDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ForgottenPassword");
                 });
 
             modelBuilder.Entity("HRApi.Models.JobApplication", b =>
@@ -384,7 +411,7 @@ namespace HRApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("job_applications");
+                    b.ToTable("JobApplications");
                 });
 
             modelBuilder.Entity("HRApi.Models.JobApplicationHistory", b =>
@@ -412,7 +439,7 @@ namespace HRApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("job_application_history");
+                    b.ToTable("JobApplicationHistories");
                 });
 
             modelBuilder.Entity("HRApi.Models.JobPosting", b =>
@@ -447,7 +474,7 @@ namespace HRApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("job_postings");
+                    b.ToTable("JobPostings");
                 });
 
             modelBuilder.Entity("HRApi.Models.LeaveHistory", b =>
@@ -484,7 +511,7 @@ namespace HRApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("leave_history");
+                    b.ToTable("LeaveHistories");
                 });
 
             modelBuilder.Entity("HRApi.Models.LeaveRequest", b =>
@@ -518,7 +545,7 @@ namespace HRApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("leave_requests");
+                    b.ToTable("LeaveRequests");
                 });
 
             modelBuilder.Entity("HRApi.Models.PasswordReset", b =>
@@ -544,7 +571,7 @@ namespace HRApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("password_resets");
+                    b.ToTable("PasswordResets");
                 });
 
             modelBuilder.Entity("HRApi.Models.PayAuditLog", b =>
@@ -581,7 +608,7 @@ namespace HRApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("pay_audit_log");
+                    b.ToTable("PayAuditLogs");
                 });
 
             modelBuilder.Entity("HRApi.Models.Payroll", b =>
@@ -636,7 +663,7 @@ namespace HRApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("payroll");
+                    b.ToTable("Payrolls");
                 });
 
             modelBuilder.Entity("HRApi.Models.PayrollAllowance", b =>
@@ -670,7 +697,7 @@ namespace HRApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("payroll_allowances");
+                    b.ToTable("PayrollAllowances");
                 });
 
             modelBuilder.Entity("HRApi.Models.PayrollDeduction", b =>
@@ -692,7 +719,7 @@ namespace HRApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("payroll_deductions");
+                    b.ToTable("PayrollDeductions");
                 });
 
             modelBuilder.Entity("HRApi.Models.PayrollHistory", b =>
@@ -759,7 +786,7 @@ namespace HRApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("payroll_history");
+                    b.ToTable("PayrollHistories");
                 });
 
             modelBuilder.Entity("HRApi.Models.PayrollPayment", b =>
@@ -793,7 +820,7 @@ namespace HRApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("payroll_payments");
+                    b.ToTable("PayrollPayments");
                 });
 
             modelBuilder.Entity("HRApi.Models.PerformanceReview", b =>
@@ -830,7 +857,7 @@ namespace HRApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("performance_reviews");
+                    b.ToTable("PerformanceReviews");
                 });
 
             modelBuilder.Entity("HRApi.Models.PerformanceReviewHistory", b =>
@@ -870,7 +897,7 @@ namespace HRApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("performance_review_history");
+                    b.ToTable("PerformanceReviewHistories");
                 });
 
             modelBuilder.Entity("HRApi.Models.Permission", b =>
@@ -890,7 +917,34 @@ namespace HRApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("permissions");
+                    b.ToTable("Permissions");
+                });
+
+            modelBuilder.Entity("HRApi.Models.RegisterLink", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("ExpiredDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("RegisterLink");
                 });
 
             modelBuilder.Entity("HRApi.Models.Role", b =>
@@ -910,7 +964,7 @@ namespace HRApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("roles");
+                    b.ToTable("Roles");
                 });
 
             modelBuilder.Entity("HRApi.Models.RolePermission", b =>
@@ -938,7 +992,7 @@ namespace HRApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("role_permissions");
+                    b.ToTable("RolePermissions");
                 });
 
             modelBuilder.Entity("HRApi.Models.User", b =>
@@ -974,7 +1028,7 @@ namespace HRApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("users");
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("HRApi.Models.UserRole", b =>
@@ -988,8 +1042,8 @@ namespace HRApi.Migrations
                     b.Property<DateTime?>("AssignedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("RoleId")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int?>("RoleId")
+                        .HasColumnType("int");
 
                     b.Property<string>("RoleName")
                         .HasColumnType("nvarchar(max)");
@@ -997,12 +1051,12 @@ namespace HRApi.Migrations
                     b.Property<string>("UserEmail")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int?>("UserId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.ToTable("user_roles");
+                    b.ToTable("UserRoles");
                 });
 #pragma warning restore 612, 618
         }
