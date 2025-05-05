@@ -29,6 +29,19 @@ public class AuthController : ControllerBase
         _employeeService = employeeService;
     }
 
+    protected ActionResult ExceptionResult(Exception ex)
+    {
+        if (ex is null)
+            return StatusCode(500, "SecureControllerBase.ExceptionResult() ex parameter cannot be null");
+
+        if (ex is ArgumentException || ex is ArgumentNullException || ex is KeyNotFoundException)
+            return BadRequest(ex.Message);
+
+        if (ex.InnerException != null)
+            return StatusCode(500, ex.Message + "\n\n\n --- inner exception --- " + ex.InnerException.ToString());
+
+        return StatusCode(500, ex.Message);
+    }
     [HttpPost("login")]
     public async Task<IActionResult> Login(HRApi.Models.LoginRequest request)
     {
@@ -175,22 +188,23 @@ public class AuthController : ControllerBase
 
             await transaction.CommitAsync();
             return Ok("Employee and user registered successfully.");
-        } catch {
-            await transaction.RollbackAsync();
-            return StatusCode(500, "An error occurred during registration.");
+        }
+        catch (Exception ex)
+        {
+            return ExceptionResult(ex);
         }
     }
 
-    // We would not need a verify register route as the code will be verified during the registration
+        // We would not need a verify register route as the code will be verified during the registration
 
-    // [HttpPost("verifyregister")]
-    // public async Task<IActionResult> VerifyRegisterCode([FromBody] CodeVerificationRequest model)
-    // {
-    //     var token = await _authRepository.VerifyRegisterCodeAsync(model.Email, model.Code);
-    //     return token == null ? Unauthorized("Invalid or expired code.") : Ok(new { token });
-    // }
+        // [HttpPost("verifyregister")]
+        // public async Task<IActionResult> VerifyRegisterCode([FromBody] CodeVerificationRequest model)
+        // {
+        //     var token = await _authRepository.VerifyRegisterCodeAsync(model.Email, model.Code);
+        //     return token == null ? Unauthorized("Invalid or expired code.") : Ok(new { token });
+        // }
 
-    [HttpPost("forgot-password")]
+        [HttpPost("forgot-password")]
     public async Task<IActionResult> SendForgottenPassword([FromBody] EmailRequest request)
     {
         var email = request.Email;
