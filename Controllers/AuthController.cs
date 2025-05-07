@@ -42,6 +42,7 @@ public class AuthController : ControllerBase
 
         return StatusCode(500, ex.Message);
     }
+
     [HttpPost("login")]
     public async Task<IActionResult> Login(HRApi.Models.LoginRequest request)
     {
@@ -86,7 +87,7 @@ public class AuthController : ControllerBase
     {
         // This ensures that the email and password fields are not empty, i needed to be sure because i was getting an error yesterday
         if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password))
-                return BadRequest("Email and password are required.");
+            return BadRequest("Email and password are required.");
 
         // This is to ensure that a user with the same email does not exist so that each user will have a unique email address
         if (_context.Users.Any(u => u.Email == request.Email))
@@ -95,11 +96,11 @@ public class AuthController : ControllerBase
         }
 
         // This is where the system will check if the user is verified, it collects the email and the code and returns true or false depending on if the user is verified or not
-        bool isVerified = await _authRepository.VerifyRegisterCodeAsync(request.Email, request.code);
-        if (!isVerified)
-        {
-            return BadRequest("Invalid or expired code. Please confirm your OTP.");
-        }
+        // bool isVerified = await _authRepository.VerifyRegisterCodeAsync(request.Email, request.code);
+        // if (!isVerified)
+        // {
+        //     return BadRequest("Invalid or expired code. Please confirm your OTP.");
+        // }
 
         using var transaction = await _context.Database.BeginTransactionAsync();
 
@@ -107,7 +108,8 @@ public class AuthController : ControllerBase
         var staffIdNo = await _employeeService.GenerateUniqueStaffIdAsync();
         var employeeIdNo = await _employeeService.GenerateUniqueEmployeeIdAsync();
 
-        try {
+        try
+        {
             var employee = new Employee
             {
                 Id = employeeIdNo,
@@ -126,28 +128,28 @@ public class AuthController : ControllerBase
                 MaritalStatus = request.MaritalStatus,
                 StateOrigin = request.StateOrigin,
                 NationalIdNo = request.NationalIdNo,
-                AccountNo1 = request.AccountNo1,
-                AccountName1 = request.AccountName1,
-                AccountNo2 = request.AccountNo2,
-                AccountName2 = request.AccountName2,
+                AcctNo1 = request.AcctNo1,
+                AcctName1 = request.AcctName1,
+                AcctNo2 = request.AcctNo2,
+                AcctName2 = request.AcctName2,
                 BranchId = request.BranchId,
                 Branch = request.Branch,
-                DepartmentId = request.DepartmentId,
-                Department = request.Department,
+                DeptId = request.DeptId,
+                Dept = request.Dept,
                 UnitId = request.UnitId,
                 Unit = request.Unit,
                 GradeId = request.GradeId,
                 Grade = request.Grade,
                 BirthDate = request.BirthDate,
                 HireDate = request.HireDate,
-                NextOfKin = request.NextOfKin,
+                NextKin = request.NextKin,
                 KinAddress = request.KinAddress,
                 KinPhone = request.KinPhone,
                 KinRelationship = request.KinRelationship,
                 Height = request.Height,
                 Weight = request.Weight,
                 Smoker = request.Smoker,
-                DisabilityType = request.DisabilityType,
+                DisableType = request.DisableType,
                 Remarks = request.Remarks,
                 Tag = request.Tag,
                 Photo = request.Photo,
@@ -159,8 +161,8 @@ public class AuthController : ControllerBase
                 RetiredDate = request.RetiredDate,
                 Deleted = request.Deleted,
                 Active = request.Active,
-                SubmittedBy = request.SubmittedBy,
-                SubmittedOn = DateTime.UtcNow,
+                SubmitBy = request.SubmitBy,
+                SubmitOn = DateTime.UtcNow,
                 ModifiedBy = request.ModifiedBy,
                 ModifiedOn = DateTime.UtcNow,
                 HmoName = request.HmoName,
@@ -195,16 +197,14 @@ public class AuthController : ControllerBase
         }
     }
 
-        // We would not need a verify register route as the code will be verified during the registration
+    [HttpPost("verify-register-link")]
+    public async Task<IActionResult> VerifyRegisterCode([FromBody] CodeVerificationRequest model)
+    {
+        var token = await _authRepository.VerifyRegisterCodeAsync(model.Email, model.Code);
+        return token == null ? Unauthorized("Invalid or expired code.") : Ok(new { message = "OTP verification successful", token });
+    }
 
-        // [HttpPost("verifyregister")]
-        // public async Task<IActionResult> VerifyRegisterCode([FromBody] CodeVerificationRequest model)
-        // {
-        //     var token = await _authRepository.VerifyRegisterCodeAsync(model.Email, model.Code);
-        //     return token == null ? Unauthorized("Invalid or expired code.") : Ok(new { token });
-        // }
-
-        [HttpPost("forgot-password")]
+    [HttpPost("forgot-password")]
     public async Task<IActionResult> SendForgottenPassword([FromBody] EmailRequest request)
     {
         var email = request.Email;
