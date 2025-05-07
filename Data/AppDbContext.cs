@@ -28,7 +28,7 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<EmploymentType> EmploymentTypes { get; set; }
 
-    public virtual DbSet<ForgottenPassword> ForgottenPasswords { get; set; }
+    public virtual DbSet<ForgottenPassword> ForgottenPassword { get; set; }
 
     public virtual DbSet<JobApplication> JobApplications { get; set; }
 
@@ -58,7 +58,7 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<Permission> Permissions { get; set; }
 
-    public virtual DbSet<RegisterLink> RegisterLinks { get; set; }
+    public virtual DbSet<RegisterLink> RegisterLink { get; set; }
 
     public virtual DbSet<Role> Roles { get; set; }
 
