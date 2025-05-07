@@ -1,15 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 
-namespace HRApi.Models
+namespace HRApi.Models{
+public partial class Role
 {
-    public partial class Role
+    public int Id { get; set; }
+
+    public string RoleName { get; set; } = null!;
+
+    public DateTime? CreatedAt { get; set; }
+}
+
+public class RoleNameBodyRequest
     {
-        public int Id { get; set; }
+        public required string roleName { get; set; }
+    }
 
-        public string RoleName { get; set; } = null!;
-
-        public DateTime? CreatedAt { get; set; }
+    public class AssignRoleRequest
+    {
+        public required int UserId { get; set; }
+        public required int RoleId { get; set; }
     }
 }

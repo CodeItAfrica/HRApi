@@ -58,7 +58,7 @@ namespace HRApi.Repository
                 _context.RegisterLink.Remove(existingLink);
                 await _context.SaveChangesAsync();
             }
-            
+
             var code = new Random().Next(100000, 999999).ToString(); // 6-digit code
             var link = new RegisterLink
             {
@@ -78,22 +78,19 @@ namespace HRApi.Repository
             return true;
         }
 
-        // I modified the VerifyRegisterCodeAsync to check if the users inputted code matches that on the database, it will return true or false
-        public async Task<bool> VerifyRegisterCodeAsync(string email, string code) // changed the return type from  string to boolean
+        public async Task<string?> VerifyRegisterCodeAsync(string email, string code) // changed the return type from string to nullable string
         {
             var record = await _context.RegisterLink.FirstOrDefaultAsync(x => x.Email == email && x.Code == code);
             if (record == null || record.ExpiredDate < DateTime.UtcNow)
             {
-                return false;
+                return null;
             }
-
-            // return GenerateJwt(email, 0, new List<string> { "register" });
 
             // I made it to delete the otp from the database once the user has been verified to preserve space
             _context.RegisterLink.Remove(record);
             await _context.SaveChangesAsync();
 
-            return true;
+            return GenerateJwt(email, 0, new List<string> { "register" });
         }
 
         public async Task<bool> CreateForgottenPasswordAsync(string email)

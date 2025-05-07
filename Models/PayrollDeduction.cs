@@ -1,17 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 
-namespace HRApi.Models
+namespace HRApi.Models;
+
+public partial class PayrollDeduction
 {
-    public partial class PayrollDeduction
-    {
-        public int Id { get; set; }
+    public int Id { get; set; }
 
-        public int? PayrollId { get; set; }
+    public int? PayrollId { get; set; }
 
-        public string? DeductionType { get; set; }
+    public string? DeductionType { get; set; }
 
-        public decimal Amount { get; set; }
-    }
+    public decimal Amount { get; set; }
 }

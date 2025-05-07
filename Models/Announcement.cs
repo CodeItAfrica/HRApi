@@ -1,19 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 
-namespace HRApi.Models
+namespace HRApi.Models;
+
+public partial class Announcement
 {
-    public partial class Announcement
-    {
-        public int Id { get; set; }
+    public int Id { get; set; }
 
-        public string? Title { get; set; }
+    public string? Title { get; set; }
 
-        public string Message { get; set; } = null!;
+    public string Message { get; set; } = null!;
 
-        public string? PostedBy { get; set; }
+    public string? PostedBy { get; set; }
 
-        public DateTime? PostedAt { get; set; }
-    }
+    public DateTime? PostedAt { get; set; }
 }
