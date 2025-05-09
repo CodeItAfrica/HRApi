@@ -1,23 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 
-namespace HRApi.Models
+namespace HRApi.Models;
+
+public partial class AuditLog
 {
-    public partial class AuditLog
-    {
-        public int Id { get; set; }
+    public int Id { get; set; }
 
-        public string? UserId { get; set; }
+    public string? UserId { get; set; }
 
-        public string? UserEmail { get; set; }
+    public string? UserEmail { get; set; }
 
-        public string Action { get; set; } = null!;
+    public string Action { get; set; } = null!;
 
-        public string? Details { get; set; }
+    public string? Details { get; set; }
 
-        public string? IpAddress { get; set; }
+    public string? IpAddress { get; set; }
 
-        public DateTime? CreatedAt { get; set; }
-    }
+    public DateTime? CreatedAt { get; set; }
 }

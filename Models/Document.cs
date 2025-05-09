@@ -1,21 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 
-namespace HRApi.Models
+namespace HRApi.Models;
+
+public partial class Document
 {
-    public partial class Document
-    {
-        public int Id { get; set; }
+    public int Id { get; set; }
 
-        public string? EmployeeId { get; set; }
+    public string? EmployeeId { get; set; }
 
-        public string? EmployeeName { get; set; }
+    public string? EmployeeName { get; set; }
 
-        public string? DocumentType { get; set; }
+    public string? DocumentType { get; set; }
 
-        public string FileUrl { get; set; } = null!;
+    public string FileUrl { get; set; } = null!;
 
-        public DateTime? UploadedAt { get; set; }
-    }
+    public DateTime? UploadedAt { get; set; }
 }

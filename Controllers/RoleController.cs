@@ -23,16 +23,26 @@ public class RoleController : ControllerBase
     }
 
     [HttpPost("create")]
-    public async Task<IActionResult> CreateRole([FromBody] string roleName)
+    public async Task<IActionResult> CreateRole([FromBody] RoleNameBodyRequest request)
     {
-        if (string.IsNullOrEmpty(roleName))
+        if (string.IsNullOrEmpty(request.roleName))
         {
             return BadRequest("Role name cannot be empty.");
         }
 
+        var normalizedRoleName = request.roleName.Trim().ToLower();
+
+        var existingRole = await _context.Roles
+            .FirstOrDefaultAsync(r => r.RoleName.ToLower() == normalizedRoleName);
+
+        if (existingRole != null)
+        {
+            return Conflict($"The role '{request.roleName}' already exists.");
+        }
+
         var role = new Role
         {
-            RoleName = roleName,
+            RoleName = request.roleName,
             CreatedAt = DateTime.UtcNow
         };
 
@@ -43,9 +53,9 @@ public class RoleController : ControllerBase
     }
 
     [HttpPut("update/{id}")]
-    public async Task<IActionResult> UpdateRole(int id, [FromBody] string roleName)
+    public async Task<IActionResult> UpdateRole(int id, [FromBody] RoleNameBodyRequest request)
     {
-        if (string.IsNullOrEmpty(roleName))
+        if (string.IsNullOrEmpty(request.roleName))
         {
             return BadRequest("Role name cannot be empty.");
         }
@@ -56,7 +66,7 @@ public class RoleController : ControllerBase
             return NotFound("Role not found.");
         }
 
-        role.RoleName = roleName;
+        role.RoleName = request.roleName;
         await _context.SaveChangesAsync();
 
         return Ok(new { message = "Role has been updated successfully." });

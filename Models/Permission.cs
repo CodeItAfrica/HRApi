@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 
-namespace HRApi.Models
+namespace HRApi.Models;
+
+public partial class Permission
 {
-    public partial class Permission
-    {
-        public int Id { get; set; }
+    public int Id { get; set; }
 
-        public string PermissionName { get; set; } = null!;
+    public string PermissionName { get; set; } = null!;
 
-        public DateTime? CreatedAt { get; set; }
-    }
+    public DateTime? CreatedAt { get; set; }
 }
