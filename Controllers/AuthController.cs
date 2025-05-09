@@ -42,6 +42,7 @@ public class AuthController : ControllerBase
 
         return StatusCode(500, ex.Message);
     }
+
     [HttpPost("login")]
     public async Task<IActionResult> Login(HRApi.Models.LoginRequest request)
     {
@@ -86,7 +87,7 @@ public class AuthController : ControllerBase
     {
         // This ensures that the email and password fields are not empty, i needed to be sure because i was getting an error yesterday
         if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password))
-                return BadRequest("Email and password are required.");
+            return BadRequest("Email and password are required.");
 
         // This is to ensure that a user with the same email does not exist so that each user will have a unique email address
         if (_context.Users.Any(u => u.Email == request.Email))
@@ -95,11 +96,11 @@ public class AuthController : ControllerBase
         }
 
         // This is where the system will check if the user is verified, it collects the email and the code and returns true or false depending on if the user is verified or not
-        bool isVerified = await _authRepository.VerifyRegisterCodeAsync(request.Email, request.code);
-        if (!isVerified)
-        {
-            return BadRequest("Invalid or expired code. Please confirm your OTP.");
-        }
+        // bool isVerified = await _authRepository.VerifyRegisterCodeAsync(request.Email, request.code);
+        // if (!isVerified)
+        // {
+        //     return BadRequest("Invalid or expired code. Please confirm your OTP.");
+        // }
 
         using var transaction = await _context.Database.BeginTransactionAsync();
 
@@ -107,7 +108,8 @@ public class AuthController : ControllerBase
         var staffIdNo = await _employeeService.GenerateUniqueStaffIdAsync();
         var employeeIdNo = await _employeeService.GenerateUniqueEmployeeIdAsync();
 
-        try {
+        try
+        {
             var employee = new Employee
             {
                 Id = employeeIdNo,
@@ -195,16 +197,14 @@ public class AuthController : ControllerBase
         }
     }
 
-        // We would not need a verify register route as the code will be verified during the registration
+    [HttpPost("verify-register-link")]
+    public async Task<IActionResult> VerifyRegisterCode([FromBody] CodeVerificationRequest model)
+    {
+        var token = await _authRepository.VerifyRegisterCodeAsync(model.Email, model.Code);
+        return token == null ? Unauthorized("Invalid or expired code.") : Ok(new { message = "OTP verification successful", token });
+    }
 
-        // [HttpPost("verifyregister")]
-        // public async Task<IActionResult> VerifyRegisterCode([FromBody] CodeVerificationRequest model)
-        // {
-        //     var token = await _authRepository.VerifyRegisterCodeAsync(model.Email, model.Code);
-        //     return token == null ? Unauthorized("Invalid or expired code.") : Ok(new { token });
-        // }
-
-        [HttpPost("forgot-password")]
+    [HttpPost("forgot-password")]
     public async Task<IActionResult> SendForgottenPassword([FromBody] EmailRequest request)
     {
         var email = request.Email;

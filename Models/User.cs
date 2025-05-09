@@ -88,7 +88,6 @@ namespace HRApi.Models
         public string? HmoName { get; set; }
         public string? HmoId { get; set; }
         public DateTime? CreatedAt { get; set; }
-        public string code { get; set; }
     }
 
     public class LoginResponse

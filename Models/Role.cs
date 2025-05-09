@@ -12,4 +12,10 @@ namespace HRApi.Models
 
         public DateTime? CreatedAt { get; set; }
     }
+
+    public class AssignRoleRequest
+    {
+        public required int UserId;
+        public required int RoleId;
+    }
 }
