@@ -44,7 +44,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> Login(HRApi.Models.LoginRequest request)
+    public async Task<IActionResult> Login(LoginRequest request)
     {
         var user = await _context.Users.FirstOrDefaultAsync(x => x.Email == request.Email);
 
@@ -54,11 +54,11 @@ public class AuthController : ControllerBase
         if (user == null || user.PasswordHash != request.Password)
             return Unauthorized("Invalid email or password");
 
-        var employee = await _context.Employees.FirstOrDefaultAsync(x => x.Id == user.EmployeeId);
+        // var employee = await _context.Employees.FirstOrDefaultAsync(x => x.Id == user.EmployeeId);
 
         var roles = await _context.UserRoles
             .Where(r => r.UserId == user.Id)
-            .Select(r => r.RoleName)
+            .Select(r => r.Role.RoleName)
             .ToListAsync();
 
         var token = _authRepository.GenerateJwt(user.Email, user.Id, roles);
@@ -68,9 +68,9 @@ public class AuthController : ControllerBase
             Token = token,
             UserId = user.Id,
             Email = user.Email,
-            Name = user.EmployeeName,
-            Surname = employee?.Surname,
-            EmployeeId = user.EmployeeId,
+            Name = user?.Employee?.Surname + " " + user?.Employee?.OtherNames,
+            Surname = user?.Employee?.Surname,
+            EmployeeId = user?.EmployeeId,
             Roles = roles
         };
         return Ok(response);
@@ -86,7 +86,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("register")]
-    public async Task<IActionResult> Register([FromBody] HRApi.Models.RegisterRequest request)
+    public async Task<IActionResult> Register([FromBody] RegisterRequest request)
     {
         // This ensures that the email and password fields are not empty, i needed to be sure because i was getting an error yesterday
         if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password))
@@ -136,13 +136,13 @@ public class AuthController : ControllerBase
                 AcctNo2 = request.AcctNo2,
                 AcctName2 = request.AcctName2,
                 BranchId = request.BranchId,
-                Branch = request.Branch,
+                // Branch = request.Branch,
                 DeptId = request.DeptId,
-                Dept = request.Dept,
+                // Dept = request.Dept,
                 UnitId = request.UnitId,
-                Unit = request.Unit,
+                // Unit = request.Unit,
                 GradeId = request.GradeId,
-                Grade = request.Grade,
+                // Grade = request.Grade,
                 BirthDate = request.BirthDate,
                 HireDate = request.HireDate,
                 NextKin = request.NextKin,
@@ -162,11 +162,11 @@ public class AuthController : ControllerBase
                 ConfirmDuration = request.ConfirmDuration,
                 ConfirmationDate = request.ConfirmationDate,
                 RetiredDate = request.RetiredDate,
-                Deleted = request.Deleted,
+                // Deleted = request.Deleted,
                 Active = request.Active,
-                SubmitBy = request.SubmitBy,
+                SubmitBy = request.Email,
                 SubmitOn = DateTime.UtcNow,
-                ModifiedBy = request.ModifiedBy,
+                // ModifiedBy = request.ModifiedBy,
                 ModifiedOn = DateTime.UtcNow,
                 HmoName = request.HmoName,
                 HmoId = request.HmoId,
@@ -179,7 +179,6 @@ public class AuthController : ControllerBase
             var user = new User
             {
                 EmployeeId = employeeIdNo,
-                EmployeeName = request.OtherNames + " " + request.Surname,
                 Email = request.Email,
                 // PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
                 PasswordHash = request.Password,

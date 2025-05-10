@@ -69,7 +69,7 @@ public class RoleController : ControllerBase
         var normalizedRoleName = request.roleName.Trim().ToLower();
         var existingRole = await _context.Roles
             .FirstOrDefaultAsync(r => r.RoleName.ToLower() == normalizedRoleName && r.Id != id);
-            
+
         if (existingRole != null)
         {
             return Conflict($"The role '{request.roleName}' already exists.");
@@ -115,9 +115,9 @@ public class RoleController : ControllerBase
         var userRole = new UserRole
         {
             UserId = request.UserId,
-            UserEmail = user.Email,
+            // UserEmail = user.Email,
             RoleId = request.RoleId,
-            RoleName = role.RoleName,
+            // RoleName = role.RoleName,
             AssignedAt = DateTime.UtcNow
         };
 

@@ -4,15 +4,6 @@ namespace HRApi.Models
 {
     public class Admin
     {
-        public class Branch
-        {
-            [Key]
-            public int BranchID { get; set; }
-            public string? BranchName { get; set; }
-            public string? Location { get; set; }
-            public DateTime CreatedAt { get; set; } = DateTime.Now;
-        }
-
         public class JobTitle
         {
             [Key]
@@ -20,26 +11,6 @@ namespace HRApi.Models
             public int JobTitleID { get; set; }
             public string? TitleName { get; set; }
             public int DepartmentID { get; set; }
-            public DateTime CreatedAt { get; set; } = DateTime.Now;
-        }
-
-        public class Grade
-        {
-            [Key]
-
-            public int JobGradeID { get; set; }
-            public string? GradeName { get; set; }
-            public string? Description { get; set; }
-            public DateTime CreatedAt { get; set; } = DateTime.Now;
-        }
-
-        public class LeaveType
-        {
-            [Key]
-
-            public int LeaveTypeID { get; set; }
-            public string? TypeName { get; set; }
-            public int DefaultDays { get; set; }
             public DateTime CreatedAt { get; set; } = DateTime.Now;
         }
 

@@ -12,10 +12,14 @@ public class PerformanceReview
 
     [ForeignKey("Employee")]
     public string EmployeeId { get; set; } = null!;
+
+    [InverseProperty("PerformanceReviews")]
     public virtual Employee Employee { get; set; } = null!;
 
     [ForeignKey("Reviewer")]
     public string ReviewerId { get; set; } = null!;
+
+    [InverseProperty("ReviewsDone")]
     public virtual Employee Reviewer { get; set; } = null!;
 
     [Required]

@@ -9,7 +9,7 @@ namespace HRApi.Models
 
         [Required]
         [StringLength(50)]
-        public string Name { get; set; } = null!;
+        public string TypeName { get; set; } = null!;
 
         public int DefaultDays { get; set; }
 

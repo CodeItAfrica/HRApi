@@ -1,6 +1,6 @@
 ﻿using HRApi.Data;
+using HRApi.Models;
 using Microsoft.EntityFrameworkCore;
-using static HRApi.Models.Admin;
 
 namespace HRApi.Repository
 {

@@ -1,9 +1,8 @@
 ﻿using HRApi.Data;
+using HRApi.Models;
 using HRApi.Repository;
 using HRApi.Services;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using static HRApi.Models.Admin;
 
 namespace HRApi.Controllers
 {
@@ -44,13 +43,13 @@ namespace HRApi.Controllers
         public async Task<IActionResult> AddBranch([FromBody] Branch branch)
         {
             await _repository.AddBranchAsync(branch);
-            return CreatedAtAction(nameof(GetBranch), new { id = branch.BranchID }, branch);
+            return CreatedAtAction(nameof(GetBranch), new { id = branch.Id }, branch);
         }
 
         [HttpPut("branches/{id}")]
         public async Task<IActionResult> UpdateBranch(int id, [FromBody] Branch branch)
         {
-            if (id != branch.BranchID) return BadRequest();
+            if (id != branch.Id) return BadRequest();
             await _repository.UpdateBranchAsync(branch);
             return NoContent();
         }

@@ -9,6 +9,7 @@ namespace HRApi.Models
 
         [Required]
         public string GradeName { get; set; } = null!;
+        public string? Description { get; set; }
 
         [Required]
         public decimal BaseSalary { get; set; }
