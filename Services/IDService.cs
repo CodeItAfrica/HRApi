@@ -4,11 +4,11 @@ using HRApi.Data;
 
 namespace HRApi.Services
 {
-    public class EmployeeService
+    public class IDService
     {
         private readonly AppDbContext _context;
 
-        public EmployeeService(AppDbContext context)
+        public IDService(AppDbContext context)
         {
             _context = context;
         }
