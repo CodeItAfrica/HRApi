@@ -1,25 +1,38 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HRApi.Models;
 
-public partial class PayrollPayment
+public class PayrollPayment
 {
-    public string Id { get; set; } = null!;
+    [Key]
+    public string Id { get; set; } = Guid.NewGuid().ToString();
 
-    public string? PayrollId { get; set; }
+    [ForeignKey("PayrollHistory")]
+    public string PayrollHistoryId { get; set; } = null!;
+    public virtual PayrollHistory PayrollHistory { get; set; } = null!;
 
-    public string? EmployeeId { get; set; }
+    [ForeignKey("Employee")]
+    public string EmployeeId { get; set; } = null!;
+    public virtual Employee Employee { get; set; } = null!;
 
-    public string? EmployeeName { get; set; }
+    [Required]
+    [StringLength(50)]
+    public string PaymentMethod { get; set; } = null!;
 
-    public string? PaymentMethod { get; set; }
+    [StringLength(20)]
+    public string PaymentStatus { get; set; } = "Pending"; // Pending, Processing, Completed, Failed
 
-    public string? PaymentStatus { get; set; }
-
+    [StringLength(100)]
     public string? TransactionId { get; set; }
 
     public DateTime? PaymentDate { get; set; }
 
-    public DateTime? CreatedAt { get; set; }
+    [ForeignKey("ProcessedBy")]
+    public int? ProcessedByUserId { get; set; }
+    public virtual User? ProcessedBy { get; set; }
+
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

@@ -1,18 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HRApi.Models;
 
-public partial class PayrollHistory
+public class PayrollHistory
 {
-    public string Id { get; set; } = null!;
+    [Key]
+    public string Id { get; set; } = Guid.NewGuid().ToString();
 
-    public string? EmployeeId { get; set; }
+    [ForeignKey("Employee")]
+    public string EmployeeId { get; set; } = null!;
+    public virtual Employee Employee { get; set; } = null!;
 
-    public string? EmployeeName { get; set; }
-
+    [Required]
     public DateOnly MonthYear { get; set; }
 
+    [Required]
     public decimal BasicSalary { get; set; }
 
     public decimal TotalAllowances { get; set; }
@@ -37,11 +42,17 @@ public partial class PayrollHistory
 
     public decimal NetSalary { get; set; }
 
-    public string? PaymentStatus { get; set; }
+    [StringLength(20)]
+    public string? PaymentStatus { get; set; } = "Pending"; // Pending, Processing, Paid, Failed
 
     public DateTime? PaidOn { get; set; }
 
-    public string? ProcessedBy { get; set; }
+    [ForeignKey("ProcessedBy")]
+    public int? ProcessedByUserId { get; set; }
+    public virtual User? ProcessedBy { get; set; }
 
-    public DateTime? CreatedAt { get; set; }
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    // Navigation properties
+    public virtual ICollection<PayrollPayment> PayrollPayments { get; set; } = new List<PayrollPayment>();
 }

@@ -1,119 +1,171 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
-namespace HRApi.Models;
-
-public partial class Employee
+namespace HRApi.Models
 {
-    public string Id { get; set; } = null!;
+    public class Employee
+    {
+        [Key]
+        public string Id { get; set; } = Guid.NewGuid().ToString();
 
-    public string StaffIdNo { get; set; } = null!;
+        [Required]
+        [StringLength(20)]
+        public string StaffIdNo { get; set; } = null!;
 
-    public string? Title { get; set; }
+        [StringLength(20)]
+        public string? Title { get; set; }
 
-    public string Surname { get; set; } = null!;
+        [Required]
+        [StringLength(100)]
+        public string Surname { get; set; } = null!;
 
-    public string? OtherNames { get; set; }
+        [StringLength(200)]
+        public string? OtherNames { get; set; }
 
-    public string? Address { get; set; }
+        [StringLength(300)]
+        public string? Address { get; set; }
 
-    public string? State { get; set; }
+        [StringLength(100)]
+        public string? State { get; set; }
 
-    public string? Country { get; set; }
+        [StringLength(100)]
+        public string? Country { get; set; }
 
-    public string? Sex { get; set; }
+        [StringLength(10)]
+        public string? Sex { get; set; }
 
-    public DateOnly? BirthDate { get; set; }
+        public DateOnly? BirthDate { get; set; }
 
-    public string? MaritalStatus { get; set; }
+        [StringLength(20)]
+        public string? MaritalStatus { get; set; }
 
-    public string? StateOrigin { get; set; }
+        [StringLength(100)]
+        public string? StateOrigin { get; set; }
 
-    public string? NationalIdNo { get; set; }
+        [StringLength(50)]
+        public string? NationalIdNo { get; set; }
 
-    public string? AcctNo1 { get; set; }
+        [StringLength(50)]
+        public string? AcctNo1 { get; set; }
 
-    public string? AcctName1 { get; set; }
+        [StringLength(100)]
+        public string? AcctName1 { get; set; }
 
-    public string? AcctNo2 { get; set; }
+        [StringLength(50)]
+        public string? AcctNo2 { get; set; }
 
-    public string? AcctName2 { get; set; }
+        [StringLength(100)]
+        public string? AcctName2 { get; set; }
 
-    public string? BranchId { get; set; }
+        [ForeignKey("Branch")]
+        public int? BranchId { get; set; }
+        public virtual Branch? Branch { get; set; }
 
-    public string? Branch { get; set; }
+        [ForeignKey("Department")]
+        public int? DepartmentId { get; set; }
+        public virtual Department? Department { get; set; }
 
-    public string? DeptId { get; set; }
+        [ForeignKey("Unit")]
+        public int? UnitId { get; set; }
+        public virtual Unit? Unit { get; set; }
 
-    public string? Dept { get; set; }
+        [ForeignKey("Grade")]
+        public int? GradeId { get; set; }
+        public virtual Grade? Grade { get; set; }
 
-    public string? UnitId { get; set; }
+        [ForeignKey("EmploymentType")]
+        public int? EmploymentTypeId { get; set; }
+        public virtual EmploymentType? EmploymentType { get; set; }
 
-    public string? Unit { get; set; }
+        public DateOnly? HireDate { get; set; }
 
-    public string? GradeId { get; set; }
+        [StringLength(20)]
+        public string? Telephone { get; set; }
 
-    public string? Grade { get; set; }
+        [StringLength(20)]
+        public string? MobilePhone { get; set; }
 
-    public DateOnly? HireDate { get; set; }
+        [Required]
+        [EmailAddress]
+        [StringLength(100)]
+        public string Email { get; set; } = null!;
 
-    public string? Telephone { get; set; }
+        [EmailAddress]
+        [StringLength(100)]
+        public string? Email2 { get; set; }
 
-    public string? MobilePhone { get; set; }
+        [StringLength(150)]
+        public string? NextKin { get; set; }
 
-    public string Email { get; set; } = null!;
+        [StringLength(300)]
+        public string? KinAddress { get; set; }
 
-    public string? Email2 { get; set; }
+        [StringLength(20)]
+        public string? KinPhone { get; set; }
 
-    public string? NextKin { get; set; }
+        [StringLength(50)]
+        public string? KinRelationship { get; set; }
 
-    public string? KinAddress { get; set; }
+        public decimal? Height { get; set; }
 
-    public string? KinPhone { get; set; }
+        public decimal? Weight { get; set; }
 
-    public string? KinRelationship { get; set; }
+        public bool? Smoker { get; set; }
 
-    public decimal? Height { get; set; }
+        [StringLength(100)]
+        public string? DisableType { get; set; }
 
-    public decimal? Weight { get; set; }
+        [StringLength(100)]
+        public string? HmoName { get; set; }
 
-    public bool? Smoker { get; set; }
+        [StringLength(50)]
+        public string? HmoId { get; set; }
 
-    public string? DisableType { get; set; }
+        [StringLength(500)]
+        public string? Remarks { get; set; }
 
-    public string? Remarks { get; set; }
+        [StringLength(100)]
+        public string? Tag { get; set; }
 
-    public string? Tag { get; set; }
+        [StringLength(250)]
+        public string? Photo { get; set; }
 
-    public string? Photo { get; set; }
+        public bool? PayFirstMonth { get; set; }
 
-    public bool? PayFirstMonth { get; set; }
+        [StringLength(50)]
+        public string? SheetId2 { get; set; }
 
-    public string? SheetId2 { get; set; }
+        public bool? ConfirmStatus { get; set; }
 
-    public bool? ConfirmStatus { get; set; }
+        public int? ConfirmDuration { get; set; }
 
-    public int? ConfirmDuration { get; set; }
+        public DateOnly? ConfirmationDate { get; set; }
 
-    public DateOnly? ConfirmationDate { get; set; }
+        public DateOnly? RetiredDate { get; set; }
 
-    public DateOnly? RetiredDate { get; set; }
+        public bool? Deleted { get; set; } = false;
 
-    public bool? Deleted { get; set; }
+        public bool? Active { get; set; } = true;
 
-    public bool? Active { get; set; }
+        [StringLength(100)]
+        public string? SubmitBy { get; set; }
 
-    public string? SubmitBy { get; set; }
+        public DateTime? SubmitOn { get; set; }
 
-    public DateTime? SubmitOn { get; set; }
+        [StringLength(100)]
+        public string? ModifiedBy { get; set; }
 
-    public string? ModifiedBy { get; set; }
+        public DateTime? ModifiedOn { get; set; }
 
-    public DateTime? ModifiedOn { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-    public string? HmoName { get; set; }
-
-    public string? HmoId { get; set; }
-
-    public DateTime? CreatedAt { get; set; }
+        public virtual User? User { get; set; }
+        public virtual Payroll? Payroll { get; set; }
+        public virtual ICollection<LeaveRequest> LeaveRequests { get; set; } = new List<LeaveRequest>();
+        public virtual ICollection<PerformanceReview> PerformanceReviews { get; set; } = new List<PerformanceReview>();
+        public virtual ICollection<PerformanceReview> ReviewsDone { get; set; } = new List<PerformanceReview>();
+        public virtual ICollection<PayrollAllowance> PayrollAllowances { get; set; } = new List<PayrollAllowance>();
+        public virtual ICollection<PayrollHistory> PayrollHistories { get; set; } = new List<PayrollHistory>();
+        public virtual ICollection<PayrollPayment> PayrollPayments { get; set; } = new List<PayrollPayment>();
+    }
 }

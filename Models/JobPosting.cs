@@ -1,23 +1,41 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HRApi.Models;
 
-public partial class JobPosting
+public class JobPosting
 {
+    [Key]
     public int Id { get; set; }
 
+    [Required]
+    [StringLength(200)]
     public string Title { get; set; } = null!;
 
-    public int? DepartmentId { get; set; }
+    [ForeignKey("Department")]
+    public int DepartmentId { get; set; }
+    public virtual Department Department { get; set; } = null!;
 
-    public string? DepartmentName { get; set; }
+    [Required]
+    [StringLength(2000)]
+    public string Description { get; set; } = null!;
 
-    public string? Description { get; set; }
-
+    [StringLength(2000)]
     public string? Requirements { get; set; }
 
-    public string? Status { get; set; }
+    [StringLength(20)]
+    public string Status { get; set; } = "Open"; // Open, Closed, Filled
 
-    public DateTime? PostedAt { get; set; }
+    [ForeignKey("PostedBy")]
+    public int? PostedByUserId { get; set; }
+    public virtual User? PostedBy { get; set; }
+
+    public DateTime PostedAt { get; set; } = DateTime.UtcNow;
+
+    public DateTime? ClosingDate { get; set; }
+
+    // Navigation properties
+    public virtual ICollection<JobApplication> JobApplications { get; set; } = new List<JobApplication>();
 }

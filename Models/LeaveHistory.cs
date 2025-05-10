@@ -1,25 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HRApi.Models;
 
-public partial class LeaveHistory
+public class LeaveHistory
 {
+    [Key]
     public int Id { get; set; }
 
-    public string? LeaveRequestId { get; set; }
+    [ForeignKey("LeaveRequest")]
+    public int LeaveRequestId { get; set; }
+    public virtual LeaveRequest LeaveRequest { get; set; } = null!;
 
-    public string? EmployeeId { get; set; }
+    [Required]
+    [StringLength(20)]
+    public string Status { get; set; } = null!;
 
-    public string? EmployeeName { get; set; }
+    [StringLength(500)]
+    public string? Comments { get; set; }
 
-    public string? LeaveType { get; set; }
+    [ForeignKey("ChangedBy")]
+    public int? ChangedByUserId { get; set; }
+    public virtual User? ChangedBy { get; set; }
 
-    public DateOnly? StartDate { get; set; }
-
-    public DateOnly? EndDate { get; set; }
-
-    public string? Status { get; set; }
-
-    public DateTime? ChangeDatetime { get; set; }
+    public DateTime ChangeDatetime { get; set; } = DateTime.UtcNow;
 }
