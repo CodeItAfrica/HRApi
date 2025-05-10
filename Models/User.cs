@@ -1,28 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace HRApi.Models{
-
-public partial class User
+namespace HRApi.Models
 {
-    public int Id { get; set; }
 
-    public string? EmployeeId { get; set; }
+    public partial class User
+    {
+        public int Id { get; set; }
 
-    public string? EmployeeName { get; set; }
+        public string? EmployeeId { get; set; }
 
-    public string Email { get; set; } = null!;
+        public string? EmployeeName { get; set; }
 
-    public string PasswordHash { get; set; } = null!;
+        public string Email { get; set; } = null!;
 
-    public bool? IsActive { get; set; }
+        public string PasswordHash { get; set; } = null!;
 
-    public DateTime? CreatedAt { get; set; }
+        public bool? IsActive { get; set; }
 
-    public DateTime? UpdatedAt { get; set; }
-}
+        public DateTime? CreatedAt { get; set; }
 
-public class LoginRequest
+        public DateTime? UpdatedAt { get; set; }
+    }
+
+    public class LoginRequest
     {
         public string Email { get; set; }
         public string Password { get; set; }
@@ -93,14 +94,15 @@ public class LoginRequest
         public int UserId { get; set; }
         public string Email { get; set; }
         public string? Name { get; set; }
+        public string? Surname { get; set; }
         public string? EmployeeId { get; set; }
         public List<string> Roles { get; set; }
     }
 
     public class CodeVerificationRequest
     {
-        public string Email { get; set; }
-        public string Code { get; set; }
+        public required string Email { get; set; }
+        public required string Code { get; set; }
     }
 
 

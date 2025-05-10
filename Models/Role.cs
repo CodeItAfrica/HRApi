@@ -1,17 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace HRApi.Models{
-public partial class Role
+namespace HRApi.Models
 {
-    public int Id { get; set; }
+    public partial class Role
+    {
+        public int Id { get; set; }
 
-    public string RoleName { get; set; } = null!;
+        public string RoleName { get; set; } = null!;
 
-    public DateTime? CreatedAt { get; set; }
-}
+        public DateTime? CreatedAt { get; set; }
+    }
 
-public class RoleNameBodyRequest
+    public class RoleNameBodyRequest
     {
         public required string roleName { get; set; }
     }
