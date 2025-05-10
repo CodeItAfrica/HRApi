@@ -1,19 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HRApi.Models;
 
-public partial class JobApplicationHistory
+public class JobApplicationHistory
 {
+    [Key]
     public int Id { get; set; }
 
-    public string? JobApplicationId { get; set; }
+    [ForeignKey("JobApplication")]
+    public int JobApplicationId { get; set; }
+    public virtual JobApplication JobApplication { get; set; } = null!;
 
-    public string? CandidateName { get; set; }
+    [Required]
+    [StringLength(20)]
+    public string Status { get; set; } = null!;
 
-    public string? PositionApplied { get; set; }
+    [StringLength(500)]
+    public string? Comments { get; set; }
 
-    public string? Status { get; set; }
+    [ForeignKey("ChangedBy")]
+    public int? ChangedByUserId { get; set; }
+    public virtual User? ChangedBy { get; set; }
 
-    public DateTime? ChangeDatetime { get; set; }
+    public DateTime ChangeDatetime { get; set; } = DateTime.UtcNow;
 }

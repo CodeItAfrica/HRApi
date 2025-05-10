@@ -1,25 +1,35 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HRApi.Models;
 
-public partial class PayrollAllowance
+public class PayrollAllowance
 {
-    public string Id { get; set; } = null!;
+    [Key]
+    public string Id { get; set; } = Guid.NewGuid().ToString();
 
-    public string? EmployeeId { get; set; }
+    [ForeignKey("Employee")]
+    public string EmployeeId { get; set; } = null!;
+    public virtual Employee Employee { get; set; } = null!;
 
-    public string? EmployeeName { get; set; }
+    [Required]
+    [StringLength(50)]
+    public string AllowanceType { get; set; } = null!;
 
-    public string? AllowanceType { get; set; }
-
+    [Required]
     public decimal Amount { get; set; }
 
+    [StringLength(255)]
     public string? Description { get; set; }
 
-    public string? GrantedBy { get; set; }
+    [ForeignKey("GrantedBy")]
+    public int? GrantedByUserId { get; set; }
+    public virtual User? GrantedBy { get; set; }
 
+    [Required]
     public DateOnly GrantedOn { get; set; }
 
-    public DateTime? CreatedAt { get; set; }
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

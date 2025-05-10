@@ -1,25 +1,37 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HRApi.Models;
 
-public partial class PerformanceReview
+public class PerformanceReview
 {
+    [Key]
     public int Id { get; set; }
 
-    public string? EmployeeId { get; set; }
+    [ForeignKey("Employee")]
+    public string EmployeeId { get; set; } = null!;
+    public virtual Employee Employee { get; set; } = null!;
 
-    public string? EmployeeName { get; set; }
+    [ForeignKey("Reviewer")]
+    public string ReviewerId { get; set; } = null!;
+    public virtual Employee Reviewer { get; set; } = null!;
 
-    public string? ReviewerId { get; set; }
-
-    public string? ReviewerName { get; set; }
-
+    [Required]
     public DateOnly ReviewPeriod { get; set; }
 
     public decimal? PerformanceScore { get; set; }
 
+    [StringLength(2000)]
     public string? Feedback { get; set; }
 
-    public DateTime? CreatedAt { get; set; }
+    [StringLength(20)]
+    public string Status { get; set; } = "Draft"; // Draft, Submitted, Acknowledged
+
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    // Navigation properties
+    public virtual ICollection<PerformanceReviewHistory> ReviewHistories { get; set; } = new List<PerformanceReviewHistory>();
 }
+

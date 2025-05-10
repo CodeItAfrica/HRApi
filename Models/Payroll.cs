@@ -1,16 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HRApi.Models;
 
-public partial class Payroll
+public class Payroll
 {
-    public string Id { get; set; } = null!;
+    [Key]
+    public string Id { get; set; } = Guid.NewGuid().ToString();
 
-    public string? EmployeeId { get; set; }
+    [ForeignKey("Employee")]
+    public string EmployeeId { get; set; } = null!;
+    public virtual Employee Employee { get; set; } = null!;
 
-    public string? EmployeeName { get; set; }
-
+    [Required]
     public decimal BasicSalary { get; set; }
 
     public decimal? TaxRate { get; set; }
@@ -29,11 +31,19 @@ public partial class Payroll
 
     public decimal? Bonus { get; set; }
 
+    [StringLength(50)]
     public string? PaymentMethod { get; set; }
 
+    [StringLength(50)]
     public string? AccountNumber { get; set; }
 
+    [StringLength(100)]
     public string? BankName { get; set; }
 
-    public DateTime? CreatedAt { get; set; }
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    public DateTime? UpdatedAt { get; set; }
+
+    // Navigation properties
+    public virtual ICollection<PayrollDeduction> PayrollDeductions { get; set; } = new List<PayrollDeduction>();
 }

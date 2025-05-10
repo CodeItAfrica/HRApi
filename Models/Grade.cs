@@ -1,16 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace HRApi.Models
 {
-    public class EmploymentType
+    public class Grade
     {
         [Key]
         public int Id { get; set; }
 
         [Required]
-        public string TypeName { get; set; } = null!;
+        public string GradeName { get; set; } = null!;
+
+        [Required]
+        public decimal BaseSalary { get; set; }
+
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public virtual ICollection<Employee> Employees { get; set; } = new List<Employee>();
     }
