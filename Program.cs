@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using System.Text;
+using HRApi;
 using HRApi.Data;
 using HRApi.Repository;
 using HRApi.Services;
@@ -16,6 +17,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddScoped<AuthRepository>();
+builder.Services.AddScoped<AdminRepository>();
 builder.Services.AddScoped<EmployeeService>();
 
 builder.Services.AddSwaggerGen(s =>
@@ -67,7 +69,10 @@ builder.Services.AddSwaggerGen(s =>
                       }
                     });
 });
-
+builder.Services.AddCors(o => o.AddPolicy("AllowOrigin", builder =>
+{
+    builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+}));
 builder.Services.AddAuthentication(x =>
 {
     x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -104,13 +109,14 @@ var app = builder.Build();
     app.UseSwaggerUI();
 
 
-if (!app.Environment.IsDevelopment())
-{
+
     app.UseHttpsRedirection();
-}
+
+app.UseCors("AllowOrigin");
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseCorsMiddleware();
 
 app.MapControllers();
 

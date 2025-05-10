@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using HRApi.Models;
 using Microsoft.EntityFrameworkCore;
+using static HRApi.Models.Admin;
 
 namespace HRApi.Data;
 
@@ -68,9 +69,19 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<UserRole> UserRoles { get; set; }
 
-//     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-// #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-//         => optionsBuilder.UseSqlServer("Server=tcp:108.181.199.153,10875;Initial Catalog=HRNewDb;User ID=sa;Password=Gibs@321.;Encrypt=False;Trust Server Certificate=True");
+    public virtual DbSet<Branch> Branches { get; set; }
+    public virtual DbSet<JobTitle> JobTitles { get; set; }
+    public virtual DbSet<Grade> Grades { get; set; }
+    public virtual DbSet<LeaveType> LeaveTypes { get; set; }
+    public virtual DbSet<Notification> Notifications { get; set; }
+    public virtual DbSet<FAQ> FAQs { get; set; }
+    public virtual DbSet<Bank> Banks { get; set; }
+    public virtual DbSet<TrainingProgram> TrainingPrograms { get; set; }
+
+
+    //     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    // #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+    //         => optionsBuilder.UseSqlServer("Server=tcp:108.181.199.153,10875;Initial Catalog=HRNewDb;User ID=sa;Password=Gibs@321.;Encrypt=False;Trust Server Certificate=True");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
