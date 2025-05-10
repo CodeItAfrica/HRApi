@@ -17,7 +17,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddScoped<AuthRepository>();
-builder.Services.AddScoped<EmployeeService>();
+builder.Services.AddScoped<IDService>();
 
 builder.Services.AddSwaggerGen(s =>
 {
@@ -111,10 +111,9 @@ app.UseSwagger();
 app.UseSwaggerUI();
 
 
-if (!app.Environment.IsDevelopment())
-{
+
     app.UseHttpsRedirection();
-}
+
 
 app.UseCors("AllowAll");
 
