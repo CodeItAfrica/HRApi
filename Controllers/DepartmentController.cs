@@ -3,7 +3,6 @@ using HRApi.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-
 [ApiController]
 [Route("api/[controller]")]
 
@@ -26,7 +25,7 @@ public class DepartmentController : ControllerBase
     [HttpPost("create")]
     public async Task<IActionResult> CreateDepartment([FromBody] CreateDepartmentRequest request)
     {
-        if (request.DepartmentName == null)
+        if (request.DepartmentName.Trim() == null)
         {
             return BadRequest("Department name cannot be null");
         }

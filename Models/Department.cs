@@ -17,11 +17,6 @@ namespace HRApi.Models
         
         public virtual ICollection<JobPosting> JobPostings { get; set; } = new List<JobPosting>();
     }
-
-    public class CreateDepartmentRequest
-    {
-        public required string DepartmentName { get; set; }
-    }
 }
 
 
