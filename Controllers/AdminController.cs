@@ -15,14 +15,14 @@ namespace HRApi.Controllers
         private readonly AppDbContext _context;
         private readonly IConfiguration _config;
         private readonly AdminRepository _repository;
-        private readonly EmployeeService _employeeService;
+        private readonly IDService _idService;
 
-        public AdminController(AppDbContext context, IConfiguration config, AdminRepository adminRepository, EmployeeService employeeService)
+        public AdminController(AppDbContext context, IConfiguration config, AdminRepository adminRepository, IDService idService)
         {
             _context = context;
             _config = config;
             _repository = adminRepository;
-            _employeeService = employeeService;
+            _idService = idService;
         }
 
 
