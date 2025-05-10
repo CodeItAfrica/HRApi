@@ -19,14 +19,14 @@ public class AuthController : ControllerBase
     private readonly AppDbContext _context;
     private readonly IConfiguration _config;
     private readonly AuthRepository _authRepository;
-    private readonly EmployeeService _employeeService;
+    private readonly IDService _idService;
 
-    public AuthController(AppDbContext context, IConfiguration config, AuthRepository authRepository, EmployeeService employeeService)
+    public AuthController(AppDbContext context, IConfiguration config, AuthRepository authRepository, IDService idService)
     {
         _context = context;
         _config = config;
         _authRepository = authRepository;
-        _employeeService = employeeService;
+        _idService = idService;
     }
 
     protected ActionResult ExceptionResult(Exception ex)
@@ -54,6 +54,8 @@ public class AuthController : ControllerBase
         if (user == null || user.PasswordHash != request.Password)
             return Unauthorized("Invalid email or password");
 
+        var employee = await _context.Employees.FirstOrDefaultAsync(x => x.Id == user.EmployeeId);
+
         var roles = await _context.UserRoles
             .Where(r => r.UserId == user.Id)
             .Select(r => r.RoleName)
@@ -67,6 +69,7 @@ public class AuthController : ControllerBase
             UserId = user.Id,
             Email = user.Email,
             Name = user.EmployeeName,
+            Surname = employee?.Surname,
             EmployeeId = user.EmployeeId,
             Roles = roles
         };
@@ -74,7 +77,7 @@ public class AuthController : ControllerBase
     }
 
 
-    [HttpPost("registerlink")]
+    [HttpPost("register-link")]
     public async Task<IActionResult> SendRegisterLink([FromBody] EmailRequest request)
     {
         var email = request.Email;
@@ -105,8 +108,8 @@ public class AuthController : ControllerBase
         using var transaction = await _context.Database.BeginTransactionAsync();
 
         // This is where the auto generated id will be set, both for the employeeId and the staffId ----- we might need to add a a foreign key constraint linking the employee table to the user table
-        var staffIdNo = await _employeeService.GenerateUniqueStaffIdAsync();
-        var employeeIdNo = await _employeeService.GenerateUniqueEmployeeIdAsync();
+        var staffIdNo = await _idService.GenerateUniqueStaffIdAsync();
+        var employeeIdNo = await _idService.GenerateUniqueEmployeeIdAsync();
 
         try
         {

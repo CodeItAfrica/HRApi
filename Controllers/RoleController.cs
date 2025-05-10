@@ -66,6 +66,15 @@ public class RoleController : ControllerBase
             return NotFound("Role not found.");
         }
 
+        var normalizedRoleName = request.roleName.Trim().ToLower();
+        var existingRole = await _context.Roles
+            .FirstOrDefaultAsync(r => r.RoleName.ToLower() == normalizedRoleName && r.Id != id);
+            
+        if (existingRole != null)
+        {
+            return Conflict($"The role '{request.roleName}' already exists.");
+        }
+
         role.RoleName = request.roleName;
         await _context.SaveChangesAsync();
 
