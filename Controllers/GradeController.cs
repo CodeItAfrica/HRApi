@@ -85,6 +85,7 @@ public class GradeController : ControllerBase
 
         return NoContent();
     }
+
     [HttpDelete("delete/{id}")]
     public async Task<IActionResult> DeleteGrade(int id)
     {
@@ -99,6 +100,7 @@ public class GradeController : ControllerBase
 
         return NoContent();
     }
+    
     [HttpGet("get/{id}")]
     public async Task<IActionResult> GetGrade(int id)
     {

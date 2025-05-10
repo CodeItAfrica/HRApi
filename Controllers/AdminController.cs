@@ -1,8 +1,8 @@
 ﻿using HRApi.Data;
 using HRApi.Models;
-using HRApi.Repository;
 using HRApi.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace HRApi.Controllers
 {
@@ -13,51 +13,87 @@ namespace HRApi.Controllers
 
         private readonly AppDbContext _context;
         private readonly IConfiguration _config;
-        private readonly AdminRepository _repository;
         private readonly IDService _idService;
 
-        public AdminController(AppDbContext context, IConfiguration config, AdminRepository adminRepository, IDService idService)
+        public AdminController(AppDbContext context, IConfiguration config, IDService idService)
         {
             _context = context;
             _config = config;
-            _repository = adminRepository;
             _idService = idService;
         }
 
 
-        [HttpGet("branches")]
+        [HttpGet("get-branches")]
         public async Task<IActionResult> GetBranches()
         {
-            return Ok(await _repository.GetBranchesAsync());
+            var branches = await _context.Branches.Select(u => new { u.Id, u.BranchName, u.Address, u.City, u.State, u.Country }).ToListAsync();
+            return Ok(branches);
         }
 
         [HttpGet("branches/{id}")]
         public async Task<IActionResult> GetBranch(int id)
         {
-            var branch = await _repository.GetBranchAsync(id);
-            if (branch == null) return NotFound();
+            var branch = await _context.Branches.FindAsync(id);
+            if (branch == null)
+            {
+                return NotFound($"No branch found with ID {id}");
+            }
+
             return Ok(branch);
         }
 
-        [HttpPost("branches")]
-        public async Task<IActionResult> AddBranch([FromBody] Branch branch)
+        [HttpPost("branches-create")]
+        public async Task<IActionResult> AddBranch([FromBody] CreateBranchRequest request)
         {
-            await _repository.AddBranchAsync(branch);
-            return CreatedAtAction(nameof(GetBranch), new { id = branch.Id }, branch);
+            var newBranch = new Branch
+            {
+                BranchName = request.BranchName,
+                Address = request.Address,
+                City = request.City,
+                State = request.State,
+                Country = request.Country,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _context.Branches.Add(newBranch);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetBranches), new { id = newBranch.Id }, newBranch);
         }
 
         [HttpPut("branches/{id}")]
-        public async Task<IActionResult> UpdateBranch(int id, [FromBody] Branch branch)
+        public async Task<IActionResult> UpdateBranch(int id, [FromBody] CreateBranchRequest branch)
         {
-            if (id != branch.Id) return BadRequest();
-            await _repository.UpdateBranchAsync(branch);
+            var branch1 = await _context.Branches.FindAsync(id);
+            if (branch1 == null)
+            {
+                return NotFound($"No branch found with ID {id}");
+            }
+
+            branch1.BranchName = branch.BranchName;
+            branch1.Address = branch.Address;
+            branch1.City = branch.City;
+            branch1.State = branch.State;
+            branch1.Country = branch.Country;
+
+            _context.Entry(branch1).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+
             return NoContent();
         }
 
         [HttpDelete("branches/{id}")]
         public async Task<IActionResult> DeleteBranch(int id)
         {
-            await _repository.DeleteBranchAsync(id);
+            var branch = await _context.Branches.FindAsync(id);
+            if (branch == null)
+            {
+                return NotFound($"No branch found with ID {id}");
+            }
+
+            _context.Branches.Remove(branch);
+            await _context.SaveChangesAsync();
+
             return NoContent();
         }
 

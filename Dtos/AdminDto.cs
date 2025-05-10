@@ -15,3 +15,12 @@ public class CreateGradeRequest
     public string? Description { get; set; }
     public decimal BaseSalary { get; set; }
 }
+
+public class CreateBranchRequest
+{
+    public string BranchName { get; set; } = null!;
+    public string? Address { get; set; }
+    public string? City { get; set; }
+    public string? State { get; set; }
+    public string? Country { get; set; }
+}

@@ -11,7 +11,7 @@ namespace HRApi.Repository
 
         public AdminRepository(AppDbContext context, IConfiguration config)
         {
-            _context = context;
+        _context = context;
             _config = config;
         }
 
@@ -25,13 +25,23 @@ namespace HRApi.Repository
             return await _context.Branches.FindAsync(id);
         }
 
-        public async Task AddBranchAsync(Branch branch)
+        public async Task AddBranchAsync(CreateBranchRequest branch)
         {
-            _context.Branches.Add(branch);
+            var newBranch = new Branch
+            {
+                BranchName = branch.BranchName,
+                Address = branch.Address,
+                City = branch.City,
+                State = branch.State,
+                Country = branch.Country,
+                CreatedAt = DateTime.UtcNow
+            };
+            
+            _context.Branches.Add(newBranch);
             await _context.SaveChangesAsync();
         }
 
-        public async Task UpdateBranchAsync(Branch branch)
+        public async Task UpdateBranchAsync(CreateBranchRequest branch)
         {
             _context.Entry(branch).State = EntityState.Modified;
             await _context.SaveChangesAsync();

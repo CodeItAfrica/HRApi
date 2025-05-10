@@ -109,13 +109,11 @@ public class AuthController : ControllerBase
 
         // This is where the auto generated id will be set, both for the employeeId and the staffId ----- we might need to add a a foreign key constraint linking the employee table to the user table
         var staffIdNo = await _idService.GenerateUniqueStaffIdAsync();
-        var employeeIdNo = await _idService.GenerateUniqueEmployeeIdAsync();
 
         try
         {
             var employee = new Employee
             {
-                Id = employeeIdNo,
                 StaffIdNo = staffIdNo,
                 Title = request.Title,
                 Surname = request.Surname,
@@ -178,7 +176,7 @@ public class AuthController : ControllerBase
 
             var user = new User
             {
-                EmployeeId = employeeIdNo,
+                EmployeeId = employee.Id,
                 Email = request.Email,
                 // PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
                 PasswordHash = request.Password,
