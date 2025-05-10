@@ -16,39 +16,37 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddScoped<AuthRepository>();
-builder.Services.AddScoped<EmployeeService>();
+builder.Services.AddScoped<IDService>();
 
 builder.Services.AddSwaggerGen(s =>
 {
-    s.SwaggerDoc("v1", new OpenApiInfo
-    {
-        Title = "Sterling Api", // 👈 Change this to whatever name you want
-        Version = "v1",
+  s.SwaggerDoc("v1", new OpenApiInfo
+  {
+    Title = "Sterling Api", // 👈 Change this to whatever name you want
+    Version = "v1",
 
-    });
+  });
 
+  s.CustomOperationIds(e =>
+  {
+    return e.TryGetMethodInfo(out MethodInfo methodInfo) ? methodInfo.Name : null;
 
+    //var controllerAction = (ControllerActionDescriptor)e.ActionDescriptor;
+    //return controllerAction.ActionName;
+  });
 
-    s.CustomOperationIds(e =>
-    {
-        return e.TryGetMethodInfo(out MethodInfo methodInfo) ? methodInfo.Name : null;
-
-        //var controllerAction = (ControllerActionDescriptor)e.ActionDescriptor;
-        //return controllerAction.ActionName;
-    });
-
-    s.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    {
-        Description = @"JWT Authorization header using the Bearer scheme. \r\n\r\n 
+  s.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+  {
+    Description = @"JWT Authorization header using the Bearer scheme. \r\n\r\n 
                                     Enter 'Bearer' [space] and then your token in the text input below.
                                     \r\n\r\nExample: 'Bearer 12345abcdef'",
-        Name = "Authorization",
-        In = ParameterLocation.Header,
-        Type = SecuritySchemeType.ApiKey,
-        Scheme = "Bearer"
-    });
+    Name = "Authorization",
+    In = ParameterLocation.Header,
+    Type = SecuritySchemeType.ApiKey,
+    Scheme = "Bearer"
+  });
 
-    s.AddSecurityRequirement(new OpenApiSecurityRequirement()
+  s.AddSecurityRequirement(new OpenApiSecurityRequirement()
                   {
                     {
                       new OpenApiSecurityScheme
@@ -70,23 +68,30 @@ builder.Services.AddSwaggerGen(s =>
 
 builder.Services.AddAuthentication(x =>
 {
-    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+  x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+  x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 })
 .AddJwtBearer(x =>
 {
-    x.SaveToken = true;
-    x.RequireHttpsMetadata = false;
-    x.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = false,
-        ValidateAudience = false,
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
-    };
+  x.SaveToken = true;
+  x.RequireHttpsMetadata = false;
+  x.TokenValidationParameters = new TokenValidationParameters
+  {
+    ValidateIssuer = false,
+    ValidateAudience = false,
+    ValidateIssuerSigningKey = true,
+    IssuerSigningKey = new SymmetricSecurityKey(
+              Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+  };
 });
 
+builder.Services.AddCors(options =>
+{
+  options.AddPolicy("AllowAll", policy =>
+      policy.AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader());
+});
 
 builder.Services.AddAuthorization();
 
@@ -98,16 +103,15 @@ builder.Services.AddControllers();
 
 var app = builder.Build();
 
-
-
-    app.UseSwagger();
-    app.UseSwaggerUI();
-
+app.UseSwagger();
+app.UseSwaggerUI();
 
 if (!app.Environment.IsDevelopment())
 {
-    app.UseHttpsRedirection();
+  app.UseHttpsRedirection();
 }
+
+app.UseCors("AllowAll");
 
 app.UseAuthentication();
 app.UseAuthorization();
