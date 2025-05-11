@@ -46,7 +46,7 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginRequest request)
     {
-        var user = await _context.Users.FirstOrDefaultAsync(x => x.Email == request.Email);
+        var user = await _context.Users.Include(u => u.Employee).FirstOrDefaultAsync(x => x.Email == request.Email);
 
         // if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
         //     return Unauthorized("Invalid email or password");
@@ -68,7 +68,7 @@ public class AuthController : ControllerBase
             Token = token,
             UserId = user.Id,
             Email = user.Email,
-            Name = user?.Employee?.Surname + " " + user?.Employee?.OtherNames,
+            Name = user?.Employee?.Surname + ", " + user?.Employee?.OtherNames,
             Surname = user?.Employee?.Surname,
             EmployeeId = user?.EmployeeId,
             Roles = roles
