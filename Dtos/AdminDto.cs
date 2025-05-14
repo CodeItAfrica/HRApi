@@ -24,3 +24,11 @@ public class CreateBranchRequest
     public string? State { get; set; }
     public string? Country { get; set; }
 }
+
+public class CreateTrainingProgramRequest
+{
+    public string? Title { get; set; }
+    public string? Description { get; set; }
+    public DateTime StartDate { get; set; }
+    public DateTime EndDate { get; set; }
+}
