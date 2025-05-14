@@ -53,7 +53,10 @@ public class DepartmentController : ControllerBase
     }
 
     [HttpPut("update/{id}")]
-    public async Task<IActionResult> UpdateDepartment(int id, [FromBody] CreateDepartmentRequest request)
+    public async Task<IActionResult> UpdateDepartment(
+        int id,
+        [FromBody] CreateDepartmentRequest request
+    )
     {
         if (string.IsNullOrEmpty(request.DepartmentName))
         {
@@ -79,7 +82,7 @@ public class DepartmentController : ControllerBase
         department.DepartmentName = request.DepartmentName;
         await _context.SaveChangesAsync();
 
-        return Ok(new { message = "Department has been updated successfully." });
+        return Ok(department);
     }
 
     [HttpDelete("delete/{id}")]
@@ -96,5 +99,16 @@ public class DepartmentController : ControllerBase
 
         return Ok(new { message = "Department has been deleted successfully." });
     }
-}
 
+    [HttpGet("get/{id}")]
+    public async Task<IActionResult> GetDepartment(int id)
+    {
+        var department = await _context.Departments.FindAsync(id);
+        if (department == null)
+        {
+            return NotFound($"No department found with ID {id}");
+        }
+
+        return Ok(department);
+    }
+}
