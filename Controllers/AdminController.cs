@@ -243,5 +243,69 @@ namespace HRApi.Controllers
 
             return NoContent();
         }
+
+        // FAQ routes
+
+        [HttpGet("get-faqs")]
+        public async Task<IActionResult> GetFAQs()
+        {
+            var faqs = await _context.FAQs.ToListAsync();
+            return Ok(faqs);
+        }
+
+        [HttpGet("faq/{id}")]
+        public async Task<IActionResult> GetFAQ(int id)
+        {
+            var faq = await _context.FAQs.FindAsync(id);
+            if (faq == null)
+            {
+                return NotFound($"No FAQ found with ID {id}");
+            }
+
+            return Ok(faq);
+        }
+
+        [HttpPost("faq/create")]
+        public async Task<IActionResult> AddFAQ([FromBody] CreateFAQRequest request)
+        {
+            var faq = new Admin.FAQ { Question = request.Question, Answer = request.Answer };
+
+            _context.FAQs.Add(faq);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetFAQ), new { id = faq.FAQID }, faq);
+        }
+
+        [HttpPut("faq/{id}")]
+        public async Task<IActionResult> UpdateFAQ(int id, [FromBody] CreateFAQRequest request)
+        {
+            var faq = await _context.FAQs.FindAsync(id);
+            if (faq == null)
+            {
+                return NotFound($"No FAQ found with ID {id}");
+            }
+
+            faq.Question = request.Question;
+            faq.Answer = request.Answer;
+
+            _context.Entry(faq).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+
+            return Ok(faq);
+        }
+
+        [HttpDelete("faq/{id}")]
+        public async Task<IActionResult> DeleteFAQ(int id)
+        {
+            var faq = await _context.FAQs.FindAsync(id);
+            if (faq == null)
+            {
+                return NotFound($"No FAQ found with ID {id}");
+            }
+            _context.FAQs.Remove(faq);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
     }
 }

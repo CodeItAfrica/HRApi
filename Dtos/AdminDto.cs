@@ -37,3 +37,9 @@ public class CreateBankRequest
 {
     public string? BankName { get; set; }
 }
+
+public class CreateFAQRequest
+{
+    public string? Question { get; set; }
+    public string? Answer { get; set; }
+}
