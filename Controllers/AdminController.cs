@@ -105,7 +105,9 @@ namespace HRApi.Controllers
             return NoContent();
         }
 
-        [HttpGet("get-training-program")]
+        // Training Program Controllers and Routes
+
+        [HttpGet("get-training-programs")]
         public async Task<IActionResult> GetTrainingPrograms()
         {
             var trainingPrograms = await _context.TrainingPrograms.ToListAsync();
@@ -174,6 +176,69 @@ namespace HRApi.Controllers
                 return NotFound($"No training program found with ID {id}");
             }
             _context.TrainingPrograms.Remove(trainingProgram);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        // Bank Controllers and Routes
+
+        [HttpGet("get-banks")]
+        public async Task<IActionResult> GetBanks()
+        {
+            var banks = await _context.Banks.ToListAsync();
+            return Ok(banks);
+        }
+
+        [HttpGet("bank/{id}")]
+        public async Task<IActionResult> GetBank(int id)
+        {
+            var bank = await _context.Banks.FindAsync(id);
+            if (bank == null)
+            {
+                return NotFound($"No bank found with ID {id}");
+            }
+
+            return Ok(bank);
+        }
+
+        [HttpPost("bank/create")]
+        public async Task<IActionResult> AddBank([FromBody] CreateBankRequest request)
+        {
+            var bank = new Admin.Bank { BankName = request.BankName };
+
+            _context.Banks.Add(bank);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetBank), new { id = bank.BankID }, bank);
+        }
+
+        [HttpPut("bank/{id}")]
+        public async Task<IActionResult> UpdateBank(int id, [FromBody] CreateBankRequest request)
+        {
+            var bank = await _context.Banks.FindAsync(id);
+            if (bank == null)
+            {
+                return NotFound($"No bank found with ID {id}");
+            }
+
+            bank.BankName = request.BankName;
+
+            _context.Entry(bank).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+
+            return Ok(bank);
+        }
+
+        [HttpDelete("bank/{id}")]
+        public async Task<IActionResult> DeleteBank(int id)
+        {
+            var bank = await _context.Banks.FindAsync(id);
+            if (bank == null)
+            {
+                return NotFound($"No bank found with ID {id}");
+            }
+            _context.Banks.Remove(bank);
             await _context.SaveChangesAsync();
 
             return NoContent();

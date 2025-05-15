@@ -32,3 +32,8 @@ public class CreateTrainingProgramRequest
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
 }
+
+public class CreateBankRequest
+{
+    public string? BankName { get; set; }
+}
