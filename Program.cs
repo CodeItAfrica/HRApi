@@ -17,6 +17,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddScoped<AuthRepository>();
+builder.Services.AddScoped<AdminRepository>();
 builder.Services.AddScoped<IDService>();
 
 builder.Services.AddSwaggerGen(s =>

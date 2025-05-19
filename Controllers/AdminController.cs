@@ -1,8 +1,10 @@
 ﻿using HRApi.Data;
 using HRApi.Models;
+using HRApi.Repository;
 using HRApi.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using static HRApi.Models.Admin;
 
 namespace HRApi.Controllers
 {
@@ -12,14 +14,71 @@ namespace HRApi.Controllers
     {
 
         private readonly AppDbContext _context;
+        private readonly AdminRepository _adminRepository;
+
         private readonly IConfiguration _config;
         private readonly IDService _idService;
 
-        public AdminController(AppDbContext context, IConfiguration config, IDService idService)
+
+        public AdminController(AppDbContext context, IConfiguration config, AdminRepository adminRepository, IDService idService)
         {
             _context = context;
             _config = config;
+            _adminRepository = adminRepository;
             _idService = idService;
+        }
+        [HttpGet("jobtitles")]
+        public async Task<IActionResult> GetJobTitles()
+        {
+            return Ok(await _adminRepository.GetJobTitlesAsync());
+        }
+
+        [HttpGet("jobtitles/{id}")]
+        public async Task<IActionResult> GetJobTitle(int id)
+        {
+            var jobTitle = await _adminRepository.GetJobTitleAsync(id);
+            if (jobTitle == null) return NotFound();
+            return Ok(jobTitle);
+        }
+
+        [HttpPost("jobtitles")]
+        public async Task<IActionResult> AddJobTitle([FromBody] JobTitleDto dto)
+        {
+            var department = await _context.Departments.FirstOrDefaultAsync(d => d.DepartmentName == dto.DepartmentName);
+            if (department == null) return BadRequest("Department not found");
+
+            var jobTitle = new JobTitle
+            {
+                TitleName = dto.TitleName,
+                DepartmentID = department.Id,
+                CreatedAt = DateTime.Now
+            };
+
+            await _adminRepository.AddJobTitleAsync(jobTitle);
+            return CreatedAtAction(nameof(GetJobTitle), new { id = jobTitle.JobTitleID }, jobTitle);
+        }
+
+        [HttpPut("jobtitles/{id}")]
+        public async Task<IActionResult> UpdateJobTitle(int id, [FromBody] JobTitleDto dto)
+        {
+            var jobTitle = await _adminRepository.GetJobTitleAsync(id);
+            if (jobTitle == null) return NotFound();
+
+            var department = await _context.Departments.FirstOrDefaultAsync(d => d.DepartmentName == dto.DepartmentName);
+            if (department == null) return BadRequest("Department not found");
+
+            jobTitle.TitleName = dto.TitleName;
+            jobTitle.DepartmentID = department.Id;
+
+            await _adminRepository.UpdateJobTitleAsync(jobTitle);
+            return NoContent();
+        }
+
+        [HttpDelete("jobtitles/{id}")]
+        public async Task<IActionResult> DeleteJobTitle(int id)
+        {
+            await _adminRepository.DeleteJobTitleAsync(id);
+            return NoContent();
         }
 
 

@@ -24,3 +24,8 @@ public class CreateBranchRequest
     public string? State { get; set; }
     public string? Country { get; set; }
 }
+public class JobTitleDto
+{
+    public string TitleName { get; set; }
+    public string DepartmentName { get; set; }
+}
