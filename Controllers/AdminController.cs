@@ -2,12 +2,14 @@
 using HRApi.Models;
 using HRApi.Repository;
 using HRApi.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using static HRApi.Models.Admin;
 
 namespace HRApi.Controllers
 {
+    [Authorize(Roles = "ADMIN")]
     [Route("api/[controller]")]
     [ApiController]
     public class AdminController : ControllerBase
@@ -26,6 +28,59 @@ namespace HRApi.Controllers
             _adminRepository = adminRepository;
             _idService = idService;
         }
+
+        [HttpPost("notifications")]
+        public async Task<IActionResult> CreateNotification([FromBody] CreateNotificationDto dto)
+        {
+            var result = await _adminRepository.SendNotificationAsync(dto);
+            if (!result) return NotFound("Employee not found.");
+            return Ok("Notification sent successfully.");
+        }
+
+        [HttpGet("notifications")]
+        public async Task<IActionResult> GetNotifications()
+        {
+            var notifications = await _adminRepository.GetAllNotificationsAsync();
+            return Ok(notifications);
+        }
+
+
+        [HttpGet("announcements")]
+        public async Task<IActionResult> GetAllAnnouncements()
+        {
+            var items = await _adminRepository.GetAllAnnouncementsAsync();
+            return Ok(items);
+        }
+
+        [HttpGet("announcements/{id}")]
+        public async Task<IActionResult> GetAnnouncement(int id)
+        {
+            var item = await _adminRepository.GetAnnouncementByIdAsync(id);
+            if (item == null) return NotFound();
+            return Ok(item);
+        }
+
+        [HttpPost("announcements")]
+        public async Task<IActionResult> CreateAnnouncement([FromBody] Announcement announcement)
+        {
+            var created = await _adminRepository.CreateAnnouncementAsync(announcement);
+            return CreatedAtAction(nameof(GetAnnouncement), new { id = created.Id }, created);
+        }
+
+        [HttpPut("announcements/{id}")]
+        public async Task<IActionResult> UpdateAnnouncement(int id, [FromBody] Announcement updated)
+        {
+            var success = await _adminRepository.UpdateAnnouncementAsync(id, updated);
+            return success ? NoContent() : NotFound();
+        }
+
+        [HttpDelete("announcements/{id}")]
+        public async Task<IActionResult> DeleteAnnouncement(int id)
+        {
+            var success = await _adminRepository.DeleteAnnouncementAsync(id);
+            return success ? NoContent() : NotFound();
+        }
+
         [HttpGet("jobtitles")]
         public async Task<IActionResult> GetJobTitles()
         {

@@ -32,7 +32,7 @@ namespace HRApi.Models
 
         // Navigation properties
         public virtual ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
-        public virtual ICollection<Announcement> Announcements { get; set; } = new List<Announcement>();
+        //public virtual ICollection<Announcement> Announcements { get; set; } = new List<Announcement>();
         public virtual ICollection<PayAuditLog> AuditLogs { get; set; } = new List<PayAuditLog>();
     }
 }

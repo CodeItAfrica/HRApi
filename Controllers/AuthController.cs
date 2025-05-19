@@ -218,13 +218,14 @@ public class AuthController : ControllerBase
         var result = await _authRepository.ResetPasswordAsync(model.Email, model.ResetCode, model.NewPassword);
         return result ? Ok("Password reset successful.") : BadRequest("Failed to reset password.");
     }
-
-    // [Authorize(Roles = "Admin")]
-    [HttpGet("admin-data")]
-    public IActionResult GetAdminData()
-    {
-        return Ok("This is protected for Admins");
-    }
 }
+
+//    // [Authorize(Roles = "Admin")]
+//    [HttpGet("admin-data")]
+//    public IActionResult GetAdminData()
+//    {
+//        return Ok("This is protected for Admins");
+//    }
+//}
 
 

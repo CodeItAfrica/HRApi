@@ -1,4 +1,6 @@
-﻿using HRApi.Data;
+﻿using System.Net.Mail;
+using System.Net;
+using HRApi.Data;
 using HRApi.Models;
 using Microsoft.EntityFrameworkCore;
 using static HRApi.Models.Admin;
@@ -15,7 +17,129 @@ namespace HRApi.Repository
         _context = context;
             _config = config;
         }
+        public async Task<bool> SendNotificationAsync(CreateNotificationDto dto)
+        {
+            var employee = await _context.Employees.FindAsync(dto.EmployeeId);
+            if (employee == null) return false;
 
+            string fullName = employee.Surname + " " + (employee.OtherNames ?? "");
+
+            var notification = new Notification
+            {
+                Receiver = fullName.Trim(),
+                Subject = dto.Subject,
+                Body = dto.Body,
+                CreatedAt = DateTime.Now
+            };
+
+            _context.Notifications.Add(notification);
+            await _context.SaveChangesAsync();
+
+            // Send email
+            await SendEmailAsync(employee.Email, dto.Subject, dto.Body);
+
+            return true;
+        }
+
+        public async Task<IEnumerable<Notification>> GetAllNotificationsAsync()
+        {
+            return await _context.Notifications.OrderByDescending(n => n.CreatedAt).ToListAsync();
+        }
+
+
+        public async Task SendEmailAsync(string toEmail, string subject, string body)
+        {
+            var smtpHost = _config["Smtp:Host"];
+            var smtpPort = int.Parse(_config["Smtp:Port"]);
+            var smtpUser = _config["Smtp:Username"];
+            var smtpPass = _config["Smtp:Password"];
+            var sender = _config["Smtp:Sender"];
+
+            using (var client = new SmtpClient(smtpHost, smtpPort))
+            {
+                client.Credentials = new NetworkCredential(smtpUser, smtpPass);
+                client.EnableSsl = true;
+
+                var mailMessage = new MailMessage
+                {
+                    From = new MailAddress(smtpUser, "Human Resource"),  // Replace with your name
+                    Subject = subject,
+                    Body = body,
+                    IsBodyHtml = true
+                };
+
+                mailMessage.To.Add(toEmail);
+
+                try
+                {
+                    // Console.WriteLine("I ran 22")
+                    await client.SendMailAsync(mailMessage);
+                }
+                catch (SmtpException ex)
+                {
+                    // Print more detailed exception message for debugging
+                    Console.WriteLine($"Error sending email: {ex.ToString()}");
+                }
+            }
+        }
+
+        public async Task<IEnumerable<Announcement>> GetAllAnnouncementsAsync()
+        {
+            return await _context.Announcements.ToListAsync();
+        }
+
+        public async Task<Announcement> GetAnnouncementByIdAsync(int id)
+        {
+            return await _context.Announcements.FindAsync(id);
+        }
+
+        public async Task<Announcement> CreateAnnouncementAsync(Announcement announcement)
+        {
+            announcement.CreatedAt = DateTime.Now;
+            announcement.PostedAt = DateTime.Now;
+
+            _context.Announcements.Add(announcement);
+            await _context.SaveChangesAsync();
+
+            var emails = await _context.Employees.Select(e => e.Email).ToListAsync();
+            foreach (var email in emails)
+            {
+                await SendEmailAsync(email, announcement.Title, announcement.Message);
+            }
+
+            return announcement;
+        }
+
+        public async Task<bool> UpdateAnnouncementAsync(int id, Announcement updatedAnnouncement)
+        {
+            var announcement = await _context.Announcements.FindAsync(id);
+            if (announcement == null) return false;
+
+            announcement.Title = updatedAnnouncement.Title;
+            announcement.Message = updatedAnnouncement.Message;
+            announcement.PostedBy = updatedAnnouncement.PostedBy;
+            announcement.PostedAt = updatedAnnouncement.PostedAt;
+
+            await _context.SaveChangesAsync();
+
+            var emails = await _context.Employees.Select(e => e.Email).ToListAsync();
+            foreach (var email in emails)
+            {
+                await SendEmailAsync(email, $"[Updated] {announcement.Title}", announcement.Message);
+            }
+
+            return true;
+        }
+
+        public async Task<bool> DeleteAnnouncementAsync(int id)
+        {
+            var announcement = await _context.Announcements.FindAsync(id);
+            if (announcement == null) return false;
+
+            _context.Announcements.Remove(announcement);
+            await _context.SaveChangesAsync();
+            return true;
+        }
 
         public async Task<List<JobTitle>> GetJobTitlesAsync()
         {

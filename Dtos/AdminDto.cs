@@ -48,3 +48,10 @@ public class JobTitleDto
     public string TitleName { get; set; }
     public string DepartmentName { get; set; }
 }
+
+public class CreateNotificationDto
+{
+    public int EmployeeId { get; set; }
+    public string Subject { get; set; }
+    public string Body { get; set; }
+}

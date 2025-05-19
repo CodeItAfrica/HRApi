@@ -145,7 +145,7 @@ namespace HRApi.Repository
 
                 var mailMessage = new MailMessage
                 {
-                    From = new MailAddress(smtpUser, "Edward Philip"),  // Replace with your name
+                    From = new MailAddress(smtpUser, "Human Resource"),  // Replace with your name
                     Subject = subject,
                     Body = body,
                     IsBodyHtml = true
