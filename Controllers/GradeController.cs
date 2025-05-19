@@ -83,11 +83,11 @@ public class GradeController : ControllerBase
 
         await _context.SaveChangesAsync();
 
-        return NoContent();
+        return Ok(grade);
     }
 
     [HttpDelete("delete/{id}")]
-    public async Task<IActionResult> DeleteGrade(int id)
+public async Task<IActionResult> DeleteGrade(int id)
     {
         var grade = await _context.Grades.FindAsync(id);
         if (grade == null)
@@ -100,7 +100,7 @@ public class GradeController : ControllerBase
 
         return NoContent();
     }
-    
+
     [HttpGet("get/{id}")]
     public async Task<IActionResult> GetGrade(int id)
     {

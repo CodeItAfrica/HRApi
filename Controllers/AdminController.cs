@@ -12,7 +12,6 @@ namespace HRApi.Controllers
     [ApiController]
     public class AdminController : ControllerBase
     {
-
         private readonly AppDbContext _context;
         private readonly AdminRepository _adminRepository;
 
@@ -81,11 +80,20 @@ namespace HRApi.Controllers
             return NoContent();
         }
 
-
         [HttpGet("get-branches")]
         public async Task<IActionResult> GetBranches()
         {
-            var branches = await _context.Branches.Select(u => new { u.Id, u.BranchName, u.Address, u.City, u.State, u.Country }).ToListAsync();
+            var branches = await _context
+                .Branches.Select(u => new
+                {
+                    u.Id,
+                    u.BranchName,
+                    u.Address,
+                    u.City,
+                    u.State,
+                    u.Country,
+                })
+                .ToListAsync();
             return Ok(branches);
         }
 
@@ -156,5 +164,207 @@ namespace HRApi.Controllers
             return NoContent();
         }
 
+        // Training Program Controllers and Routes
+
+        [HttpGet("get-training-programs")]
+        public async Task<IActionResult> GetTrainingPrograms()
+        {
+            var trainingPrograms = await _context.TrainingPrograms.ToListAsync();
+            return Ok(trainingPrograms);
+        }
+
+        [HttpGet("training-program/{id}")]
+        public async Task<IActionResult> GetTrainingProgram(int id)
+        {
+            var trainingProgram = await _context.TrainingPrograms.FindAsync(id);
+            if (trainingProgram == null)
+            {
+                return NotFound($"No training program found with ID {id}");
+            }
+
+            return Ok(trainingProgram);
+        }
+
+        [HttpPost("training-program/create")]
+        public async Task<IActionResult> AddTrainingProgram([FromBody] CreateTrainingProgramRequest request)
+        {
+            var trainingProgram = new Admin.TrainingProgram
+            {
+                Title = request.Title,
+                Description = request.Description,
+                StartDate = request.StartDate,
+                EndDate = request.EndDate,
+            };
+
+            _context.TrainingPrograms.Add(trainingProgram);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(
+                nameof(GetTrainingProgram),
+                new { id = trainingProgram.TrainingID },
+                trainingProgram
+            );
+        }
+
+        [HttpPut("training-program/{id}")]
+        public async Task<IActionResult> UpdateTrainingProgram(int id, [FromBody] CreateTrainingProgramRequest request)
+        {
+            var trainingProgram = await _context.TrainingPrograms.FindAsync(id);
+            if (trainingProgram == null)
+            {
+                return NotFound($"No training program found with ID {id}");
+            }
+
+            trainingProgram.Title = request.Title;
+            trainingProgram.Description = request.Description;
+            trainingProgram.StartDate = request.StartDate;
+            trainingProgram.EndDate = request.EndDate;
+
+            _context.Entry(trainingProgram).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+
+            return Ok(trainingProgram);
+        }
+
+        [HttpDelete("training-program/{id}")]
+        public async Task<IActionResult> DeleteTrainingProgram(int id)
+        {
+            var trainingProgram = await _context.TrainingPrograms.FindAsync(id);
+            if (trainingProgram == null)
+            {
+                return NotFound($"No training program found with ID {id}");
+            }
+            _context.TrainingPrograms.Remove(trainingProgram);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        // Bank Controllers and Routes
+
+        [HttpGet("get-banks")]
+        public async Task<IActionResult> GetBanks()
+        {
+            var banks = await _context.Banks.ToListAsync();
+            return Ok(banks);
+        }
+
+        [HttpGet("bank/{id}")]
+        public async Task<IActionResult> GetBank(int id)
+        {
+            var bank = await _context.Banks.FindAsync(id);
+            if (bank == null)
+            {
+                return NotFound($"No bank found with ID {id}");
+            }
+
+            return Ok(bank);
+        }
+
+        [HttpPost("bank/create")]
+        public async Task<IActionResult> AddBank([FromBody] CreateBankRequest request)
+        {
+            var bank = new Admin.Bank { BankName = request.BankName };
+
+            _context.Banks.Add(bank);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetBank), new { id = bank.BankID }, bank);
+        }
+
+        [HttpPut("bank/{id}")]
+        public async Task<IActionResult> UpdateBank(int id, [FromBody] CreateBankRequest request)
+        {
+            var bank = await _context.Banks.FindAsync(id);
+            if (bank == null)
+            {
+                return NotFound($"No bank found with ID {id}");
+            }
+
+            bank.BankName = request.BankName;
+
+            _context.Entry(bank).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+
+            return Ok(bank);
+        }
+
+        [HttpDelete("bank/{id}")]
+        public async Task<IActionResult> DeleteBank(int id)
+        {
+            var bank = await _context.Banks.FindAsync(id);
+            if (bank == null)
+            {
+                return NotFound($"No bank found with ID {id}");
+            }
+            _context.Banks.Remove(bank);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        // FAQ routes
+
+        [HttpGet("get-faqs")]
+        public async Task<IActionResult> GetFAQs()
+        {
+            var faqs = await _context.FAQs.ToListAsync();
+            return Ok(faqs);
+        }
+
+        [HttpGet("faq/{id}")]
+        public async Task<IActionResult> GetFAQ(int id)
+        {
+            var faq = await _context.FAQs.FindAsync(id);
+            if (faq == null)
+            {
+                return NotFound($"No FAQ found with ID {id}");
+            }
+
+            return Ok(faq);
+        }
+
+        [HttpPost("faq/create")]
+        public async Task<IActionResult> AddFAQ([FromBody] CreateFAQRequest request)
+        {
+            var faq = new Admin.FAQ { Question = request.Question, Answer = request.Answer };
+
+            _context.FAQs.Add(faq);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetFAQ), new { id = faq.FAQID }, faq);
+        }
+
+        [HttpPut("faq/{id}")]
+        public async Task<IActionResult> UpdateFAQ(int id, [FromBody] CreateFAQRequest request)
+        {
+            var faq = await _context.FAQs.FindAsync(id);
+            if (faq == null)
+            {
+                return NotFound($"No FAQ found with ID {id}");
+            }
+
+            faq.Question = request.Question;
+            faq.Answer = request.Answer;
+
+            _context.Entry(faq).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+
+            return Ok(faq);
+        }
+
+        [HttpDelete("faq/{id}")]
+        public async Task<IActionResult> DeleteFAQ(int id)
+        {
+            var faq = await _context.FAQs.FindAsync(id);
+            if (faq == null)
+            {
+                return NotFound($"No FAQ found with ID {id}");
+            }
+            _context.FAQs.Remove(faq);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
     }
 }

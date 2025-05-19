@@ -24,8 +24,22 @@ public class CreateBranchRequest
     public string? State { get; set; }
     public string? Country { get; set; }
 }
-public class JobTitleDto
+
+public class CreateTrainingProgramRequest
 {
-    public string TitleName { get; set; }
-    public string DepartmentName { get; set; }
+    public string? Title { get; set; }
+    public string? Description { get; set; }
+    public DateTime StartDate { get; set; }
+    public DateTime EndDate { get; set; }
+}
+
+public class CreateBankRequest
+{
+    public string? BankName { get; set; }
+}
+
+public class CreateFAQRequest
+{
+    public string? Question { get; set; }
+    public string? Answer { get; set; }
 }

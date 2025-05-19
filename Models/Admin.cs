@@ -7,7 +7,6 @@ namespace HRApi.Models
         public class JobTitle
         {
             [Key]
-
             public int JobTitleID { get; set; }
             public string? TitleName { get; set; }
             public int DepartmentID { get; set; }
@@ -51,6 +50,5 @@ namespace HRApi.Models
             public DateTime EndDate { get; set; }
             public DateTime CreatedAt { get; set; } = DateTime.Now;
         }
-
     }
 }
