@@ -43,3 +43,8 @@ public class CreateFAQRequest
     public string? Question { get; set; }
     public string? Answer { get; set; }
 }
+public class JobTitleDto
+{
+    public string TitleName { get; set; }
+    public string DepartmentName { get; set; }
+}
