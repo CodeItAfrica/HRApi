@@ -56,8 +56,8 @@ public class AuthController : ControllerBase
 
         // var employee = await _context.Employees.FirstOrDefaultAsync(x => x.Id == user.EmployeeId);
 
-        var roles = await _context.UserRoles
-            .Where(r => r.UserId == user.Id)
+        var roles = await _context
+            .UserRoles.Where(r => r.UserId == user.Id)
             .Select(r => r.Role.RoleName)
             .ToListAsync();
 

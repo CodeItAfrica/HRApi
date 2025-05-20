@@ -87,7 +87,7 @@ public class GradeController : ControllerBase
     }
 
     [HttpDelete("delete/{id}")]
-public async Task<IActionResult> DeleteGrade(int id)
+    public async Task<IActionResult> DeleteGrade(int id)
     {
         var grade = await _context.Grades.FindAsync(id);
         if (grade == null)

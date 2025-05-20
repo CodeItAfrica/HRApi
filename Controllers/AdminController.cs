@@ -20,7 +20,6 @@ namespace HRApi.Controllers
         private readonly IConfiguration _config;
         private readonly IDService _idService;
 
-
         public AdminController(AppDbContext context, IConfiguration config, AdminRepository adminRepository, IDService idService)
         {
             _context = context;

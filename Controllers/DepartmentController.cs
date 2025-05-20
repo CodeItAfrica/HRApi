@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore;
 
 [ApiController]
 [Route("api/[controller]")]
-
 public class DepartmentController : ControllerBase
 {
     private readonly AppDbContext _context;

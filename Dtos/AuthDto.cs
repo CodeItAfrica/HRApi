@@ -137,6 +137,7 @@ public class RegisterRequest
 
     [StringLength(50)]
     public string? HmoId { get; set; }
+    public string? ModifiedBy { get; set; }
 }
 
 public class LoginResponse
