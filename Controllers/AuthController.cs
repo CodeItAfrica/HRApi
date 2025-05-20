@@ -86,7 +86,8 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("register")]
-    public async Task<IActionResult> Register([FromBody] RegisterRequest request)
+    [Consumes("multipart/form-data")]
+    public async Task<IActionResult> Register([FromForm] RegisterRequest request, IFormFile? Photo)
     {
         // This ensures that the email and password fields are not empty, i needed to be sure because i was getting an error yesterday
         if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password))
@@ -112,6 +113,24 @@ public class AuthController : ControllerBase
 
         try
         {
+            string? savedFileName = null;
+
+            if (Photo != null && Photo.Length > 0)
+            {
+                var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Uploads");
+                if (!Directory.Exists(uploadsFolder))
+                    Directory.CreateDirectory(uploadsFolder);
+
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(Photo.FileName);
+                var filePath = Path.Combine(uploadsFolder, fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await Photo.CopyToAsync(stream);
+                }
+
+                savedFileName = fileName;
+            }
             var employee = new Employee
             {
                 StaffIdNo = staffIdNo,
@@ -153,7 +172,7 @@ public class AuthController : ControllerBase
                 DisableType = request.DisableType,
                 Remarks = request.Remarks,
                 Tag = request.Tag,
-                Photo = request.Photo,
+                Photo = savedFileName,
                 PayFirstMonth = request.PayFirstMonth,
                 SheetId2 = request.SheetId2,
                 ConfirmStatus = request.ConfirmStatus,

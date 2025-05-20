@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Swashbuckle.AspNetCore.Annotations;
 
 public class LoginRequest
 {
@@ -114,8 +115,8 @@ public class RegisterRequest
     [StringLength(100)]
     public string? Tag { get; set; }
 
-    [StringLength(250)]
-    public string? Photo { get; set; }
+    //[SwaggerSchema("Upload a photo")]
+    //public IFormFile? PhotoFile { get; set; }
 
     public bool? PayFirstMonth { get; set; }
 

@@ -106,14 +106,31 @@ public class EmployeeController : ControllerBase
     }
 
     [HttpPut("update-profile")]
-    public async Task<IActionResult> UpdateEmployeeProfile(string id, [FromBody] RegisterRequest request)
+    public async Task<IActionResult> UpdateEmployeeProfile(string id, [FromForm] RegisterRequest request, IFormFile? Photo)
+
     {
         var employee = await _context.Employees.FindAsync(id);
         if (employee == null)
         {
             return NotFound("Employee not found");
         }
+        // Handle photo upload
+        if (Photo != null && Photo.Length > 0)
+        {
+            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Uploads");
+            if (!Directory.Exists(uploadsFolder))
+                Directory.CreateDirectory(uploadsFolder);
 
+            var fileName = Guid.NewGuid().ToString() + Path.GetExtension(Photo.FileName);
+            var filePath = Path.Combine(uploadsFolder, fileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await Photo.CopyToAsync(stream);
+            }
+
+            employee.Photo = fileName;
+        }
         employee.Email = request.Email;
         employee.Email2 = request.Email2;
         employee.Title = request.Title;
@@ -148,7 +165,6 @@ public class EmployeeController : ControllerBase
         employee.DisableType = request.DisableType;
         employee.Remarks = request.Remarks;
         employee.Tag = request.Tag;
-        employee.Photo = request.Photo;
         employee.PayFirstMonth = request.PayFirstMonth;
         employee.SheetId2 = request.SheetId2;
         employee.ConfirmStatus = request.ConfirmStatus;
