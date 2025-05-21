@@ -68,6 +68,7 @@ public class AuthController : ControllerBase
             Token = token,
             UserId = user.Id,
             Email = user.Email,
+            Photo = user.Employee?.Photo,
             Name = user?.Employee?.Surname + ", " + user?.Employee?.OtherNames,
             Surname = user?.Employee?.Surname,
             EmployeeId = user?.EmployeeId,

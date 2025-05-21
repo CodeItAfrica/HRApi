@@ -150,6 +150,7 @@ public class LoginResponse
     public string Email { get; set; } = null!;
 
     public string? Name { get; set; }
+    public string? Photo { get; set; }
 
     public string? Surname { get; set; }
 
