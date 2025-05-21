@@ -6,6 +6,7 @@ using HRApi.Repository;
 using HRApi.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
@@ -114,7 +115,11 @@ app.UseSwaggerUI();
 
 
     app.UseHttpsRedirection();
-
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "Uploads")),
+    RequestPath = "/uploads"
+});
 
 app.UseCors("AllowAll");
 
