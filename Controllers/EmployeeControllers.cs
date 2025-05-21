@@ -13,6 +13,28 @@ public class EmployeeController : ControllerBase
     }
 
     [HttpGet("get")]
+    public async Task<IActionResult> GetEmployees()
+    {
+        var users = await _context
+            .Users.Include(u => u.Employee)
+            .Select(static u => new
+            {
+                u.Id,
+                u.EmployeeId,
+                u.Email,
+                FullName = u.Employee != null
+                    ? (
+                        u.Employee.Title + " " + u.Employee.Surname + " " + u.Employee.OtherNames
+                    ).Trim()
+                    : null,
+                Photo = u.Employee != null ? u.Employee.Photo : null,
+            })
+            .ToListAsync();
+
+        return Ok(users);
+    }
+
+    [HttpGet("get/{id}")]
     public async Task<IActionResult> GetEmployeeProfile(int id)
     {
         var employee = await _context
