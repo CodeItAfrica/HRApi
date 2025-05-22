@@ -66,130 +66,48 @@ public class EmployeeResponse
 
 public class UpdateEmployeeRequest
 {
-    [Required]
-    [EmailAddress]
-    [StringLength(100)]
-    public string Email { get; set; } = null!;
-
-    [EmailAddress]
-    [StringLength(100)]
+    public string? Email { get; set; }
     public string? Email2 { get; set; }
-
-    [StringLength(20)]
     public string? Title { get; set; }
-
-    [Required]
-    [StringLength(100)]
-    public string Surname { get; set; } = null!;
-
-    [StringLength(200)]
+    public string? Surname { get; set; }
     public string? OtherNames { get; set; }
-
-    [Required]
-    [StringLength(20)]
-    public string Phone { get; set; } = null!;
-
-    [StringLength(20)]
+    public string? Phone { get; set; }
     public string? MobilePhone { get; set; }
-
-    [Required]
-    [StringLength(300)]
-    public string Address { get; set; } = null!;
-
-    [Required]
-    [StringLength(100)]
-    public string State { get; set; } = null!;
-
-    [Required]
-    [StringLength(100)]
-    public string Country { get; set; } = null!;
-
-    [Required]
-    [StringLength(10)]
-    public string Sex { get; set; } = null!;
-
-    [StringLength(20)]
+    public string? Address { get; set; }
+    public string? State { get; set; }
+    public string? Country { get; set; }
+    public string? Sex { get; set; }
     public string? MaritalStatus { get; set; }
-
-    [StringLength(100)]
     public string? StateOrigin { get; set; }
-
-    [StringLength(50)]
     public string? NationalIdNo { get; set; }
-
-    [StringLength(50)]
     public string? AcctNo1 { get; set; }
-
-    [StringLength(100)]
     public string? AcctName1 { get; set; }
-
-    [StringLength(50)]
     public string? AcctNo2 { get; set; }
-
-    [StringLength(100)]
     public string? AcctName2 { get; set; }
-
     public int? BranchId { get; set; }
-
     public int? DeptId { get; set; }
-
     public int? UnitId { get; set; }
-
     public int? GradeId { get; set; }
-
     public DateOnly? BirthDate { get; set; }
-
     public DateOnly? HireDate { get; set; }
-
-    [StringLength(150)]
     public string? NextKin { get; set; }
-
-    [StringLength(300)]
     public string? KinAddress { get; set; }
-
-    [StringLength(20)]
     public string? KinPhone { get; set; }
-
-    [StringLength(50)]
     public string? KinRelationship { get; set; }
-
     public decimal? Height { get; set; }
-
     public decimal? Weight { get; set; }
-
     public bool? Smoker { get; set; }
-
-    [StringLength(100)]
     public string? DisableType { get; set; }
-
-    [StringLength(500)]
     public string? Remarks { get; set; }
-
-    [StringLength(100)]
     public string? Tag { get; set; }
-
-    //[SwaggerSchema("Upload a photo")]
-    //public IFormFile? PhotoFile { get; set; }
-
     public bool? PayFirstMonth { get; set; }
-
-    [StringLength(50)]
     public string? SheetId2 { get; set; }
-
     public bool? ConfirmStatus { get; set; }
-
     public int? ConfirmDuration { get; set; }
-
     public DateOnly? ConfirmationDate { get; set; }
-
     public DateOnly? RetiredDate { get; set; }
-
-    public bool? Active { get; set; } = true;
-
-    [StringLength(100)]
+    public bool? Active { get; set; }
     public string? HmoName { get; set; }
-
-    [StringLength(50)]
     public string? HmoId { get; set; }
     public string? ModifiedBy { get; set; }
 }
