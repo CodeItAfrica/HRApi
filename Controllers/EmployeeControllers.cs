@@ -128,7 +128,7 @@ public class EmployeeController : ControllerBase
     }
 
     [HttpPut("update-profile")]
-    public async Task<IActionResult> UpdateEmployeeProfile(string id, [FromForm] RegisterRequest request, IFormFile? Photo)
+    public async Task<IActionResult> UpdateEmployeeProfile(string id, [FromForm] UpdateEmployeeRequest request, IFormFile? Photo)
 
     {
         var employee = await _context.Employees.FindAsync(id);
