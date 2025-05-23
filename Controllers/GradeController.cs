@@ -17,7 +17,15 @@ public class GradeController : ControllerBase
     [HttpGet("get")]
     public async Task<IActionResult> GetGrades()
     {
-        var grades = await _context.Grades.Select(u => new { u.Id, u.GradeName, u.BaseSalary, u.Description }).ToListAsync();
+        var grades = await _context
+            .Grades.Select(u => new
+            {
+                u.Id,
+                u.GradeName,
+                u.BaseSalary,
+                u.Description,
+            })
+            .ToListAsync();
         return Ok(grades);
     }
 
@@ -31,8 +39,9 @@ public class GradeController : ControllerBase
 
         var normalizedGradeName = request.GradeName.Trim().ToLower();
 
-        var existingGrade = await _context.Grades
-            .FirstOrDefaultAsync(g => g.GradeName.ToLower() == normalizedGradeName);
+        var existingGrade = await _context.Grades.FirstOrDefaultAsync(g =>
+            g.GradeName.ToLower() == normalizedGradeName
+        );
 
         if (existingGrade != null)
         {
@@ -44,7 +53,7 @@ public class GradeController : ControllerBase
             GradeName = request.GradeName,
             Description = request.Description,
             BaseSalary = request.BaseSalary,
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow,
         };
 
         _context.Grades.Add(grade);
@@ -63,8 +72,9 @@ public class GradeController : ControllerBase
 
         var normalizedGradeName = request.GradeName.Trim().ToLower();
 
-        var existingGrade = await _context.Grades
-            .FirstOrDefaultAsync(g => g.Id != id && g.GradeName.ToLower() == normalizedGradeName);
+        var existingGrade = await _context.Grades.FirstOrDefaultAsync(g =>
+            g.Id != id && g.GradeName.ToLower() == normalizedGradeName
+        );
 
         if (existingGrade != null)
         {
@@ -93,6 +103,15 @@ public class GradeController : ControllerBase
         if (grade == null)
         {
             return NotFound($"No grade found with ID {id}");
+        }
+
+        var employeesWithGrade = await _context.Employees.Where(e => e.GradeId == id).CountAsync();
+
+        if (employeesWithGrade > 0)
+        {
+            return BadRequest(
+                $"Cannot delete grade. {employeesWithGrade} employee(s) are currently assigned to this grade."
+            );
         }
 
         _context.Grades.Remove(grade);

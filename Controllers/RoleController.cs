@@ -146,24 +146,84 @@ public class RoleController : ControllerBase
     [HttpGet("get-assigned-roles/{userId}")]
     public async Task<IActionResult> GetUserRoles(int userId)
     {
-        var userRoles = await _context.UserRoles.Where(ur => ur.UserId == userId).ToListAsync();
-        if (userRoles == null || userRoles.Count == 0)
+        var userWithRoles = await _context.UserRoles
+            .Where(ur => ur.UserId == userId)
+            .Include(ur => ur.User)
+            .Include(ur => ur.Role)
+            .Select(ur => new
+            {
+                UserId = ur.User.Id,
+                UserEmail = ur.User.Email,
+                ur.User.EmployeeId,
+                ur.User.IsActive,
+                RoleId = ur.Role.Id,
+                ur.Role.RoleName,
+                ur.AssignedAt,
+            })
+            .ToListAsync();
+
+        if (userWithRoles == null || userWithRoles.Count == 0)
         {
             return NotFound("No roles found for this user.");
         }
 
-        return Ok(userRoles);
+        // Group the data to return user info once with all roles
+        var result = new
+        {
+            userWithRoles.First().UserId,
+            userWithRoles.First().UserEmail,
+            userWithRoles.First().EmployeeId,
+            userWithRoles.First().IsActive,
+            Roles = userWithRoles.Select(ur => new
+            {
+                id = ur.RoleId,
+                ur.RoleName,
+                ur.AssignedAt
+            }).ToList()
+        };
+
+        return Ok(result);
     }
 
     [HttpGet("get-assigned-users/{roleId}")]
     public async Task<IActionResult> GetRoleUsers(int roleId)
     {
-        var roleUsers = await _context.UserRoles.Where(ur => ur.RoleId == roleId).ToListAsync();
-        if (roleUsers == null || roleUsers.Count == 0)
+        var roleWithUsers = await _context
+            .UserRoles.Where(ur => ur.RoleId == roleId)
+            .Include(ur => ur.Role)
+            .Include(ur => ur.User)
+            .Select(ur => new
+            {
+                RoleId = ur.Role.Id,
+                ur.Role.RoleName,
+                UserId = ur.User.Id,
+                UserEmail = ur.User.Email,
+                ur.User.EmployeeId,
+                ur.AssignedAt,
+            })
+            .ToListAsync();
+
+        if (roleWithUsers == null || roleWithUsers.Count == 0)
         {
             return NotFound("No users found for this role.");
         }
 
-        return Ok(roleUsers);
+        // Group the data to return role info once with all users
+        var result = new
+        {
+            roleWithUsers.First().RoleId,
+            roleWithUsers.First().RoleName,
+            Users = roleWithUsers
+                .Select(ru => new
+                {
+                    ru.UserId,
+                    Email = ru.UserEmail,
+                    ru.EmployeeId,
+                    ru.AssignedAt,
+                })
+                .ToList(),
+        };
+
+        return Ok(result);
     }
 }
