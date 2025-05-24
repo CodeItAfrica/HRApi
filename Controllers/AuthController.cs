@@ -1,4 +1,7 @@
-﻿using Azure.Core;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using Azure.Core;
 using HRApi.Data;
 using HRApi.Models;
 using HRApi.Repository;
@@ -8,9 +11,6 @@ using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -21,7 +21,12 @@ public class AuthController : ControllerBase
     private readonly AuthRepository _authRepository;
     private readonly IDService _idService;
 
-    public AuthController(AppDbContext context, IConfiguration config, AuthRepository authRepository, IDService idService)
+    public AuthController(
+        AppDbContext context,
+        IConfiguration config,
+        AuthRepository authRepository,
+        IDService idService
+    )
     {
         _context = context;
         _config = config;
@@ -32,13 +37,19 @@ public class AuthController : ControllerBase
     protected ActionResult ExceptionResult(Exception ex)
     {
         if (ex is null)
-            return StatusCode(500, "SecureControllerBase.ExceptionResult() ex parameter cannot be null");
+            return StatusCode(
+                500,
+                "SecureControllerBase.ExceptionResult() ex parameter cannot be null"
+            );
 
         if (ex is ArgumentException || ex is ArgumentNullException || ex is KeyNotFoundException)
             return BadRequest(ex.Message);
 
         if (ex.InnerException != null)
-            return StatusCode(500, ex.Message + "\n\n\n --- inner exception --- " + ex.InnerException.ToString());
+            return StatusCode(
+                500,
+                ex.Message + "\n\n\n --- inner exception --- " + ex.InnerException.ToString()
+            );
 
         return StatusCode(500, ex.Message);
     }
@@ -46,7 +57,9 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginRequest request)
     {
-        var user = await _context.Users.Include(u => u.Employee).FirstOrDefaultAsync(x => x.Email == request.Email);
+        var user = await _context
+            .Users.Include(u => u.Employee)
+            .FirstOrDefaultAsync(x => x.Email == request.Email);
 
         // if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
         //     return Unauthorized("Invalid email or password");
@@ -72,11 +85,10 @@ public class AuthController : ControllerBase
             Name = user?.Employee?.Surname + ", " + user?.Employee?.OtherNames,
             Surname = user?.Employee?.Surname,
             EmployeeId = user?.EmployeeId,
-            Roles = roles
+            Roles = roles,
         };
         return Ok(response);
     }
-
 
     [HttpPost("register-link")]
     public async Task<IActionResult> SendRegisterLink([FromBody] EmailRequest request)
@@ -132,6 +144,7 @@ public class AuthController : ControllerBase
 
                 savedFileName = fileName;
             }
+
             var employee = new Employee
             {
                 StaffIdNo = staffIdNo,
@@ -202,10 +215,20 @@ public class AuthController : ControllerBase
                 PasswordHash = request.Password,
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
+                UpdatedAt = DateTime.UtcNow,
             };
 
             _context.Users.Add(user);
+            await _context.SaveChangesAsync();
+
+            var userRole = new UserRole
+            {
+                UserId = user.Id,
+                RoleId = 1,
+                AssignedAt = DateTime.UtcNow,
+            };
+
+            _context.UserRoles.Add(userRole);
             await _context.SaveChangesAsync();
 
             await transaction.CommitAsync();
@@ -221,7 +244,9 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> VerifyRegisterCode([FromBody] CodeVerificationRequest model)
     {
         var token = await _authRepository.VerifyRegisterCodeAsync(model.Email, model.Code);
-        return token == null ? Unauthorized("Invalid or expired code.") : Ok(new { message = "OTP verification successful", token });
+        return token == null
+            ? Unauthorized("Invalid or expired code.")
+            : Ok(new { message = "OTP verification successful", token });
     }
 
     [HttpPost("forgot-password")]
@@ -235,7 +260,11 @@ public class AuthController : ControllerBase
     [HttpPost("reset-password")]
     public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest model)
     {
-        var result = await _authRepository.ResetPasswordAsync(model.Email, model.ResetCode, model.NewPassword);
+        var result = await _authRepository.ResetPasswordAsync(
+            model.Email,
+            model.ResetCode,
+            model.NewPassword
+        );
         return result ? Ok("Password reset successful.") : BadRequest("Failed to reset password.");
     }
 }
@@ -247,5 +276,3 @@ public class AuthController : ControllerBase
 //        return Ok("This is protected for Admins");
 //    }
 //}
-
-

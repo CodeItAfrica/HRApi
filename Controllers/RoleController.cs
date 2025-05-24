@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore;
 
 [ApiController]
 [Route("api/[controller]")]
-
 public class RoleController : ControllerBase
 {
     private readonly AppDbContext _context;
@@ -22,6 +21,13 @@ public class RoleController : ControllerBase
         return Ok(roles);
     }
 
+    [HttpGet("get/user-roles")]
+    public async Task<IActionResult> GetUserRoles()
+    {
+        var userRoles = await _context.UserRoles.ToListAsync();
+        return Ok(userRoles);
+    }
+
     [HttpPost("create")]
     public async Task<IActionResult> CreateRole([FromBody] RoleNameBodyRequest request)
     {
@@ -32,19 +38,16 @@ public class RoleController : ControllerBase
 
         var normalizedRoleName = request.roleName.Trim().ToLower();
 
-        var existingRole = await _context.Roles
-            .FirstOrDefaultAsync(r => r.RoleName.ToLower() == normalizedRoleName);
+        var existingRole = await _context.Roles.FirstOrDefaultAsync(r =>
+            r.RoleName.ToLower() == normalizedRoleName
+        );
 
         if (existingRole != null)
         {
             return Conflict($"The role '{request.roleName}' already exists.");
         }
 
-        var role = new Role
-        {
-            RoleName = request.roleName,
-            CreatedAt = DateTime.UtcNow
-        };
+        var role = new Role { RoleName = request.roleName, CreatedAt = DateTime.UtcNow };
 
         _context.Roles.Add(role);
         await _context.SaveChangesAsync();
@@ -67,8 +70,9 @@ public class RoleController : ControllerBase
         }
 
         var normalizedRoleName = request.roleName.Trim().ToLower();
-        var existingRole = await _context.Roles
-            .FirstOrDefaultAsync(r => r.RoleName.ToLower() == normalizedRoleName && r.Id != id);
+        var existingRole = await _context.Roles.FirstOrDefaultAsync(r =>
+            r.RoleName.ToLower() == normalizedRoleName && r.Id != id
+        );
 
         if (existingRole != null)
         {
@@ -118,7 +122,7 @@ public class RoleController : ControllerBase
             // UserEmail = user.Email,
             RoleId = request.RoleId,
             // RoleName = role.RoleName,
-            AssignedAt = DateTime.UtcNow
+            AssignedAt = DateTime.UtcNow,
         };
 
         _context.UserRoles.Add(userRole);
@@ -131,7 +135,9 @@ public class RoleController : ControllerBase
     [HttpDelete("remove-role/{userId}/{roleId}")]
     public async Task<IActionResult> RemoveRole(int userId, int roleId)
     {
-        var userRole = await _context.UserRoles.FirstOrDefaultAsync(ur => ur.UserId == userId && ur.RoleId == roleId);
+        var userRole = await _context.UserRoles.FirstOrDefaultAsync(ur =>
+            ur.UserId == userId && ur.RoleId == roleId
+        );
         if (userRole == null)
         {
             return NotFound("User role not found.");
@@ -146,8 +152,8 @@ public class RoleController : ControllerBase
     [HttpGet("get-assigned-roles/{userId}")]
     public async Task<IActionResult> GetUserRoles(int userId)
     {
-        var userWithRoles = await _context.UserRoles
-            .Where(ur => ur.UserId == userId)
+        var userWithRoles = await _context
+            .UserRoles.Where(ur => ur.UserId == userId)
             .Include(ur => ur.User)
             .Include(ur => ur.Role)
             .Select(ur => new
@@ -174,12 +180,14 @@ public class RoleController : ControllerBase
             userWithRoles.First().UserEmail,
             userWithRoles.First().EmployeeId,
             userWithRoles.First().IsActive,
-            Roles = userWithRoles.Select(ur => new
-            {
-                id = ur.RoleId,
-                ur.RoleName,
-                ur.AssignedAt
-            }).ToList()
+            Roles = userWithRoles
+                .Select(ur => new
+                {
+                    id = ur.RoleId,
+                    ur.RoleName,
+                    ur.AssignedAt,
+                })
+                .ToList(),
         };
 
         return Ok(result);
