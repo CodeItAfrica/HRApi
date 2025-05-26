@@ -18,17 +18,27 @@ public class EmployeeController : ControllerBase
     {
         var users = await _context
             .Users.Include(u => u.Employee)
+            .ThenInclude(u => u.Branch)
+            .Include(u => u.Employee)
+            .ThenInclude(u => u.Grade)
             .Select(static u => new
             {
                 u.Id,
                 u.EmployeeId,
                 u.Email,
-                FullName = u.Employee != null
-                    ? (
-                        u.Employee.Title + " " + u.Employee.Surname + " " + u.Employee.OtherNames
-                    ).Trim()
+                Surname = u.Employee != null ? (u.Employee.Surname).Trim() : null,
+                OtherNames = u.Employee != null && u.Employee.OtherNames != null
+                    ? u.Employee.OtherNames.Trim()
                     : null,
-                Photo = u.Employee != null ? u.Employee.Photo : null,
+                Grade = u.Employee != null && u.Employee.Grade != null
+                    ? u.Employee.Grade.GradeName
+                    : null,
+                Branch = u.Employee != null
+                && u.Employee.Branch != null
+                && u.Employee.Branch.BranchName != null
+                    ? u.Employee.Branch.BranchName
+                    : null,
+                HiredDate = u.Employee != null ? u.Employee.HireDate : null,
             })
             .ToListAsync();
 
