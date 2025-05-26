@@ -1,0 +1,48 @@
+{
+  
+  "insured": {
+    "title": "Ms",
+    "lastName": "Aliko",
+    "firstName": "Omolara",
+    "otherName": "Ejokparoghene",
+    "gender": "FEMALE",
+    "email": "lara.aliko@fake-email.ng",
+    "address": "49 Fake Street, Fake Area",
+    "phoneLine1": "04190000000",
+    "phoneLine2": null,
+    "isOrg": true,
+    "orgName": "Sample Company",
+    "orgRegNumber": "RC419",
+    "orgRegDate": "2017-04-09",
+    "cityLGA": "Maitama",
+    "stateID": "Abuja",
+    "nationality": "Nigeria",
+    "dateOfBirth": "2025-03-05",
+    "kycType": "NATIONAL_ID_CARD",
+    "kycNumber": "NIN419NIN",
+    "kycIssueDate": null,
+    "kycExpiryDate": null,
+    "nextOfKin": {
+      "title": "string",
+      "lastName": "string",
+      "firstName": "string",
+      "otherName": "string",
+      "gender": "MALE",
+      "email": "user@example.com",
+      "address": "string",
+      "phoneLine1": "string",
+      "phoneLine2": "string"
+    }
+  },
+	"branchID": "100",
+  "agentID": "G/A/410000808",
+  "customerID": "01071804775",
+  "productID": "AP",
+  "startDate": "2025-04-09",
+  "endDate": "2026-04-09",
+   "sumInsured": 0,
+  "grossPremium": 0
+}
+  
+    }
+  

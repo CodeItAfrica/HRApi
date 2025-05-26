@@ -1,0 +1,478 @@
+
+Partial Class webroot_web_modules_admin_Insured_new
+    Inherits System.Web.UI.Page
+    Public CapPerm As Integer = 0
+
+    Protected Sub Page_Load(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Load
+        If Not Page.IsPostBack Then
+            'mod_combo_fill.FillDropPartiesGrid(Me.cdbParty2)
+            Dim ClientID As String = Request.QueryString("edit-id")
+            Dim Type As String = Request.QueryString("class")
+            Select Case Type
+                Case "CORP"
+                    Me.lbName.Text = "Client Name:"
+                    Me.txtOtherName.Visible = False
+                    Me.lbotherName.Visible = False
+                Case "IND"
+                    Me.lbName.Text = "Surname:"
+                    Me.txtOtherName.Visible = True
+                    Me.lbotherName.Visible = True
+            End Select
+            DisableInput(Me.txtEntryDate)
+            If settings.COMPANY_ABREV = "oceanic" Then
+                Me.txtEntryDate.Visible = False
+                Me.Label33.Visible = False
+            End If
+
+            mod_ui_helpers.MakeDatePicker(Me, Me.txtEntryDate, Now)
+            'mod_ui_helpers.MakeDatePicker(Me, Me.txtStartsDate, Now)
+            'mod_ui_helpers.MakeDatePicker(Me, Me.txtExpiryDate, Now.AddDays(364))
+            mod_combo_fill.FillMktStaff(Me.cdbStaff)
+            mod_combo_fill.FillParties(Me.cdbParty)
+            mod_combo_fill.FillOccupation(Me.ddlOccupation)
+            'mod_combo_fill.FillExpiryType(Me.cdbExpiryType)
+
+            'CheckCurrUserPermission(PermissionEnum.UND_CLIENT_VIEW)
+            If ClientID <> "" Then
+                Dim Rec As Gibs5.CodPayor = (New cls_Payor).SelectThis(ClientID)
+                Me.RadioButtonList1.SelectedValue = Rec.ClientType
+                mod_ui_helpers.DisableInput(Me.txtClientCode)
+
+                If Rec.ClientType = "INDIVIDUAL" Then
+                    Me.divInsuredDetails.Visible = True
+                    Me.txtClientCode.Text = Rec.Code & vbNullString
+                    Me.txtSurName.Text = Rec.Party & vbNullString
+                    Me.txtAddress.Text = Rec.Address & vbNullString
+                    Me.ddlOccupation.SelectedValue = Rec.Area & vbNullString
+                    Me.cdbExpiryType.SelectedValue = Rec.Tag & vbNullString
+                    Me.cdbStaff.SelectedValue = Rec.MktStaffID & vbNullString
+                    Me.cdbParty.SelectedValue = Rec.BrokerID & vbNullString
+                    'Me.RdActivation.SelectedValue = Rec.FaxNo & vbNullString
+                    Me.cbState.SelectedValue = Rec.State & vbNullString
+                    Me.txtMobilePhone.Text = Rec.Phone1 & vbNullString
+                    Me.txtOtherPhones.Text = Rec.Phone2 & vbNullString
+                    Me.txtContactPhone.Text = Rec.FinPerson & vbNullString
+                    Me.txtEntryDate.Text = Rec.TransDate & vbNullString
+                    Dim Captype As Integer = Rec.ComRate & vbNullString
+                    If Captype = 0 Then
+                        Me.chkCapAllow.Checked = False
+                    Else
+                        Me.chkCapAllow.Checked = True
+                    End If
+                    Me.txtEmail.Text = Rec.Email
+                    Me.txtContactPerson.Text = Rec.InsPerson
+                    Me.txtclientLocation.Text = Rec.City & vbNullString
+                    Me.txtOtherName.Text = Rec.OtherNames & vbNullString
+                    Me.cdbIdentificatn.SelectedValue = Rec.Status & vbNullString
+                    Me.txtIDNo.Text = Rec.Tag & vbNullString
+                    Me.txtBVN.Text = Rec.Remark & vbNullString
+                    Me.RadioButtonList1.SelectedValue = Rec.ClientType & vbNullString
+                    Me.btnOk.Text = "Submit"
+                    Me.RadioButtonList1.Enabled = False
+                    Me.cdbIdentificatn.Visible = True
+                    Me.lbMeansID.Visible = True
+
+                Else : Rec.ClientType = "CORPORATE"
+                    Me.divInsuredDetails.Visible = True
+                    Me.txtClientCode.Text = Rec.Code & vbNullString
+                    Me.txtSurName.Text = Rec.Party & vbNullString
+                    Me.txtAddress.Text = Rec.Address & vbNullString
+                    Me.ddlOccupation.SelectedValue = Rec.Area & vbNullString
+                    Me.cdbExpiryType.SelectedValue = Rec.Tag & vbNullString
+                    Me.cdbStaff.SelectedValue = Rec.MktStaffID & vbNullString
+                    Me.cdbParty.SelectedValue = Rec.BrokerID & vbNullString
+                    'Me.RdActivation.SelectedValue = Rec.FaxNo & vbNullString
+                    Me.cbState.SelectedValue = Rec.State & vbNullString
+                    Me.txtMobilePhone.Text = Rec.Phone1 & vbNullString
+                    Me.txtOtherPhones.Text = Rec.Phone2 & vbNullString
+                    Me.txtContactPhone.Text = Rec.FinPerson & vbNullString
+                    Me.txtEntryDate.Text = Rec.TransDate & vbNullString
+                    Dim Captype As Integer = Rec.ComRate & vbNullString
+                    If Captype = 0 Then
+                        Me.chkCapAllow.Checked = False
+                    Else
+                        Me.chkCapAllow.Checked = True
+                    End If
+                    Me.txtEmail.Text = Rec.Email
+                    Me.txtContactPerson.Text = Rec.InsPerson
+                    Me.txtclientLocation.Text = Rec.City & vbNullString
+                    Me.txtOtherName.Text = Rec.OtherNames & vbNullString
+                    Me.cdbIdentificatn.SelectedValue = Rec.Status & vbNullString
+                    Me.txtIDNo.Text = Rec.Tag & vbNullString
+                    Me.txtBVN.Text = Rec.Remark & vbNullString
+                    Me.RadioButtonList1.SelectedValue = Rec.ClientType & vbNullString
+                    Me.btnOk.Text = "Submit"
+                    Me.RadioButtonList1.Enabled = False
+                    Me.lbMeansID.Visible = False
+                    Me.cdbIdentificatn.Visible = False
+                    Me.lbMeansNo.Text = "RC Number"
+                    Me.LBVN.Text = "Tax Identification Number (TIN)"
+                End If
+
+                If Rec.ClientType = "INDIVIDUAL" Then 'individual
+                    Me.PlaceHolder1.Visible = True
+
+                    Me.divInsuredDetails.Visible = True
+
+
+                Else
+
+                    Me.PlaceHolder1.Visible = False
+
+
+
+                    Me.divInsuredDetails.Visible = True
+                    Me.RadioButtonList1.Enabled = False
+
+                End If
+
+                'mod_ui_helpers.DisableInput(Me.txtOtherPhones)
+                'mod_ui_helpers.DisableInput(Me.txtMobilePhone)
+                'mod_ui_helpers.DisableInput(Me.cbState)
+                'mod_ui_helpers.DisableInput(Me.RdActivation)
+                'mod_ui_helpers.DisableInput(Me.ddlOccupation)
+                'mod_ui_helpers.DisableInput(Me.txtAddress)
+                mod_ui_helpers.DisableInput(Me.txtSurName)
+                    mod_ui_helpers.DisableInput(Me.txtOtherName)
+                    'mod_ui_helpers.DisableInput(Me.txtclientLocation)
+
+                    'Me.party3.Enabled = False
+                    'mod_ui_helpers.DisableInput(Me.cdbStaff)
+                    'mod_ui_helpers.DisableInput(Me.cdbParty2)
+
+                    'mod_ui_helpers.DisableInput(Me.txtContactPerson)
+                    'mod_ui_helpers.DisableInput(Me.txtEmail)
+                    'mod_ui_helpers.DisableInput(Me.txtEntryDate)
+                    Me.btnOk.Visible = True
+                End If
+            End If
+
+    End Sub
+    ' Adjust field visibility based on RadioButtonList selection
+    Private Sub AdjustFieldVisibility()
+        Dim selection As String = RadioButtonList1.SelectedValue
+
+        If selection = "INDIVIDUAL" Then
+            Me.cdbIdentificatn.Visible = True
+            Me.lbMeansID.Visible = True
+        ElseIf selection = "CORPORATION" Then
+            Me.lbMeansID.Visible = False
+            Me.cdbIdentificatn.Visible = False
+            Me.lbMeansNo.Text = "RC Number"
+            Me.LBVN.Text = "Tax Identification Number (TIN)"
+        End If
+    End Sub
+    ' Handle RadioButtonList selection change (optional if AutoPostBack=True)
+    Protected Sub RadioButtonList1_SelectedIndexChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles RadioButtonList1.SelectedIndexChanged
+        AdjustFieldVisibility()
+        PanelDetails.Visible = True ' Display the panel containing details after selection
+    End Sub
+
+    Protected Sub btnOk_Click(ByVal sender As Object, ByVal e As System.EventArgs) Handles btnOk.Click
+
+        'If Me.cdbExpiryType.SelectedItem.Value = "NULL" Then
+        '    Msgbox1.ShowError("Select Expiry Type")
+        '    Exit Sub
+        'End If
+        If Me.cdbStaff.SelectedValue Is Nothing Then
+            Msgbox1.ShowError("marketing staff can not be empty .")
+            Exit Sub
+        End If
+        ' Retrieve the selected option from the RadioButtonList
+        Dim selection As String = RadioButtonList1.SelectedValue
+
+        Dim InsuredID As String = Request.QueryString("edit-id")
+        'If Me.chkCapAllow.Checked = True Then
+        '    CapPerm = 1
+        'Else
+        '    CapPerm = 0
+        'End If
+
+        Dim A As New cls_Payor
+        If InsuredID <> "" Then
+            'fetch the old data first
+            'CheckCurrUserPermission(PermissionEnum.UND_CLIENT_MODIFY)
+            Dim EditRec As Gibs5.CodPayor = A.SelectThis(InsuredID)
+            'EditRec.Party = Me.txtSurName.Text
+            'EditRec.FaxNo = Me.RdActivation.SelectedValue
+            'EditRec.OtherNames = Me.txtOtherName.Text
+
+            Dim MSGDetails As String = ""
+            If EditRec.Address <> Trim(Me.txtAddress.Text) Then
+                MSGDetails = EditRec.Address & " " & "modified to" & " " & Me.txtAddress.Text
+            End If
+
+            If EditRec.Area <> Trim(Me.ddlOccupation.SelectedValue) Then
+                MSGDetails += ", Occupation:" & " " & EditRec.Area & " " & "modified to" & " " & Me.ddlOccupation.SelectedValue
+            End If
+
+            If EditRec.State <> Trim(Me.cbState.SelectedValue) Then
+                MSGDetails += ", state:" & " " & EditRec.State & " " & "modified to" & " " & Me.cbState.SelectedValue
+            End If
+            If EditRec.Phone1 <> Trim(Me.txtMobilePhone.Text) Then
+                MSGDetails += ", mobile phone:" & " " & EditRec.Phone1 & " " & "modified to" & " " & Me.txtMobilePhone.Text
+            End If
+
+            If EditRec.Phone2 <> Trim(Me.txtOtherPhones.Text) Then
+                MSGDetails += ", Other Phones:" & " " & EditRec.Phone2 & " " & "modified to" & " " & Me.txtOtherPhones.Text
+            End If
+
+            If EditRec.TransDate <> Trim(Me.txtEntryDate.Text) Then
+                MSGDetails += ", Mkt Staff:" & " " & EditRec.TransDate & " " & "modified to" & " " & Me.txtEntryDate.Text
+            End If
+
+            If EditRec.ComRate <> Trim(CapPerm) Then
+                MSGDetails += ", Mkt Staff:" & " " & EditRec.ComRate & " " & "modified to" & " " & CapPerm
+            End If
+
+
+            If EditRec.Email <> Trim(Me.txtEmail.Text) Then
+                MSGDetails += ", Email:" & " " & EditRec.Email & " " & "modified to" & " " & Me.txtEmail.Text
+            End If
+
+
+            If EditRec.InsPerson <> Trim(Me.txtContactPerson.Text) Then
+                MSGDetails += ", Insurance Contact:" & " " & EditRec.InsPerson & " " & "modified to" & " " & Me.txtContactPerson.Text
+            End If
+
+
+            If EditRec.MktStaff <> Trim(Me.cdbStaff.SelectedItem.Value) Then
+                MSGDetails += ", Mkt Staff:" & " " & EditRec.MktStaff & " " & "modified to" & " " & Me.cdbStaff.SelectedItem.Text
+            End If
+
+
+            If EditRec.City <> Trim(Me.txtclientLocation.Text) Then
+                MSGDetails += ", Location" & " " & EditRec.City & "  " & "modified to" & " " & Me.txtclientLocation.Text
+            End If
+
+
+            EditRec.Address = Me.txtAddress.Text
+            EditRec.Area = Me.ddlOccupation.SelectedValue
+            EditRec.State = Me.cbState.SelectedValue
+            EditRec.Phone1 = Me.txtMobilePhone.Text
+            EditRec.Phone2 = Me.txtOtherPhones.Text
+            EditRec.TransDate = Me.txtEntryDate.Text
+            EditRec.ComRate = CapPerm
+            EditRec.Email = Me.txtEmail.Text
+            EditRec.InsPerson = Me.txtContactPerson.Text
+            EditRec.FinPerson = Me.txtContactPhone.Text
+            EditRec.MktStaffID = Me.cdbStaff.SelectedItem.Value
+            EditRec.MktStaff = Me.cdbStaff.SelectedItem.Text
+            EditRec.BrokerID = Me.cdbParty.SelectedItem.Value
+            EditRec.BrokerName = Me.cdbParty.SelectedItem.Text
+            'EditRec.Remark = ""
+            'EditRec.Tag = "" 'Me.cdbExpiryType.SelectedItem.Value
+            EditRec.City = Me.txtclientLocation.Text
+            EditRec.ModifiedBy = mod_main.getLoggedOnUsername()
+            EditRec.ModifiedOn = DateTime.Now
+            EditRec.Tag = Me.txtIDNo.Text
+            EditRec.Remark = Me.txtBVN.Text
+            ' Conditional assignment based on RadioButtonList selection
+            If selection = "INDIVIDUAL" Then
+
+                EditRec.Status = Me.cdbIdentificatn.SelectedValue
+            ElseIf selection = "CORPORATION" Then
+
+                EditRec.Status = Nothing
+
+            End If
+            'commit to database here
+            Dim res As ResponseInfo = A.Update(EditRec)
+
+            If res.ErrorCode = 0 Then
+
+                Try
+                    Call mod_main.InsertAuditTrailDetails("EDIT", "UNDERWRITING", "CLIENT_DETAILS", MSGDetails, mod_main.getLoggedOnUsername())
+                Catch
+                End Try
+                Response.Redirect("postings.aspx?" & mod_main.getQueryString(, "edit-id"))
+            Else
+                Me.Msgbox1.ShowError(res.ErrorMessage & " " & res.ExtraMessage)
+
+                'LogError(Request.UserHostAddress, "Update Users", res.ErrorMessage, True)
+            End If
+        Else
+            'create a new instance
+
+
+            'CheckCurrUserPermission(PermissionEnum.UND_CLIENT_NEW)
+            Select Case Request.QueryString("class")
+                Case "CORP"
+                    Dim CorporateName As String
+                    CorporateName = Trim(Me.txtSurName.Text)
+                    CorporateName = Replace(CorporateName, vbCrLf, "") 'removed enter
+                    CorporateName = Replace(CorporateName, vbCr, "") 'cariage return
+                    CorporateName = Replace(CorporateName, vbLf, "") 'line feed
+                    CorporateName = Replace(CorporateName, "  ", " ") 'double space
+                    Dim I As Gibs5.CodPayor = (New cls_Payor).SelectThisCorporateName(CorporateName)
+                    If I.Code <> "" Then
+                        Me.Msgbox1.ShowError("Please confirm if this insured does not Exist in system by Searching")
+                        Exit Sub
+                    End If
+                Case "IND"
+                    Dim Surname As String
+                    Dim FirstName As String
+
+                    Surname = Trim(Me.txtSurName.Text)
+                    Surname = Replace(Surname, vbCrLf, "") 'removed enter
+                    Surname = Replace(Surname, vbCr, "") 'cariage return
+                    Surname = Replace(Surname, vbLf, "") 'line feed
+                    Surname = Replace(Surname, "  ", " ") 'double space
+
+                    FirstName = Trim(Me.txtOtherName.Text)
+                    FirstName = Replace(FirstName, vbCrLf, "") 'removed enter
+                    FirstName = Replace(FirstName, vbCr, "") 'cariage return
+                    FirstName = Replace(FirstName, vbLf, "") 'line feed
+                    FirstName = Replace(FirstName, "  ", " ") 'double space
+                    Dim I As Gibs5.CodPayor = (New cls_Payor).SelectThisIndividual(Surname, FirstName)
+                    If I.Code <> "" Then
+                        Me.Msgbox1.ShowError("Please confirm if this insured does not Exist in system by Searching")
+                        Exit Sub
+                    End If
+            End Select
+
+
+            If Me.chkCapAllow.Checked = True Then
+                CapPerm = 1
+            Else
+                CapPerm = 0
+            End If
+
+            Dim rec As New Gibs5.CodPayor
+
+            'pass the new values here
+            '---------- AUTONUMBER BEGINS HERE --------------------------------------------------
+            Dim strAutoNumber As String = (New cls_AutoNumber).getNextAutoNumber(Me.txtClientCode.Text,
+                                                            cls_AutoNumber.AutoNumEnum.OTHERS,
+                                                           "01")
+            If String.IsNullOrEmpty(strAutoNumber) Then
+                Msgbox1.ShowError("AutoNumber settings is invalid. Data was NOT saved.")
+                Exit Sub
+            End If
+            Me.txtClientCode.Text = strAutoNumber
+            '---------- AUTONUMBER ENDS HERE ----------------------------------------------------
+
+            rec.Code = Me.txtClientCode.Text
+            rec.Party = Me.txtSurName.Text
+            rec.Address = Me.txtAddress.Text
+            rec.Area = Me.ddlOccupation.SelectedValue
+            'rec.Status = ""
+            rec.FaxNo = "ACTIVE"
+            rec.State = Me.cbState.SelectedValue
+            rec.Phone1 = Me.txtMobilePhone.Text
+            rec.Phone2 = Me.txtOtherPhones.Text
+            rec.TransDate = Me.txtEntryDate.Text
+            rec.ComRate = CapPerm
+            rec.Email = Me.txtEmail.Text
+            rec.InsPerson = Me.txtContactPerson.Text
+            rec.FinPerson = Me.txtContactPhone.Text
+            'rec.MktStaffID = Me.cdbStaff.SelectedItem.Value
+            'rec.MktStaff = Me.cdbStaff.SelectedItem.Text
+            'rec.BrokerID = Me.cdbParty.SelectedItem.Value
+            'rec.BrokerName = Me.cdbParty.SelectedItem.Text
+            'rec.ClientType = Request.QueryString("class")
+            'rec.Remark = ""
+            'rec.Tag = ""
+            rec.ClientType = Me.RadioButtonList1.SelectedItem.Text
+            rec.City = Me.txtclientLocation.Text
+            rec.OtherNames = Me.txtOtherName.Text
+            rec.StartDate = Today.Date
+            rec.EndDate = Today.Date.AddDays(365)
+            rec.RenDate = Today.Date.AddDays(366)
+            rec.Tag = Me.txtIDNo.Text
+            rec.Remark = Me.txtBVN.Text
+            rec.SubmitBy = mod_main.getLoggedOnUsername()
+            rec.SubmitOn = DateTime.Now
+            ' Conditional assignment based on RadioButtonList selection
+            If selection = "INDIVIDUAL" Then
+
+                rec.Status = Me.cdbIdentificatn.SelectedValue
+            ElseIf selection = "CORPORATION" Then
+
+                rec.Status = Nothing
+
+            End If
+
+            Dim res As ResponseInfo = A.Insert(rec)
+            If res.ErrorCode = 0 Then
+                'Dim AA As Gibs5.CodPayor = (New cls_Payor).SelectThis(rec.Code)
+                'Dim GSM_No As String
+                'GSM_No = AA.Phone1
+                'If GSM_No <> "" Then
+                '    Dim SmsPrem_Msg As String = "Dear Valued Customer. Please be advised that you have been registered as an enrollee, your enrollee No is " & rec.Code & "  Kindly contact our Help Lines: 08134975325, or 08086110862, 08173206254 For further enquiries"
+                '    mod_main.SendSMSInThread("LIFECARE:", GSM_No, SmsPrem_Msg)
+                '    Call mod_main.InsertAuditTrailDetails("SMS_ALERT", GSM_No, "Claims_confirmation", SmsPrem_Msg, mod_main.getLoggedOnUsername())
+                'Else
+                '    GSM_No = "08023140962, 08033900171,08022907129,08023073738,08176981785,08066639328"
+                '    Dim SmsPrem_Msg As String = "Dear Valued Customer. Please be advised that you have been registered as an enrollee, your enrollee No is " & rec.Code & "  Kindly contact our Help Lines: 08134975325, or 08086110862, 08173206254 For further enquiries"
+                '    'mod_main.SendSMSInThread("PRESTIGEASS", GSM_No, SmsPrem_Msg)
+                '    Call mod_main.InsertAuditTrailDetails("SMS_ALERT", GSM_No, "NOT_SEND", SmsPrem_Msg, mod_main.getLoggedOnUsername())
+                'End If
+                Response.Redirect("postings.aspx?" & mod_main.getQueryString(, "edit-id"))
+            Else
+                Me.Msgbox1.ShowError(res.ErrorMessage & " " & res.ExtraMessage)
+                'LogError(Request.UserHostAddress, "Update users", res.ErrorMessage, True)
+            End If
+        End If
+
+    End Sub
+
+    Protected Sub btnCancel_Click(ByVal sender As Object, ByVal e As System.EventArgs) Handles btnCancel.Click
+        Response.Redirect("postings.aspx?" & mod_main.getQueryString(, "edit-id"))
+    End Sub
+
+
+    Protected Sub chkCapAllow_CheckedChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles chkCapAllow.CheckedChanged
+        If Me.chkCapAllow.Checked = True Then
+            CapPerm = 1
+        Else
+            CapPerm = 0
+        End If
+    End Sub
+
+    Protected Sub chkEdit_CheckedChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles chkEdit.CheckedChanged
+        If Me.chkEdit.Checked = True Then
+            'CheckCurrUserPermission(PermissionEnum.UND_CLIENT_MODIFY)
+
+            If Me.txtEntryDate.Text = "" Then
+                mod_ui_helpers.MakeDatePicker(Me, Me.txtEntryDate, Now)
+            End If
+            mod_ui_helpers.EnableInput(Me.txtOtherPhones)
+            mod_ui_helpers.EnableInput(Me.txtMobilePhone)
+            mod_ui_helpers.EnableInput(Me.cbState)
+            'mod_ui_helpers.EnableInput(Me.RdActivation)
+            mod_ui_helpers.EnableInput(Me.ddlOccupation)
+            mod_ui_helpers.EnableInput(Me.txtAddress)
+            'mod_ui_helpers.EnableInput(Me.txtSurName)
+            'mod_ui_helpers.EnableInput(Me.txtStartDate)
+            'mod_ui_helpers.EnableInput(Me.txtExpiryDate)
+            'mod_ui_helpers.EnableInput(Me.txtOtherName)
+            mod_ui_helpers.EnableInput(Me.txtclientLocation)
+            'Me.party3.Enabled = True
+            mod_ui_helpers.EnableInput(Me.cdbStaff)
+            'mod_ui_helpers.EnableInput(Me.cdbParty2)
+            mod_ui_helpers.EnableInput(Me.txtContactPerson)
+            mod_ui_helpers.EnableInput(Me.txtEmail)
+            mod_ui_helpers.EnableInput(Me.txtEntryDate)
+            Me.btnOk.Visible = True
+        Else
+            mod_ui_helpers.DisableInput(Me.txtOtherPhones)
+            mod_ui_helpers.DisableInput(Me.txtMobilePhone)
+            mod_ui_helpers.DisableInput(Me.cbState)
+            'mod_ui_helpers.DisableInput(Me.RdActivation)
+            mod_ui_helpers.DisableInput(Me.ddlOccupation)
+            mod_ui_helpers.DisableInput(Me.txtAddress)
+            mod_ui_helpers.DisableInput(Me.txtSurName)
+            mod_ui_helpers.DisableInput(Me.txtOtherName)
+            mod_ui_helpers.DisableInput(Me.txtclientLocation)
+            'Me.party3.Enabled = False
+            mod_ui_helpers.DisableInput(Me.cdbStaff)
+            'mod_ui_helpers.DisableInput(Me.cdbParty2)
+            mod_ui_helpers.DisableInput(Me.txtContactPerson)
+            mod_ui_helpers.DisableInput(Me.txtEmail)
+            mod_ui_helpers.DisableInput(Me.txtEntryDate)
+            Me.btnOk.Visible = False
+        End If
+
+    End Sub
+End Class

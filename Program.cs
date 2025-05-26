@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using System.Text;
+using System.Text.Json.Serialization;
 using HRApi;
 using HRApi.Data;
 using HRApi.Repository;
@@ -20,36 +21,41 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddScoped<AuthRepository>();
 builder.Services.AddScoped<AdminRepository>();
 builder.Services.AddScoped<IDService>();
+builder.Services.AddScoped<IssueService>();
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+});
 
 builder.Services.AddSwaggerGen(s =>
 {
-  s.SwaggerDoc("v1", new OpenApiInfo
-  {
-    Title = "Sterling Api", // 👈 Change this to whatever name you want
-    Version = "v1",
+    s.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "Sterling Api", // 👈 Change this to whatever name you want
+        Version = "v1",
 
-  });
+    });
 
-  s.CustomOperationIds(e =>
-  {
-    return e.TryGetMethodInfo(out MethodInfo methodInfo) ? methodInfo.Name : null;
+    s.CustomOperationIds(e =>
+    {
+        return e.TryGetMethodInfo(out MethodInfo methodInfo) ? methodInfo.Name : null;
 
-    //var controllerAction = (ControllerActionDescriptor)e.ActionDescriptor;
-    //return controllerAction.ActionName;
-  });
+        //var controllerAction = (ControllerActionDescriptor)e.ActionDescriptor;
+        //return controllerAction.ActionName;
+    });
 
-  s.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-  {
-    Description = @"JWT Authorization header using the Bearer scheme. \r\n\r\n 
+    s.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = @"JWT Authorization header using the Bearer scheme. \r\n\r\n 
                                     Enter 'Bearer' [space] and then your token in the text input below.
                                     \r\n\r\nExample: 'Bearer 12345abcdef'",
-    Name = "Authorization",
-    In = ParameterLocation.Header,
-    Type = SecuritySchemeType.ApiKey,
-    Scheme = "Bearer"
-  });
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
 
-  s.AddSecurityRequirement(new OpenApiSecurityRequirement()
+    s.AddSecurityRequirement(new OpenApiSecurityRequirement()
                   {
                     {
                       new OpenApiSecurityScheme
@@ -74,30 +80,30 @@ builder.Services.AddCors(o => o.AddPolicy("AllowOrigin", builder =>
 }));
 builder.Services.AddAuthentication(x =>
 {
-  x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-  x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 })
 .AddJwtBearer(x =>
 {
-  x.SaveToken = true;
-  x.RequireHttpsMetadata = false;
-  x.TokenValidationParameters = new TokenValidationParameters
-  {
-    ValidateIssuer = false,
-    ValidateAudience = false,
-    ValidateIssuerSigningKey = true,
-    IssuerSigningKey = new SymmetricSecurityKey(
-              Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
-  };
+    x.SaveToken = true;
+    x.RequireHttpsMetadata = false;
+    x.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = false,
+        ValidateAudience = false,
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+    };
 });
 
-builder.Services.AddCors(options =>
-{
-  options.AddPolicy("AllowAll", policy =>
-      policy.AllowAnyOrigin()
-            .AllowAnyMethod()
-            .AllowAnyHeader());
-});
+//builder.Services.AddCors(options =>
+//{
+//  options.AddPolicy("AllowAll", policy =>
+//      policy.AllowAnyOrigin()
+//            .AllowAnyMethod()
+//            .AllowAnyHeader());
+//})  
 
 builder.Services.AddAuthorization();
 
@@ -114,20 +120,29 @@ app.UseSwaggerUI();
 
 
 
-    app.UseHttpsRedirection();
+app.UseHttpsRedirection();
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "Uploads")),
     RequestPath = "/uploads"
 });
 
-app.UseCors("AllowAll");
+app.UseCors("AllowOrigin");
 
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseCorsMiddleware();
+//app.UseCorsMiddleware();
 
 app.MapControllers();
 
-app.Run();
+try
+{
+    app.Run();
+}
+catch (Exception ex)
+{
+    Console.WriteLine("App failed to start: " + ex);
+    throw;
+}
+
 

@@ -96,11 +96,21 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<TrainingProgram> TrainingPrograms { get; set; }
 
+    public DbSet<IssueReport> IssueReports { get; set; }
+    public DbSet<IssueAttachment> IssueAttachments  { get; set; }
+
 
     //     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     // #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
     //         => optionsBuilder.UseSqlServer("Server=tcp:108.181.199.153,10875;Initial Catalog=HRNewDb;User ID=sa;Password=Gibs@321.;Encrypt=False;Trust Server Certificate=True");
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder) { }
+    protected override void OnModelCreating(ModelBuilder modelBuilder) {
+
+        modelBuilder.Entity<IssueReport>()
+                .HasMany(ir => ir.Attachments)
+                .WithOne(a => a.IssueReport)
+                .HasForeignKey(a => a.IssueReportId)
+                .OnDelete(DeleteBehavior.Cascade);
+    }
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
