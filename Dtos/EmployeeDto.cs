@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 public class EmployeeResponse
 {
     public string? EmployeeId { get; set; }
@@ -60,4 +62,52 @@ public class EmployeeResponse
     public DateTime? ModifiedOn { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public List<string> Roles { get; set; } = new List<string>();
+}
+
+public class UpdateEmployeeRequest
+{
+    public string? Email { get; set; }
+    public string? Email2 { get; set; }
+    public string? Title { get; set; }
+    public string? Surname { get; set; }
+    public string? OtherNames { get; set; }
+    public string? Phone { get; set; }
+    public string? MobilePhone { get; set; }
+    public string? Address { get; set; }
+    public string? State { get; set; }
+    public string? Country { get; set; }
+    public string? Sex { get; set; }
+    public string? MaritalStatus { get; set; }
+    public string? StateOrigin { get; set; }
+    public string? NationalIdNo { get; set; }
+    public string? AcctNo1 { get; set; }
+    public string? AcctName1 { get; set; }
+    public string? AcctNo2 { get; set; }
+    public string? AcctName2 { get; set; }
+    public int? BranchId { get; set; }
+    public int? DeptId { get; set; }
+    public int? UnitId { get; set; }
+    public int? GradeId { get; set; }
+    public DateOnly? BirthDate { get; set; }
+    public DateOnly? HireDate { get; set; }
+    public string? NextKin { get; set; }
+    public string? KinAddress { get; set; }
+    public string? KinPhone { get; set; }
+    public string? KinRelationship { get; set; }
+    public decimal? Height { get; set; }
+    public decimal? Weight { get; set; }
+    public bool? Smoker { get; set; }
+    public string? DisableType { get; set; }
+    public string? Remarks { get; set; }
+    public string? Tag { get; set; }
+    public bool? PayFirstMonth { get; set; }
+    public string? SheetId2 { get; set; }
+    public bool? ConfirmStatus { get; set; }
+    public int? ConfirmDuration { get; set; }
+    public DateOnly? ConfirmationDate { get; set; }
+    public DateOnly? RetiredDate { get; set; }
+    public bool? Active { get; set; }
+    public string? HmoName { get; set; }
+    public string? HmoId { get; set; }
+    public string? ModifiedBy { get; set; }
 }

@@ -9,7 +9,6 @@ using static HRApi.Models.Admin;
 
 namespace HRApi.Controllers
 {
-    [Authorize(Roles = "ADMIN")]
     [Route("api/[controller]")]
     [ApiController]
     public class AdminController : ControllerBase
@@ -20,7 +19,12 @@ namespace HRApi.Controllers
         private readonly IConfiguration _config;
         private readonly IDService _idService;
 
-        public AdminController(AppDbContext context, IConfiguration config, AdminRepository adminRepository, IDService idService)
+        public AdminController(
+            AppDbContext context,
+            IConfiguration config,
+            AdminRepository adminRepository,
+            IDService idService
+        )
         {
             _context = context;
             _config = config;
@@ -28,11 +32,13 @@ namespace HRApi.Controllers
             _idService = idService;
         }
 
+        [Authorize(Roles = "ADMIN")]
         [HttpPost("notifications")]
         public async Task<IActionResult> CreateNotification([FromBody] CreateNotificationDto dto)
         {
             var result = await _adminRepository.SendNotificationAsync(dto);
-            if (!result) return NotFound("Employee not found.");
+            if (!result)
+                return NotFound("Employee not found.");
             return Ok("Notification sent successfully.");
         }
 
@@ -42,7 +48,6 @@ namespace HRApi.Controllers
             var notifications = await _adminRepository.GetAllNotificationsAsync();
             return Ok(notifications);
         }
-
 
         [HttpGet("announcements")]
         public async Task<IActionResult> GetAllAnnouncements()
@@ -55,10 +60,12 @@ namespace HRApi.Controllers
         public async Task<IActionResult> GetAnnouncement(int id)
         {
             var item = await _adminRepository.GetAnnouncementByIdAsync(id);
-            if (item == null) return NotFound();
+            if (item == null)
+                return NotFound();
             return Ok(item);
         }
 
+        [Authorize(Roles = "ADMIN")]
         [HttpPost("announcements")]
         public async Task<IActionResult> CreateAnnouncement([FromBody] Announcement announcement)
         {
@@ -66,6 +73,7 @@ namespace HRApi.Controllers
             return CreatedAtAction(nameof(GetAnnouncement), new { id = created.Id }, created);
         }
 
+        [Authorize(Roles = "ADMIN")]
         [HttpPut("announcements/{id}")]
         public async Task<IActionResult> UpdateAnnouncement(int id, [FromBody] Announcement updated)
         {
@@ -73,6 +81,7 @@ namespace HRApi.Controllers
             return success ? NoContent() : NotFound();
         }
 
+        [Authorize(Roles = "ADMIN")]
         [HttpDelete("announcements/{id}")]
         public async Task<IActionResult> DeleteAnnouncement(int id)
         {
@@ -90,35 +99,45 @@ namespace HRApi.Controllers
         public async Task<IActionResult> GetJobTitle(int id)
         {
             var jobTitle = await _adminRepository.GetJobTitleAsync(id);
-            if (jobTitle == null) return NotFound();
+            if (jobTitle == null)
+                return NotFound();
             return Ok(jobTitle);
         }
 
+        [Authorize(Roles = "ADMIN")]
         [HttpPost("jobtitles")]
         public async Task<IActionResult> AddJobTitle([FromBody] JobTitleDto dto)
         {
-            var department = await _context.Departments.FirstOrDefaultAsync(d => d.DepartmentName == dto.DepartmentName);
-            if (department == null) return BadRequest("Department not found");
+            var department = await _context.Departments.FirstOrDefaultAsync(d =>
+                d.DepartmentName == dto.DepartmentName
+            );
+            if (department == null)
+                return BadRequest("Department not found");
 
             var jobTitle = new JobTitle
             {
                 TitleName = dto.TitleName,
                 DepartmentID = department.Id,
-                CreatedAt = DateTime.Now
+                CreatedAt = DateTime.Now,
             };
 
             await _adminRepository.AddJobTitleAsync(jobTitle);
             return CreatedAtAction(nameof(GetJobTitle), new { id = jobTitle.JobTitleID }, jobTitle);
         }
 
+        [Authorize(Roles = "ADMIN")]
         [HttpPut("jobtitles/{id}")]
         public async Task<IActionResult> UpdateJobTitle(int id, [FromBody] JobTitleDto dto)
         {
             var jobTitle = await _adminRepository.GetJobTitleAsync(id);
-            if (jobTitle == null) return NotFound();
+            if (jobTitle == null)
+                return NotFound();
 
-            var department = await _context.Departments.FirstOrDefaultAsync(d => d.DepartmentName == dto.DepartmentName);
-            if (department == null) return BadRequest("Department not found");
+            var department = await _context.Departments.FirstOrDefaultAsync(d =>
+                d.DepartmentName == dto.DepartmentName
+            );
+            if (department == null)
+                return BadRequest("Department not found");
 
             jobTitle.TitleName = dto.TitleName;
             jobTitle.DepartmentID = department.Id;
@@ -127,6 +146,7 @@ namespace HRApi.Controllers
             return NoContent();
         }
 
+        [Authorize(Roles = "ADMIN")]
         [HttpDelete("jobtitles/{id}")]
         public async Task<IActionResult> DeleteJobTitle(int id)
         {
@@ -163,6 +183,7 @@ namespace HRApi.Controllers
             return Ok(branch);
         }
 
+        [Authorize(Roles = "ADMIN")]
         [HttpPost("branches-create")]
         public async Task<IActionResult> AddBranch([FromBody] CreateBranchRequest request)
         {
@@ -173,7 +194,7 @@ namespace HRApi.Controllers
                 City = request.City,
                 State = request.State,
                 Country = request.Country,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
             };
 
             _context.Branches.Add(newBranch);
@@ -182,6 +203,7 @@ namespace HRApi.Controllers
             return CreatedAtAction(nameof(GetBranches), new { id = newBranch.Id }, newBranch);
         }
 
+        [Authorize(Roles = "ADMIN")]
         [HttpPut("branches/{id}")]
         public async Task<IActionResult> UpdateBranch(int id, [FromBody] CreateBranchRequest branch)
         {
@@ -203,6 +225,7 @@ namespace HRApi.Controllers
             return NoContent();
         }
 
+        [Authorize(Roles = "ADMIN")]
         [HttpDelete("branches/{id}")]
         public async Task<IActionResult> DeleteBranch(int id)
         {
@@ -239,8 +262,11 @@ namespace HRApi.Controllers
             return Ok(trainingProgram);
         }
 
+        [Authorize(Roles = "ADMIN")]
         [HttpPost("training-program/create")]
-        public async Task<IActionResult> AddTrainingProgram([FromBody] CreateTrainingProgramRequest request)
+        public async Task<IActionResult> AddTrainingProgram(
+            [FromBody] CreateTrainingProgramRequest request
+        )
         {
             var trainingProgram = new Admin.TrainingProgram
             {
@@ -260,8 +286,12 @@ namespace HRApi.Controllers
             );
         }
 
+        [Authorize(Roles = "ADMIN")]
         [HttpPut("training-program/{id}")]
-        public async Task<IActionResult> UpdateTrainingProgram(int id, [FromBody] CreateTrainingProgramRequest request)
+        public async Task<IActionResult> UpdateTrainingProgram(
+            int id,
+            [FromBody] CreateTrainingProgramRequest request
+        )
         {
             var trainingProgram = await _context.TrainingPrograms.FindAsync(id);
             if (trainingProgram == null)
@@ -280,6 +310,7 @@ namespace HRApi.Controllers
             return Ok(trainingProgram);
         }
 
+        [Authorize(Roles = "ADMIN")]
         [HttpDelete("training-program/{id}")]
         public async Task<IActionResult> DeleteTrainingProgram(int id)
         {
@@ -315,6 +346,7 @@ namespace HRApi.Controllers
             return Ok(bank);
         }
 
+        [Authorize(Roles = "ADMIN")]
         [HttpPost("bank/create")]
         public async Task<IActionResult> AddBank([FromBody] CreateBankRequest request)
         {
@@ -326,6 +358,7 @@ namespace HRApi.Controllers
             return CreatedAtAction(nameof(GetBank), new { id = bank.BankID }, bank);
         }
 
+        [Authorize(Roles = "ADMIN")]
         [HttpPut("bank/{id}")]
         public async Task<IActionResult> UpdateBank(int id, [FromBody] CreateBankRequest request)
         {
@@ -343,6 +376,7 @@ namespace HRApi.Controllers
             return Ok(bank);
         }
 
+        [Authorize(Roles = "ADMIN")]
         [HttpDelete("bank/{id}")]
         public async Task<IActionResult> DeleteBank(int id)
         {
@@ -378,6 +412,7 @@ namespace HRApi.Controllers
             return Ok(faq);
         }
 
+        [Authorize(Roles = "ADMIN")]
         [HttpPost("faq/create")]
         public async Task<IActionResult> AddFAQ([FromBody] CreateFAQRequest request)
         {
@@ -389,6 +424,7 @@ namespace HRApi.Controllers
             return CreatedAtAction(nameof(GetFAQ), new { id = faq.FAQID }, faq);
         }
 
+        [Authorize(Roles = "ADMIN")]
         [HttpPut("faq/{id}")]
         public async Task<IActionResult> UpdateFAQ(int id, [FromBody] CreateFAQRequest request)
         {
@@ -407,6 +443,7 @@ namespace HRApi.Controllers
             return Ok(faq);
         }
 
+        [Authorize(Roles = "ADMIN")]
         [HttpDelete("faq/{id}")]
         public async Task<IActionResult> DeleteFAQ(int id)
         {
