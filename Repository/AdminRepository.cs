@@ -1,5 +1,5 @@
-﻿using System.Net.Mail;
-using System.Net;
+﻿using System.Net;
+using System.Net.Mail;
 using HRApi.Data;
 using HRApi.Models;
 using Microsoft.EntityFrameworkCore;
@@ -14,13 +14,17 @@ namespace HRApi.Repository
 
         public AdminRepository(AppDbContext context, IConfiguration config)
         {
-        _context = context;
+            _context = context;
             _config = config;
         }
+
         public async Task<bool> SendNotificationAsync(CreateNotificationDto dto)
         {
-            var employee = await _context.Employees.FindAsync(dto.EmployeeId);
-            if (employee == null) return false;
+            var employee = await _context
+                .Employees.Where(e => e.Id == dto.EmployeeId.ToString())
+                .FirstOrDefaultAsync();
+            if (employee == null)
+                return false;
 
             string fullName = employee.Surname + " " + (employee.OtherNames ?? "");
 
@@ -29,7 +33,7 @@ namespace HRApi.Repository
                 Receiver = fullName.Trim(),
                 Subject = dto.Subject,
                 Body = dto.Body,
-                CreatedAt = DateTime.Now
+                CreatedAt = DateTime.Now,
             };
 
             _context.Notifications.Add(notification);
@@ -46,7 +50,6 @@ namespace HRApi.Repository
             return await _context.Notifications.OrderByDescending(n => n.CreatedAt).ToListAsync();
         }
 
-
         public async Task SendEmailAsync(string toEmail, string subject, string body)
         {
             var smtpHost = _config["Smtp:Host"];
@@ -62,10 +65,10 @@ namespace HRApi.Repository
 
                 var mailMessage = new MailMessage
                 {
-                    From = new MailAddress(smtpUser, "Human Resource"),  // Replace with your name
+                    From = new MailAddress(smtpUser, "Human Resource"), // Replace with your name
                     Subject = subject,
                     Body = body,
-                    IsBodyHtml = true
+                    IsBodyHtml = true,
                 };
 
                 mailMessage.To.Add(toEmail);
@@ -113,7 +116,8 @@ namespace HRApi.Repository
         public async Task<bool> UpdateAnnouncementAsync(int id, Announcement updatedAnnouncement)
         {
             var announcement = await _context.Announcements.FindAsync(id);
-            if (announcement == null) return false;
+            if (announcement == null)
+                return false;
 
             announcement.Title = updatedAnnouncement.Title;
             announcement.Message = updatedAnnouncement.Message;
@@ -125,7 +129,11 @@ namespace HRApi.Repository
             var emails = await _context.Employees.Select(e => e.Email).ToListAsync();
             foreach (var email in emails)
             {
-                await SendEmailAsync(email, $"[Updated] {announcement.Title}", announcement.Message);
+                await SendEmailAsync(
+                    email,
+                    $"[Updated] {announcement.Title}",
+                    announcement.Message
+                );
             }
 
             return true;
@@ -134,7 +142,8 @@ namespace HRApi.Repository
         public async Task<bool> DeleteAnnouncementAsync(int id)
         {
             var announcement = await _context.Announcements.FindAsync(id);
-            if (announcement == null) return false;
+            if (announcement == null)
+                return false;
 
             _context.Announcements.Remove(announcement);
             await _context.SaveChangesAsync();
@@ -172,6 +181,7 @@ namespace HRApi.Repository
                 await _context.SaveChangesAsync();
             }
         }
+
         public async Task<List<Branch>> GetBranchesAsync()
         {
             return await _context.Branches.ToListAsync();
@@ -191,9 +201,9 @@ namespace HRApi.Repository
                 City = branch.City,
                 State = branch.State,
                 Country = branch.Country,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
             };
-            
+
             _context.Branches.Add(newBranch);
             await _context.SaveChangesAsync();
         }

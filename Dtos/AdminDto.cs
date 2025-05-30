@@ -51,7 +51,7 @@ public class JobTitleDto
 
 public class CreateNotificationDto
 {
-    public int EmployeeId { get; set; }
+    public string EmployeeId { get; set; }
     public string Subject { get; set; }
     public string Body { get; set; }
 }
