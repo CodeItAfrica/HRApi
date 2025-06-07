@@ -22,6 +22,9 @@ namespace HRApi.Models
         [StringLength(200)]
         public string? OtherNames { get; set; }
 
+        [NotMapped]
+        public string FullName => $"{Surname} {OtherNames}";
+
         [StringLength(300)]
         public string? Address { get; set; }
 
@@ -50,12 +53,14 @@ namespace HRApi.Models
 
         [StringLength(100)]
         public string? AcctName1 { get; set; }
+        public string? BankName1 { get; set; }
 
         [StringLength(50)]
         public string? AcctNo2 { get; set; }
 
         [StringLength(100)]
         public string? AcctName2 { get; set; }
+        public string? BankName2 { get; set; }
 
         [ForeignKey("Branch")]
         public int? BranchId { get; set; }
@@ -132,8 +137,9 @@ namespace HRApi.Models
 
         public bool? PayFirstMonth { get; set; }
 
-        [StringLength(50)]
-        public string? SheetId2 { get; set; }
+        [ForeignKey("PaySheet")]
+        public int PaySheetId { get; set; }
+        public virtual PaySheet? PaySheet { get; set; }
 
         public bool? ConfirmStatus { get; set; }
 

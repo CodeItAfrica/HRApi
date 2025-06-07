@@ -8,10 +8,10 @@ namespace HRApi.Models;
 public class PayrollPayment
 {
     [Key]
-    public string Id { get; set; } = Guid.NewGuid().ToString();
+    public int Id { get; set; }
 
     [ForeignKey("PayrollHistory")]
-    public string PayrollHistoryId { get; set; } = null!;
+    public int PayrollHistoryId { get; set; }
     public virtual PayrollHistory PayrollHistory { get; set; } = null!;
 
     [ForeignKey("Employee")]
@@ -23,10 +23,10 @@ public class PayrollPayment
     public string PaymentMethod { get; set; } = null!;
 
     [StringLength(20)]
-    public string PaymentStatus { get; set; } = "Pending"; // Pending, Processing, Completed, Failed
+    public PaymentStatus PaymentStatus { get; set; } = PaymentStatus.Pending;
 
     [StringLength(100)]
-    public string? TransactionId { get; set; }
+    public string? TransactionId { get; set; } = Guid.NewGuid().ToString();
 
     public DateTime? PaymentDate { get; set; }
 
@@ -35,4 +35,12 @@ public class PayrollPayment
     public virtual User? ProcessedBy { get; set; }
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+}
+
+public enum PaymentStatus
+{
+    Pending = 1,
+    Processing = 2,
+    Completed = 3,
+    Failed = 4,
 }

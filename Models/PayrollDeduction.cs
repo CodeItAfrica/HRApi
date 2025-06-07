@@ -10,9 +10,12 @@ public class PayrollDeduction
     [Key]
     public int Id { get; set; }
 
-    [ForeignKey("Payroll")]
-    public string PayrollId { get; set; } = null!;
-    public virtual Payroll Payroll { get; set; } = null!;
+    [ForeignKey("Employee")]
+    public string EmployeeId { get; set; } = null!;
+    public virtual Employee Employee { get; set; } = null!;
+
+    [Required]
+    public DateOnly Period { get; set; }
 
     [Required]
     [StringLength(50)]
@@ -20,6 +23,16 @@ public class PayrollDeduction
 
     [Required]
     public decimal Amount { get; set; }
+
+    [StringLength(255)]
+    public string? Description { get; set; }
+
+    [ForeignKey("DeductedBy")]
+    public int? DeductedByUserId { get; set; }
+    public virtual User? DeductedBy { get; set; }
+
+    [Required]
+    public DateOnly DeductedOn { get; set; }
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

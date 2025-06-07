@@ -6,30 +6,38 @@ namespace HRApi.Models;
 public class Payroll
 {
     [Key]
-    public string Id { get; set; } = Guid.NewGuid().ToString();
+    public int Id { get; set; }
 
     [ForeignKey("Employee")]
     public string EmployeeId { get; set; } = null!;
     public virtual Employee Employee { get; set; } = null!;
 
     [Required]
-    public decimal BasicSalary { get; set; }
+    public int GradeId { get; set; }
 
-    public decimal? TaxRate { get; set; }
+    [Required]
+    public decimal BaseSalary { get; set; }
 
-    public decimal? PensionRate { get; set; }
+    [Column(TypeName = "decimal(18,2)")]
+    public decimal HousingAllowance { get; set; }
 
-    public decimal? HealthInsurance { get; set; }
+    [Column(TypeName = "decimal(18,2)")]
+    public decimal TransportAllowance { get; set; }
 
-    public decimal? LoanDeduction { get; set; }
+    [Column(TypeName = "decimal(18,2)")]
+    public decimal AnnualTax { get; set; }
 
-    public decimal? OtherDeductions { get; set; }
+    [Column(TypeName = "decimal(18,2)")]
+    public decimal TotalAllowances { get; set; }
 
-    public decimal? Allowances { get; set; }
+    [Column(TypeName = "decimal(18,2)")]
+    public decimal TotalDeductions { get; set; }
 
-    public decimal? OvertimeRate { get; set; }
+    [Column(TypeName = "decimal(18,2)")]
+    public decimal GrossSalary { get; set; }
 
-    public decimal? Bonus { get; set; }
+    [Column(TypeName = "decimal(18,2)")]
+    public decimal NetSalary { get; set; }
 
     [StringLength(50)]
     public string? PaymentMethod { get; set; }
@@ -44,6 +52,16 @@ public class Payroll
 
     public DateTime? UpdatedAt { get; set; }
 
+    [StringLength(100)]
+    public string CreatedBy { get; set; } = null!;
+
+    [StringLength(100)]
+    public string LastModifiedBy { get; set; } = null!;
+
     // Navigation properties
-    public virtual ICollection<PayrollDeduction> PayrollDeductions { get; set; } = new List<PayrollDeduction>();
+    public virtual ICollection<PayrollDeduction> PayrollDeductions { get; set; } =
+        new List<PayrollDeduction>();
+
+    public virtual ICollection<PayrollAllowance> PayrollAllowances { get; set; } =
+        new List<PayrollAllowance>();
 }

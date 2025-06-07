@@ -1,19 +1,18 @@
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HRApi.Models
 {
-    public class Grade
+    public class EmployeeGradeHistory
     {
-        [Key]
         public int Id { get; set; }
 
-        [Required]
-        public string GradeName { get; set; } = null!;
+        [ForeignKey("Employee")]
+        public string EmployeeId { get; set; } = null!;
+        public virtual Employee Employee { get; set; } = null!;
 
-        public string? Description { get; set; }
-
-        [Required]
+        [ForeignKey("Grade")]
+        public int? GradeId { get; set; }
+        public virtual Grade? Grade { get; set; }
         public decimal BaseSalary { get; set; }
 
         [Column(TypeName = "decimal(18,2)")]
@@ -24,9 +23,6 @@ namespace HRApi.Models
 
         [Column(TypeName = "decimal(18,2)")]
         public decimal AnnualTax { get; set; }
-        public DateTime? ModifiedDate { get; set; }
-        public bool IsActive { get; set; } = true;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public virtual ICollection<Employee> Employees { get; set; } = new List<Employee>();
     }
 }

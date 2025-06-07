@@ -8,11 +8,14 @@ namespace HRApi.Models;
 public class PayrollAllowance
 {
     [Key]
-    public string Id { get; set; } = Guid.NewGuid().ToString();
+    public int Id { get; set; }
 
     [ForeignKey("Employee")]
     public string EmployeeId { get; set; } = null!;
     public virtual Employee Employee { get; set; } = null!;
+
+    [Required]
+    public DateOnly Period { get; set; }
 
     [Required]
     [StringLength(50)]
