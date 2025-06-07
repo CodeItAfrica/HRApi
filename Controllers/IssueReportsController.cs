@@ -35,14 +35,12 @@ namespace HRApi.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<IssueReport>>> GetIssueReports()
         {
-            var issues = await _context.IssueReports
-                .Include(i => i.Attachments)
+            var issues = await _context
+                .IssueReports.Include(i => i.Attachments)
                 .OrderByDescending(i => i.SubmittedAt)
                 .ToListAsync();
 
             return Ok(issues);
         }
-
     }
-
 }

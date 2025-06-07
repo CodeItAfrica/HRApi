@@ -167,15 +167,21 @@ namespace HRApi.Models
 
         public virtual User? User { get; set; }
         public virtual Payroll? Payroll { get; set; }
-        public virtual ICollection<LeaveRequest> LeaveRequests { get; set; } = new List<LeaveRequest>();
+        public virtual ICollection<LeaveRequest> LeaveRequests { get; set; } =
+            new List<LeaveRequest>();
 
         [InverseProperty("Employee")]
-        public virtual ICollection<PerformanceReview> PerformanceReviews { get; set; } = new List<PerformanceReview>();
+        public virtual ICollection<PerformanceReview> PerformanceReviews { get; set; } =
+            new List<PerformanceReview>();
 
         [InverseProperty("Reviewer")]
-        public virtual ICollection<PerformanceReview> ReviewsDone { get; set; } = new List<PerformanceReview>();
-        public virtual ICollection<PayrollAllowance> PayrollAllowances { get; set; } = new List<PayrollAllowance>();
-        public virtual ICollection<PayrollHistory> PayrollHistories { get; set; } = new List<PayrollHistory>();
-        public virtual ICollection<PayrollPayment> PayrollPayments { get; set; } = new List<PayrollPayment>();
+        public virtual ICollection<PerformanceReview> ReviewsDone { get; set; } =
+            new List<PerformanceReview>();
+        public virtual ICollection<PayrollAllowance> PayrollAllowances { get; set; } =
+            new List<PayrollAllowance>();
+        public virtual ICollection<PayrollHistory> PayrollHistories { get; set; } =
+            new List<PayrollHistory>();
+        public virtual ICollection<PayrollPayment> PayrollPayments { get; set; } =
+            new List<PayrollPayment>();
     }
 }

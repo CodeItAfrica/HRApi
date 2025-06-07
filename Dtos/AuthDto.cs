@@ -3,8 +3,8 @@ using Swashbuckle.AspNetCore.Annotations;
 
 public class LoginRequest
 {
-    public string Email { get; set; }
-    public string Password { get; set; }
+    public string Email { get; set; } = null!;
+    public string Password { get; set; } = null!;
 }
 
 public class RegisterRequest
@@ -162,14 +162,14 @@ public class CodeVerificationRequest
     public required string Code { get; set; }
 }
 
-
 public class ResetPasswordCodeRequest
 {
-    public string Email { get; set; }
-    public string Code { get; set; }
-    public string NewPassword { get; set; }
+    public string Email { get; set; } = null!;
+    public string Code { get; set; } = null!;
+    public string NewPassword { get; set; } = null!;
 }
+
 public class EmailRequest
 {
-    public string Email { get; set; }
+    public string Email { get; set; } = null!;
 }
