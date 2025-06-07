@@ -14,6 +14,9 @@ public class CreateGradeRequest
     public string GradeName { get; set; } = null!;
     public string? Description { get; set; }
     public decimal BaseSalary { get; set; }
+    public decimal HousingAllowance { get; set; }
+    public decimal TransportAllowance { get; set; }
+    public decimal AnnualTax { get; set; }
 }
 
 public class CreateBranchRequest

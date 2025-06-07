@@ -119,10 +119,7 @@ public class RegisterRequest
     //public IFormFile? PhotoFile { get; set; }
 
     public bool? PayFirstMonth { get; set; }
-
-    [StringLength(50)]
-    public string? SheetId2 { get; set; }
-
+    public int PaySheetId { get; set; }
     public bool? ConfirmStatus { get; set; }
 
     public int? ConfirmDuration { get; set; }

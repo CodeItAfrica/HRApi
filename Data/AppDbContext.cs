@@ -14,16 +14,14 @@ public partial class AppDbContext : DbContext
         base.OnConfiguring(optionsBuilder);
 
         optionsBuilder.ConfigureWarnings(warnings =>
-            warnings.Ignore(RelationalEventId.PendingModelChangesWarning));
-    }
-    public AppDbContext()
-    {
+            warnings.Ignore(RelationalEventId.PendingModelChangesWarning)
+        );
     }
 
+    public AppDbContext() { }
+
     public AppDbContext(DbContextOptions<AppDbContext> options)
-        : base(options)
-    {
-    }
+        : base(options) { }
 
     public virtual DbSet<Announcement> Announcements { get; set; }
 
@@ -72,13 +70,9 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<PerformanceReviewHistory> PerformanceReviewHistories { get; set; }
 
-    public virtual DbSet<Permission> Permissions { get; set; }
-
     public virtual DbSet<RegisterLink> RegisterLink { get; set; }
 
     public virtual DbSet<Role> Roles { get; set; }
-
-    public virtual DbSet<RolePermission> RolePermissions { get; set; }
 
     public virtual DbSet<Unit> Units { get; set; }
 
@@ -97,20 +91,25 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<TrainingProgram> TrainingPrograms { get; set; }
 
     public DbSet<IssueReport> IssueReports { get; set; }
-    public DbSet<IssueAttachment> IssueAttachments  { get; set; }
-
+    public DbSet<IssueAttachment> IssueAttachments { get; set; }
+    public DbSet<PaySheet> PaySheets { get; set; }
+    public DbSet<EmployeeGradeHistory> EmployeeGradeHistories { get; set; }
+    public DbSet<DeductionList> DeductionLists { get; set; }
+    public DbSet<AllowanceList> AllowanceLists { get; set; }
 
     //     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     // #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
     //         => optionsBuilder.UseSqlServer("Server=tcp:108.181.199.153,10875;Initial Catalog=HRNewDb;User ID=sa;Password=Gibs@321.;Encrypt=False;Trust Server Certificate=True");
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder) {
-
-        modelBuilder.Entity<IssueReport>()
-                .HasMany(ir => ir.Attachments)
-                .WithOne(a => a.IssueReport)
-                .HasForeignKey(a => a.IssueReportId)
-                .OnDelete(DeleteBehavior.Cascade);
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder
+            .Entity<IssueReport>()
+            .HasMany(ir => ir.Attachments)
+            .WithOne(a => a.IssueReport)
+            .HasForeignKey(a => a.IssueReportId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
+
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }

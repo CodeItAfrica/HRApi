@@ -49,7 +49,8 @@ public class EmployeeResponse
     public string? Tag { get; set; }
     public string? Photo { get; set; }
     public bool? PayFirstMonth { get; set; }
-    public string? SheetId2 { get; set; }
+    public int? PaySheetId { get; set; }
+    public string? PaySheetName { get; set; }
     public bool? ConfirmStatus { get; set; }
     public int? ConfirmDuration { get; set; }
     public DateOnly? ConfirmationDate { get; set; }
@@ -101,7 +102,7 @@ public class UpdateEmployeeRequest
     public string? Remarks { get; set; }
     public string? Tag { get; set; }
     public bool? PayFirstMonth { get; set; }
-    public string? SheetId2 { get; set; }
+    public int? PaySheetId { get; set; }
     public bool? ConfirmStatus { get; set; }
     public int? ConfirmDuration { get; set; }
     public DateOnly? ConfirmationDate { get; set; }

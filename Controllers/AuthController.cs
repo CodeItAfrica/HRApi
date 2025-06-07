@@ -188,7 +188,7 @@ public class AuthController : ControllerBase
                 Tag = request.Tag,
                 Photo = savedFileName,
                 PayFirstMonth = request.PayFirstMonth,
-                SheetId2 = request.SheetId2,
+                PaySheetId = request.PaySheetId,
                 ConfirmStatus = request.ConfirmStatus,
                 ConfirmDuration = request.ConfirmDuration,
                 ConfirmationDate = request.ConfirmationDate,

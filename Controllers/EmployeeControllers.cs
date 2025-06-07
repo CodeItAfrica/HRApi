@@ -58,6 +58,8 @@ public class EmployeeController : ControllerBase
             .Include(u => u.Employee)
             .ThenInclude(e => e.Grade)
             .Include(u => u.Employee)
+            .ThenInclude(e => e.PaySheet)
+            .Include(u => u.Employee)
             .ThenInclude(e => e.EmploymentType)
             .FirstOrDefaultAsync(x => x.Id == id);
 
@@ -120,7 +122,8 @@ public class EmployeeController : ControllerBase
             Tag = emp.Tag,
             Photo = emp.Photo,
             PayFirstMonth = emp.PayFirstMonth,
-            SheetId2 = emp.SheetId2,
+            PaySheetId = emp.PaySheetId,
+            PaySheetName = emp.PaySheet?.Name,
             ConfirmStatus = emp.ConfirmStatus,
             ConfirmDuration = emp.ConfirmDuration,
             ConfirmationDate = emp.ConfirmationDate,
@@ -239,8 +242,8 @@ public class EmployeeController : ControllerBase
             employee.Tag = request.Tag;
         if (request.PayFirstMonth.HasValue)
             employee.PayFirstMonth = request.PayFirstMonth.Value;
-        if (request.SheetId2 != null)
-            employee.SheetId2 = request.SheetId2;
+        if (request.PaySheetId.HasValue)
+            employee.PaySheetId = request.PaySheetId.Value;
         if (request.ConfirmStatus != null)
             employee.ConfirmStatus = request.ConfirmStatus;
         if (request.ConfirmDuration.HasValue)
@@ -280,6 +283,8 @@ public class EmployeeController : ControllerBase
             .ThenInclude(e => e.Unit)
             .Include(u => u.Employee)
             .ThenInclude(e => e.Grade)
+            .Include(u => u.Employee)
+            .ThenInclude(e => e.PaySheet)
             .Include(u => u.Employee)
             .ThenInclude(e => e.EmploymentType)
             .FirstOrDefaultAsync(x => x.Id == user.Id);
@@ -343,7 +348,8 @@ public class EmployeeController : ControllerBase
             Tag = emp.Tag,
             Photo = emp.Photo,
             PayFirstMonth = emp.PayFirstMonth,
-            SheetId2 = emp.SheetId2,
+            PaySheetId = emp.PaySheetId,
+            PaySheetName = emp.PaySheet?.Name,
             ConfirmStatus = emp.ConfirmStatus,
             ConfirmDuration = emp.ConfirmDuration,
             ConfirmationDate = emp.ConfirmationDate,

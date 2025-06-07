@@ -53,6 +53,9 @@ public class GradeController : ControllerBase
             GradeName = request.GradeName,
             Description = request.Description,
             BaseSalary = request.BaseSalary,
+            HousingAllowance = request.HousingAllowance,
+            TransportAllowance = request.TransportAllowance,
+            AnnualTax = request.AnnualTax,
             CreatedAt = DateTime.UtcNow,
         };
 
