@@ -31,12 +31,12 @@ public class RoleController : ControllerBase
     [HttpPost("create")]
     public async Task<IActionResult> CreateRole([FromBody] RoleNameBodyRequest request)
     {
-        if (string.IsNullOrEmpty(request.roleName))
+        if (string.IsNullOrEmpty(request.RoleName))
         {
             return BadRequest("Role name cannot be empty.");
         }
 
-        var normalizedRoleName = request.roleName.Trim().ToLower();
+        var normalizedRoleName = request.RoleName.Trim().ToLower();
 
         var existingRole = await _context.Roles.FirstOrDefaultAsync(r =>
             r.RoleName.ToLower() == normalizedRoleName
@@ -44,10 +44,10 @@ public class RoleController : ControllerBase
 
         if (existingRole != null)
         {
-            return Conflict($"The role '{request.roleName}' already exists.");
+            return Conflict($"The role '{request.RoleName}' already exists.");
         }
 
-        var role = new Role { RoleName = request.roleName, CreatedAt = DateTime.UtcNow };
+        var role = new Role { RoleName = request.RoleName, CreatedAt = DateTime.UtcNow };
 
         _context.Roles.Add(role);
         await _context.SaveChangesAsync();
@@ -58,7 +58,7 @@ public class RoleController : ControllerBase
     [HttpPut("update/{id}")]
     public async Task<IActionResult> UpdateRole(int id, [FromBody] RoleNameBodyRequest request)
     {
-        if (string.IsNullOrEmpty(request.roleName))
+        if (string.IsNullOrEmpty(request.RoleName))
         {
             return BadRequest("Role name cannot be empty.");
         }
@@ -69,17 +69,17 @@ public class RoleController : ControllerBase
             return NotFound("Role not found.");
         }
 
-        var normalizedRoleName = request.roleName.Trim().ToLower();
+        var normalizedRoleName = request.RoleName.Trim().ToLower();
         var existingRole = await _context.Roles.FirstOrDefaultAsync(r =>
             r.RoleName.ToLower() == normalizedRoleName && r.Id != id
         );
 
         if (existingRole != null)
         {
-            return Conflict($"The role '{request.roleName}' already exists.");
+            return Conflict($"The role '{request.RoleName}' already exists.");
         }
 
-        role.RoleName = request.roleName;
+        role.RoleName = request.RoleName;
         await _context.SaveChangesAsync();
 
         return Ok(new { message = "Role has been updated successfully." });

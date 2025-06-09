@@ -1,6 +1,6 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
-using System.Net.Mail;
 using System.Net;
+using System.Net.Mail;
 using System.Security.Claims;
 using System.Text;
 using HRApi.Data;
@@ -24,10 +24,10 @@ namespace HRApi.Repository
         public string GenerateJwt(string email, int userId, List<string> roles)
         {
             var claims = new List<Claim>
-        {
-            new Claim(ClaimTypes.Name, email),
-            new Claim(ClaimTypes.NameIdentifier, userId.ToString())
-        };
+            {
+                new Claim(ClaimTypes.Name, email),
+                new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
+            };
 
             foreach (var role in roles)
             {
@@ -50,8 +50,9 @@ namespace HRApi.Repository
 
         public async Task<bool> CreateRegisterLinkAsync(string email)
         {
-            var existingLink = await _context.RegisterLink
-                                      .FirstOrDefaultAsync(r => r.Email == email && r.ExpiredDate > DateTime.UtcNow);
+            var existingLink = await _context.RegisterLink.FirstOrDefaultAsync(r =>
+                r.Email == email && r.ExpiredDate > DateTime.UtcNow
+            );
 
             if (existingLink != null)
             {
@@ -65,7 +66,7 @@ namespace HRApi.Repository
                 Email = email,
                 Code = code,
                 CreatedDate = DateTime.UtcNow,
-                ExpiredDate = DateTime.UtcNow.AddMinutes(15)
+                ExpiredDate = DateTime.UtcNow.AddMinutes(15),
             };
             _context.RegisterLink.Add(link);
             await _context.SaveChangesAsync();
@@ -80,7 +81,9 @@ namespace HRApi.Repository
 
         public async Task<string?> VerifyRegisterCodeAsync(string email, string code) // changed the return type from string to nullable string
         {
-            var record = await _context.RegisterLink.FirstOrDefaultAsync(x => x.Email == email && x.Code == code);
+            var record = await _context.RegisterLink.FirstOrDefaultAsync(x =>
+                x.Email == email && x.Code == code
+            );
             if (record == null || record.ExpiredDate < DateTime.UtcNow)
             {
                 return null;
@@ -101,7 +104,7 @@ namespace HRApi.Repository
                 Email = email,
                 Code = code,
                 CreatedDate = DateTime.UtcNow,
-                ExpiredDate = DateTime.UtcNow.AddMinutes(15)
+                ExpiredDate = DateTime.UtcNow.AddMinutes(15),
             };
             _context.ForgottenPassword.Add(forgot);
             await _context.SaveChangesAsync();
@@ -114,14 +117,17 @@ namespace HRApi.Repository
 
         public async Task<bool> ResetPasswordAsync(string email, string code, string newPassword)
         {
-            var record = await _context.ForgottenPassword.FirstOrDefaultAsync(x => x.Email == email && x.Code == code);
+            var record = await _context.ForgottenPassword.FirstOrDefaultAsync(x =>
+                x.Email == email && x.Code == code
+            );
             if (record == null || record.ExpiredDate < DateTime.UtcNow)
             {
                 return false;
             }
 
             var user = await _context.Users.FirstOrDefaultAsync(x => x.Email == email);
-            if (user == null) return false;
+            if (user == null)
+                return false;
 
             user.PasswordHash = newPassword; // No hashing as requested
             user.UpdatedAt = DateTime.UtcNow;
@@ -145,10 +151,10 @@ namespace HRApi.Repository
 
                 var mailMessage = new MailMessage
                 {
-                    From = new MailAddress(smtpUser, "Human Resource"),  // Replace with your name
+                    From = new MailAddress(smtpUser, "Human Resource"), // Replace with your name
                     Subject = subject,
                     Body = body,
-                    IsBodyHtml = true
+                    IsBodyHtml = true,
                 };
 
                 mailMessage.To.Add(toEmail);

@@ -1,5 +1,5 @@
-﻿using System.Net.Mail;
-using System.Net;
+﻿using System.Net;
+using System.Net.Mail;
 using HRApi.Data;
 using HRApi.Models;
 
@@ -24,7 +24,7 @@ namespace HRApi.Repository
                 Department = issueDto.Department,
                 IssueDescription = issueDto.IssueDescription,
                 IssueUrl = issueDto.IssueUrl,
-                SubmittedAt = DateTime.UtcNow
+                SubmittedAt = DateTime.UtcNow,
             };
 
             _context.IssueReports.Add(report);
@@ -53,7 +53,7 @@ namespace HRApi.Repository
                         IssueReportId = report.Id,
                         FileName = file.FileName,
                         FilePath = $"/uploads/{fileName}",
-                        UploadedAt = DateTime.UtcNow
+                        UploadedAt = DateTime.UtcNow,
                     };
 
                     _context.IssueAttachments.Add(attachment);
@@ -70,7 +70,10 @@ namespace HRApi.Repository
             var smtpClient = new SmtpClient("smtp.elasticemail.com")
             {
                 Port = 2525,
-                Credentials = new NetworkCredential("support@gibsonline.com", "D76A3BA83EAC13C9426AB2D1CCC42D2556DA"),
+                Credentials = new NetworkCredential(
+                    "support@gibsonline.com",
+                    "D76A3BA83EAC13C9426AB2D1CCC42D2556DA"
+                ),
                 EnableSsl = true,
             };
 
@@ -78,7 +81,8 @@ namespace HRApi.Repository
             {
                 From = new MailAddress("support@gibsonline.com"),
                 Subject = "New Issue Submitted",
-                Body = $@"
+                Body =
+                    $@"
 <b>Name:</b> {issue.ClientName}<br/>
 <b>Department:</b> {issue.Department}<br/>
 <b>URL:</b> {issue.IssueUrl}<br/>
@@ -105,11 +109,7 @@ namespace HRApi.Repository
                 }
             }
 
-
-
             await smtpClient.SendMailAsync(mail);
         }
-
     }
-
 }
