@@ -1,11 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HRApi.Models;
 
-public class PayrollDeduction
+public class PayrollDeductionHistory
 {
     [Key]
     public int Id { get; set; }
@@ -14,9 +14,12 @@ public class PayrollDeduction
     public string EmployeeId { get; set; } = null!;
     public virtual Employee Employee { get; set; } = null!;
 
-    [ForeignKey("DeductionList")]
-    public int DeductionListId { get; set; }
-    public virtual DeductionList DeductionList { get; set; } = null!;
+    [Required]
+    public DateOnly Period { get; set; }
+
+    [Required]
+    [StringLength(50)]
+    public string DeductionName { get; set; } = null!;
 
     [Required]
     public decimal Amount { get; set; }
@@ -24,10 +27,8 @@ public class PayrollDeduction
     [StringLength(255)]
     public string? Description { get; set; }
 
-    public string? LastDeductedBy { get; set; }
-
     [Required]
-    public DateOnly LastDeductedOn { get; set; }
+    public DateOnly LastModifiedOn { get; set; }
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

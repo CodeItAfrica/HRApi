@@ -23,7 +23,6 @@
         public IssueReport? IssueReport { get; set; }
     }
 
-
     public class IssueReportDto
     {
         public string? ClientName { get; set; }
@@ -32,5 +31,4 @@
         public string? IssueUrl { get; set; }
         public List<IFormFile>? Attachments { get; set; }
     }
-
 }

@@ -6,7 +6,7 @@ namespace HRApi.Models
     public class Employee
     {
         [Key]
-        public string Id { get; set; } = Guid.NewGuid().ToString();
+        public string Id { get; set; } = Guid.NewGuid().ToString()[..6];
 
         [Required]
         [StringLength(20)]
@@ -23,7 +23,7 @@ namespace HRApi.Models
         public string? OtherNames { get; set; }
 
         [NotMapped]
-        public string FullName => $"{Surname} {OtherNames}";
+        public string FullName => $"{Surname}, {OtherNames}";
 
         [StringLength(300)]
         public string? Address { get; set; }
