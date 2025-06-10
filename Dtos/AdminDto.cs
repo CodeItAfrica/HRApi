@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 public class CreateDepartmentRequest
 {
     public string DepartmentName { get; set; } = null!;
@@ -17,6 +19,39 @@ public class CreateGradeRequest
     public decimal HousingAllowance { get; set; }
     public decimal TransportAllowance { get; set; }
     public decimal AnnualTax { get; set; }
+}
+
+public class UpdateGradeRequest
+{
+    [StringLength(
+        100,
+        MinimumLength = 1,
+        ErrorMessage = "GradeName must be between 1 and 100 characters"
+    )]
+    public string? GradeName { get; set; }
+
+    [StringLength(500, ErrorMessage = "Description cannot exceed 500 characters")]
+    public string? Description { get; set; }
+
+    [Range(0, double.MaxValue, ErrorMessage = "BaseSalary must be non-negative")]
+    public decimal? BaseSalary { get; set; }
+
+    [Range(0, double.MaxValue, ErrorMessage = "HousingAllowance must be non-negative")]
+    public decimal? HousingAllowance { get; set; }
+
+    [Range(0, double.MaxValue, ErrorMessage = "TransportAllowance must be non-negative")]
+    public decimal? TransportAllowance { get; set; }
+
+    [Range(0, double.MaxValue, ErrorMessage = "AnnualTax must be non-negative")]
+    public decimal? AnnualTax { get; set; }
+
+    public bool? IsActive { get; set; }
+}
+
+public class AssignGradeRequest
+{
+    public string EmployeeId { get; set; } = null!;
+    public int GradeId { get; set; }
 }
 
 public class CreateBranchRequest
@@ -46,15 +81,16 @@ public class CreateFAQRequest
     public string? Question { get; set; }
     public string? Answer { get; set; }
 }
+
 public class JobTitleDto
 {
-    public string TitleName { get; set; }
-    public string DepartmentName { get; set; }
+    public string TitleName { get; set; } = null!;
+    public string DepartmentName { get; set; } = null!;
 }
 
 public class CreateNotificationDto
 {
-    public string EmployeeId { get; set; }
-    public string Subject { get; set; }
-    public string Body { get; set; }
+    public string EmployeeId { get; set; } = null!;
+    public string Subject { get; set; } = null!;
+    public string Body { get; set; } = null!;
 }

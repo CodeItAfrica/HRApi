@@ -65,16 +65,18 @@ public class RegisterRequest
     public string? NationalIdNo { get; set; }
 
     [StringLength(50)]
-    public string? AcctNo1 { get; set; }
+    public string AcctNo1 { get; set; } = null!;
 
     [StringLength(100)]
-    public string? AcctName1 { get; set; }
+    public string AcctName1 { get; set; } = null!;
+    public string BankName1 { get; set; } = null!;
 
     [StringLength(50)]
     public string? AcctNo2 { get; set; }
 
     [StringLength(100)]
     public string? AcctName2 { get; set; }
+    public string? BankName2 { get; set; }
 
     public int? BranchId { get; set; }
 
@@ -82,7 +84,7 @@ public class RegisterRequest
 
     public int? UnitId { get; set; }
 
-    public int? GradeId { get; set; }
+    public int GradeId { get; set; }
 
     public DateOnly? BirthDate { get; set; }
 

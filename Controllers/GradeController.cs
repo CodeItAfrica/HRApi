@@ -1,5 +1,8 @@
+using System.Security.Claims;
 using HRApi.Data;
 using HRApi.Models;
+using HRApi.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,10 +11,12 @@ using Microsoft.EntityFrameworkCore;
 public class GradeController : ControllerBase
 {
     private readonly AppDbContext _context;
+    private readonly PayrollService _payrollService;
 
-    public GradeController(AppDbContext context)
+    public GradeController(AppDbContext context, PayrollService payrollService)
     {
         _context = context;
+        _payrollService = payrollService;
     }
 
     [HttpGet("get")]
@@ -24,6 +29,11 @@ public class GradeController : ControllerBase
                 u.GradeName,
                 u.BaseSalary,
                 u.Description,
+                u.HousingAllowance,
+                u.TransportAllowance,
+                u.AnnualTax,
+                u.CreatedAt,
+                u.ModifiedDate,
             })
             .ToListAsync();
         return Ok(grades);
@@ -65,38 +75,115 @@ public class GradeController : ControllerBase
         return CreatedAtAction(nameof(GetGrades), new { id = grade.Id }, grade);
     }
 
+    // [HttpPut("update/{id}")]
+    // public async Task<IActionResult> UpdateGrade(int id, [FromBody] CreateGradeRequest request)
+    // {
+    //     if (string.IsNullOrEmpty(request.GradeName))
+    //     {
+    //         return BadRequest("Grade name cannot be empty.");
+    //     }
+
+    //     var normalizedGradeName = request.GradeName.Trim().ToLower();
+
+    //     var existingGrade = await _context.Grades.FirstOrDefaultAsync(g =>
+    //         g.Id != id && g.GradeName.ToLower() == normalizedGradeName
+    //     );
+
+    //     if (existingGrade != null)
+    //     {
+    //         return Conflict($"The grade '{request.GradeName}' already exists.");
+    //     }
+
+    //     var grade = await _context.Grades.FindAsync(id);
+    //     if (grade == null)
+    //     {
+    //         return NotFound($"No grade found with ID {id}");
+    //     }
+
+    //     grade.GradeName = request.GradeName;
+    //     grade.Description = request.Description;
+    //     grade.BaseSalary = request.BaseSalary;
+
+    //     await _context.SaveChangesAsync();
+
+    //     return Ok(grade);
+    // }
     [HttpPut("update/{id}")]
-    public async Task<IActionResult> UpdateGrade(int id, [FromBody] CreateGradeRequest request)
+    public async Task<IActionResult> UpdateGrade(int id, [FromBody] UpdateGradeRequest request)
     {
-        if (string.IsNullOrEmpty(request.GradeName))
+        if (request == null)
         {
-            return BadRequest("Grade name cannot be empty.");
+            return BadRequest("Request body cannot be null");
         }
 
-        var normalizedGradeName = request.GradeName.Trim().ToLower();
-
-        var existingGrade = await _context.Grades.FirstOrDefaultAsync(g =>
-            g.Id != id && g.GradeName.ToLower() == normalizedGradeName
-        );
-
-        if (existingGrade != null)
+        var existingGrade = await _context.Grades.FindAsync(id);
+        if (existingGrade == null)
         {
-            return Conflict($"The grade '{request.GradeName}' already exists.");
+            return NotFound($"Grade with ID {id} not found");
         }
 
-        var grade = await _context.Grades.FindAsync(id);
-        if (grade == null)
+        if (!string.IsNullOrEmpty(request.GradeName))
         {
-            return NotFound($"No grade found with ID {id}");
+            existingGrade.GradeName = request.GradeName;
         }
 
-        grade.GradeName = request.GradeName;
-        grade.Description = request.Description;
-        grade.BaseSalary = request.BaseSalary;
+        if (request.Description != null)
+        {
+            existingGrade.Description = request.Description;
+        }
 
-        await _context.SaveChangesAsync();
+        if (request.BaseSalary.HasValue)
+        {
+            if (request.BaseSalary.Value < 0)
+            {
+                return BadRequest("BaseSalary cannot be negative");
+            }
+            existingGrade.BaseSalary = request.BaseSalary.Value;
+        }
 
-        return Ok(grade);
+        if (request.HousingAllowance.HasValue)
+        {
+            if (request.HousingAllowance.Value < 0)
+            {
+                return BadRequest("HousingAllowance cannot be negative");
+            }
+            existingGrade.HousingAllowance = request.HousingAllowance.Value;
+        }
+
+        if (request.TransportAllowance.HasValue)
+        {
+            if (request.TransportAllowance.Value < 0)
+            {
+                return BadRequest("TransportAllowance cannot be negative");
+            }
+            existingGrade.TransportAllowance = request.TransportAllowance.Value;
+        }
+
+        if (request.AnnualTax.HasValue)
+        {
+            if (request.AnnualTax.Value < 0)
+            {
+                return BadRequest("AnnualTax cannot be negative");
+            }
+            existingGrade.AnnualTax = request.AnnualTax.Value;
+        }
+
+        if (request.IsActive.HasValue)
+        {
+            existingGrade.IsActive = request.IsActive.Value;
+        }
+
+        existingGrade.ModifiedDate = DateTime.UtcNow;
+
+        try
+        {
+            await _context.SaveChangesAsync();
+            return Ok(existingGrade);
+        }
+        catch (DbUpdateException ex)
+        {
+            return StatusCode(500, $"Error updating grade: {ex.Message}");
+        }
     }
 
     [HttpDelete("delete/{id}")]
@@ -121,6 +208,60 @@ public class GradeController : ControllerBase
         await _context.SaveChangesAsync();
 
         return NoContent();
+    }
+
+    [Authorize(Roles = "ADMIN")]
+    [HttpPost("assign-grade")]
+    public async Task<IActionResult> AssignGrade([FromBody] AssignGradeRequest request)
+    {
+        var employee = await _context
+            .Employees.Where(e => e.Id == request.EmployeeId.ToString())
+            .FirstOrDefaultAsync();
+        if (employee == null)
+        {
+            return NotFound($"No employee found with ID {request.EmployeeId}");
+        }
+
+        var grade = await _context.Grades.FindAsync(request.GradeId);
+        if (grade == null)
+        {
+            return NotFound($"No grade found with ID {request.GradeId}");
+        }
+
+        var payroll = await _context.Payrolls.FirstOrDefaultAsync(p =>
+            p.EmployeeId == request.EmployeeId
+        );
+        if (payroll == null)
+        {
+            return NotFound($"No payroll found for employee with ID {request.EmployeeId}");
+        }
+
+        employee.GradeId = request.GradeId;
+
+        payroll.BaseSalary = grade.BaseSalary;
+        payroll.HousingAllowance = grade.HousingAllowance;
+        payroll.TransportAllowance = grade.TransportAllowance;
+        payroll.AnnualTax = grade.AnnualTax;
+
+        var newTotalAllowance = await _payrollService.CalculateTotalAllowancesAsync(
+            request.EmployeeId
+        );
+        var newTotalDeduction = await _payrollService.CalculateTotalDeductionsAsync(
+            request.EmployeeId
+        );
+
+        payroll.TotalAllowances = newTotalAllowance;
+        payroll.TotalDeductions = newTotalDeduction;
+
+        payroll.GrossSalary = payroll.BaseSalary + newTotalAllowance;
+        payroll.NetSalary = payroll.GrossSalary - newTotalDeduction;
+        payroll.UpdatedAt = DateTime.UtcNow;
+
+        var email = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
+        payroll.LastModifiedBy = email ?? "Unknown";
+
+        await _context.SaveChangesAsync();
+        return Ok("Grade assigned and payroll updated successfully.");
     }
 
     [HttpGet("get/{id}")]
