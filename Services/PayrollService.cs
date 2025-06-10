@@ -175,5 +175,25 @@ namespace HRApi.Services
                 );
             }
         }
+
+        public string BuildDescriptionUpdate(decimal oldAmount, decimal newAmount)
+        {
+            var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+
+            if (newAmount > oldAmount)
+            {
+                var addedAmount = newAmount - oldAmount;
+                return $"[{timestamp}] Added {addedAmount} to {oldAmount}";
+            }
+            else if (newAmount < oldAmount)
+            {
+                var removedAmount = oldAmount - newAmount;
+                return $"[{timestamp}] Removed {removedAmount} from {oldAmount}";
+            }
+            else
+            {
+                return $"[{timestamp}] Amount unchanged at {oldAmount}";
+            }
+        }
     }
 }

@@ -238,6 +238,7 @@ public class GradeController : ControllerBase
 
         employee.GradeId = request.GradeId;
 
+        payroll.GradeId = request.GradeId;
         payroll.BaseSalary = grade.BaseSalary;
         payroll.HousingAllowance = grade.HousingAllowance;
         payroll.TransportAllowance = grade.TransportAllowance;

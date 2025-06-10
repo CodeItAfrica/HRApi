@@ -21,7 +21,6 @@ public class PayrollAllowance
     [Required]
     public decimal Amount { get; set; }
 
-    [StringLength(255)]
     public string? Description { get; set; }
 
     public string? LastGrantedBy { get; set; }
