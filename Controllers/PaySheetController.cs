@@ -21,6 +21,17 @@ public class PaySheetController : ControllerBase
         return Ok(paySheets);
     }
 
+    [HttpGet("get/{id}")]
+    public async Task<IActionResult> GetPaySheetById(int id)
+    {
+        var paySheet = await _context.PaySheets.FindAsync(id);
+        if (paySheet == null)
+        {
+            return NotFound("PaySheet not found.");
+        }
+        return Ok(paySheet);
+    }
+
     [HttpPost("create")]
     public async Task<IActionResult> CreatePaySheet([FromBody] NameBodyRequest request)
     {
