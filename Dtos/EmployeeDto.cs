@@ -20,8 +20,10 @@ public class EmployeeResponse
     public string? NationalIdNo { get; set; }
     public string? AcctNo1 { get; set; }
     public string? AcctName1 { get; set; }
+    public string? BankName1 { get; set; }
     public string? AcctNo2 { get; set; }
     public string? AcctName2 { get; set; }
+    public string? BankName2 { get; set; }
     public int? BranchId { get; set; }
     public string? BranchName { get; set; }
     public int? DeptId { get; set; }
