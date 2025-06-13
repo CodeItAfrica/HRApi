@@ -1,20 +1,41 @@
-- name: Publish application
-  run: dotnet publish -c Release
+name: Update swagger and Push to Postman
 
-- name: Start application
-  run: |
-    dotnet Your.Api.dll & 
-    APP_ID=$! 
-    sleep 10
-    curl -s http://localhost:5000/swagger/v1/swagger.json -o swagger.json
-    kill $APP_ID
+on:
+  push:
+    branches:
+      - master
 
-- name: Push swagger to Postman
-  env:
-    POSTMAN_API_KEY: ${{ secrets.POSTMAN_API_KEY }}
-    POSTMAN_COLLECTION_ID: ${{ secrets.POSTMAN_COLLECTION_ID }}
-  run: |
-    curl -X PUT "https://api.getpostman.com/collections/${POSTMAN_COLLECTION_ID}" \
-         -H "X-API-Key: ${POSTMAN_API_KEY}" \
-         -H "Content-Type: application/json" \
-         -d @swagger.json
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up .NET 8 SDK
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Build the application
+        run: dotnet publish -c Release
+
+      - name: Run application and extract swagger
+        run: |
+          dotnet Your.Api.dll & 
+          APP_ID=$! 
+          echo "Waiting for application to start..."
+          sleep 10
+          curl -s http://localhost:5000/swagger/v1/swagger.json -o swagger.json
+          kill $APP_ID
+
+      - name: Push swagger to Postman
+        env:
+          POSTMAN_API_KEY: ${{ secrets.POSTMAN_API_KEY }}
+          POSTMAN_COLLECTION_ID: ${{ secrets.POSTMAN_COLLECTION_ID }}
+        run: |
+          curl -X PUT "https://api.getpostman.com/collections/${POSTMAN_COLLECTION_ID}" \
+               -H "X-API-Key: ${POSTMAN_API_KEY}" \
+               -H "Content-Type: application/json" \
+               -d @swagger.json
