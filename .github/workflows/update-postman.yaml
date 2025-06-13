@@ -1,4 +1,4 @@
-name: Update Postman Collection
+name: Update swagger on push
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - master
 
 jobs:
-  build-and-update:
+  build-and-swagger:
     runs-on: ubuntu-latest
 
     steps:
@@ -24,19 +24,20 @@ jobs:
       - name: Install Swashbuckle CLI
         run: dotnet tool install --global swashbuckle.aspnetcore.cli
 
-      - name: Add .dotnet/tools to PATH
+      - name: Update PATH
         run: echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
 
       - name: Generate swagger
         run: |
-          DLL_FILE="$(find bin/Debug/net8.0 -name '*.dll' | head -n 1)"
+          DLL_FILE="$(find bin/Debug/net8.0 -name '*.dll' 2>/dev/null | head -n 1)"
+          if [ -z "$DLL_FILE" ]; then
+            echo "❌ Could not find a DLL in bin/Debug/net8.0"
+            exit 1
+          fi
           dotnet swagger tofile --output swagger.json "$DLL_FILE" v1
 
-      - name: Update Postman collection
-        env:
-          POSTMAN_API_KEY: ${{ secrets.POSTMAN_API_KEY }}
-          POSTMAN_COLLECTION_ID: ${{ secrets.POSTMAN_COLLECTION_ID }}
-        run: |
-          curl -X PUT "https://api.getpostman.com/collections/$POSTMAN_COLLECTION_ID" \
-               -H "X-API-Key: $POSTMAN_API_KEY" \
-               -d @swagger.json
+      - name: Upload swagger as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: swagger
+          path: swagger.json
