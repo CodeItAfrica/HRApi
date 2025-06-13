@@ -196,54 +196,121 @@ namespace HRApi.Services
             }
         }
 
-        public async Task CreatePayrollAllowanceHistoryForEmployee(string employeeId)
+        /// <summary>
+        /// Checks if payroll has already been processed for an employee in a specific month/year
+        /// </summary>
+        /// <param name="employeeId">The employee ID</param>
+        /// <param name="month">The month (1-12)</param>
+        /// <param name="year">The year</param>
+        /// <returns>True if payroll already exists for the month/year</returns>
+        public async Task<bool> IsPayrollAlreadyProcessedAsync(
+            string employeeId,
+            int month,
+            int year
+        )
+        {
+            return await _context.PayrollHistories.AnyAsync(ph =>
+                ph.EmployeeId == employeeId && ph.Month == month && ph.Year == year
+            );
+        }
+
+        public async Task CreatePayrollAllowanceHistoryForEmployee(
+            string employeeId,
+            int month,
+            int year
+        )
         {
             try
             {
-                var payrollAllowances = await _context
+                var allowances = await _context
                     .Set<PayrollAllowance>()
                     .Include(pa => pa.AllowanceList)
                     .Where(pa => pa.EmployeeId == employeeId)
                     .ToListAsync();
 
-                if (!payrollAllowances.Any())
+                if (!allowances.Any())
+                    return;
+
+                var currentDate = DateOnly.FromDateTime(DateTime.UtcNow);
+                var historyRecords = allowances
+                    .Select(allowance => new PayrollAllowanceHistory
+                    {
+                        EmployeeId = allowance.EmployeeId,
+                        Month = month,
+                        Year = year,
+                        AllowanceName = allowance.AllowanceList?.Name ?? "Unknown",
+                        Amount = allowance.Amount,
+                        Description = allowance.Description,
+                        LastModifiedOn = currentDate,
+                        CreatedAt = DateTime.UtcNow,
+                    })
+                    .ToList();
+
+                // Add history records first
+                await _context.Set<PayrollAllowanceHistory>().AddRangeAsync(historyRecords);
+
+                // Remove existing allowances
+                _context.Set<PayrollAllowance>().RemoveRange(allowances);
+
+                // Note: Don't call SaveChanges here - let the controller handle it
+                // Don't recreate allowances here - do it after the transaction commits
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException(
+                    $"Failed to create payroll allowance history for employee {employeeId}: {ex.Message}",
+                    ex
+                );
+            }
+        }
+
+        public async Task CreatePayrollDeductionHistoryForEmployee(
+            string employeeId,
+            int month,
+            int year
+        )
+        {
+            try
+            {
+                var payrollDeductions = await _context
+                    .Set<PayrollDeduction>()
+                    .Include(pd => pd.DeductionList)
+                    .Where(pd => pd.EmployeeId == employeeId)
+                    .ToListAsync();
+
+                if (!payrollDeductions.Any())
                 {
                     return;
                 }
 
                 var currentDate = DateOnly.FromDateTime(DateTime.UtcNow);
-                var historyRecords = new List<PayrollAllowanceHistory>();
-
-                foreach (var allowance in payrollAllowances)
-                {
-                    var historyRecord = new PayrollAllowanceHistory
+                var historyRecords = payrollDeductions
+                    .Select(deduction => new PayrollDeductionHistory
                     {
-                        EmployeeId = allowance.EmployeeId,
-                        StartDate = DateOnly.FromDateTime(allowance.CreatedAt),
-                        EndDate = currentDate,
-                        AllowanceName = allowance.AllowanceList.Name,
-                        Amount = allowance.Amount,
-                        Description = allowance.Description,
+                        EmployeeId = deduction.EmployeeId,
+                        Month = month,
+                        Year = year,
+                        DeductionName = deduction.DeductionList?.Name ?? "Unknown",
+                        Amount = deduction.Amount,
+                        Description = deduction.Description,
                         LastModifiedOn = currentDate,
                         CreatedAt = DateTime.UtcNow,
-                    };
+                    })
+                    .ToList();
 
-                    historyRecords.Add(historyRecord);
-                }
+                // Add history records first
+                await _context.Set<PayrollDeductionHistory>().AddRangeAsync(historyRecords);
 
-                var historySet = _context.Set<PayrollAllowanceHistory>();
-                var allowanceSet = _context.Set<PayrollAllowance>();
+                // Remove existing deductions
+                _context.Set<PayrollDeduction>().RemoveRange(payrollDeductions);
 
-                await historySet.AddRangeAsync(historyRecords);
-
-                allowanceSet.RemoveRange(payrollAllowances);
-
-                await _context.SaveChangesAsync();
+                // Note: Don't call SaveChanges here - let the controller handle it
+                // Don't recreate deductions here - do it after the transaction commits
             }
             catch (Exception ex)
             {
                 throw new InvalidOperationException(
-                    $"Failed to create payroll allowance history for employee {employeeId}",
+                    $"Failed to create payroll deduction history for employee {employeeId}: {ex.Message}",
                     ex
                 );
             }
