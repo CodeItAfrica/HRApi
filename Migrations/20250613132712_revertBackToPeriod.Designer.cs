@@ -4,6 +4,7 @@ using HRApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HRApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250613132712_revertBackToPeriod")]
+    partial class revertBackToPeriod
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1198,49 +1201,6 @@ namespace HRApi.Migrations
                     b.ToTable("PayrollAllowances");
                 });
 
-            modelBuilder.Entity("HRApi.Models.PayrollAllowanceHistory", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("AllowanceName")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<string>("EmployeeId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateOnly>("LastModifiedOn")
-                        .HasColumnType("date");
-
-                    b.Property<int>("Month")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Year")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("EmployeeId");
-
-                    b.ToTable("PayrollAllowanceHistories");
-                });
-
             modelBuilder.Entity("HRApi.Models.PayrollDeduction", b =>
                 {
                     b.Property<int>("Id")
@@ -1285,49 +1245,6 @@ namespace HRApi.Migrations
                     b.ToTable("PayrollDeductions");
                 });
 
-            modelBuilder.Entity("HRApi.Models.PayrollDeductionHistory", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("DeductionName")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<string>("EmployeeId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateOnly>("LastModifiedOn")
-                        .HasColumnType("date");
-
-                    b.Property<int>("Month")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Year")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("EmployeeId");
-
-                    b.ToTable("PayrollDeductionHistories");
-                });
-
             modelBuilder.Entity("HRApi.Models.PayrollHistory", b =>
                 {
                     b.Property<int>("Id")
@@ -1355,9 +1272,6 @@ namespace HRApi.Migrations
                     b.Property<decimal>("HousingAllowance")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int>("Month")
-                        .HasColumnType("int");
-
                     b.Property<decimal>("NetSalary")
                         .HasColumnType("decimal(18,2)");
 
@@ -1366,6 +1280,9 @@ namespace HRApi.Migrations
 
                     b.Property<int?>("PaymentStatus")
                         .HasMaxLength(20)
+                        .HasColumnType("int");
+
+                    b.Property<int>("Period")
                         .HasColumnType("int");
 
                     b.Property<int?>("ProcessedByUserId")
@@ -1379,9 +1296,6 @@ namespace HRApi.Migrations
 
                     b.Property<decimal>("TransportAllowance")
                         .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("Year")
-                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -1880,17 +1794,6 @@ namespace HRApi.Migrations
                     b.Navigation("Employee");
                 });
 
-            modelBuilder.Entity("HRApi.Models.PayrollAllowanceHistory", b =>
-                {
-                    b.HasOne("HRApi.Models.Employee", "Employee")
-                        .WithMany()
-                        .HasForeignKey("EmployeeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Employee");
-                });
-
             modelBuilder.Entity("HRApi.Models.PayrollDeduction", b =>
                 {
                     b.HasOne("HRApi.Models.DeductionList", "DeductionList")
@@ -1910,17 +1813,6 @@ namespace HRApi.Migrations
                         .HasForeignKey("PayrollId");
 
                     b.Navigation("DeductionList");
-
-                    b.Navigation("Employee");
-                });
-
-            modelBuilder.Entity("HRApi.Models.PayrollDeductionHistory", b =>
-                {
-                    b.HasOne("HRApi.Models.Employee", "Employee")
-                        .WithMany()
-                        .HasForeignKey("EmployeeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
 
                     b.Navigation("Employee");
                 });

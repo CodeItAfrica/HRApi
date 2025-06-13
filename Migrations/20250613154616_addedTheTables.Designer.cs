@@ -4,6 +4,7 @@ using HRApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HRApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250613154616_addedTheTables")]
+    partial class addedTheTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1228,10 +1231,7 @@ namespace HRApi.Migrations
                     b.Property<DateOnly>("LastModifiedOn")
                         .HasColumnType("date");
 
-                    b.Property<int>("Month")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Year")
+                    b.Property<int>("Period")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -1315,10 +1315,7 @@ namespace HRApi.Migrations
                     b.Property<DateOnly>("LastModifiedOn")
                         .HasColumnType("date");
 
-                    b.Property<int>("Month")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Year")
+                    b.Property<int>("Period")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -1355,9 +1352,6 @@ namespace HRApi.Migrations
                     b.Property<decimal>("HousingAllowance")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int>("Month")
-                        .HasColumnType("int");
-
                     b.Property<decimal>("NetSalary")
                         .HasColumnType("decimal(18,2)");
 
@@ -1366,6 +1360,9 @@ namespace HRApi.Migrations
 
                     b.Property<int?>("PaymentStatus")
                         .HasMaxLength(20)
+                        .HasColumnType("int");
+
+                    b.Property<int>("Period")
                         .HasColumnType("int");
 
                     b.Property<int?>("ProcessedByUserId")
@@ -1379,9 +1376,6 @@ namespace HRApi.Migrations
 
                     b.Property<decimal>("TransportAllowance")
                         .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("Year")
-                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
