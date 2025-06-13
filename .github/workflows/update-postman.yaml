@@ -1,0 +1,33 @@
+name: Update Postman Collection
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: "6.0.x"
+
+      - name: Build
+        run: dotnet build
+
+      - name: Generate swagger
+        run: dotnet swagger tofile --output swagger.json src/Your.Api.dll v1
+
+      - name: Update Postman collection
+        env:
+          POSTMAN_API_KEY: ${{ secrets.POSTMAN_API_KEY }}
+          COLLECTION_ID: ${{ secrets.POSTMAN_COLLECTION_ID }}
+        run: |
+          curl -X PUT "https://api.getpostman.com/collections/$COLLECTION_ID" \
+               -H "X-API-Key: $POSTMAN_API_KEY" \
+               -d @swagger.json

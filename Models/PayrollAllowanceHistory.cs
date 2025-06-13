@@ -15,7 +15,10 @@ public class PayrollAllowanceHistory
     public virtual Employee Employee { get; set; } = null!;
 
     [Required]
-    public DateOnly Period { get; set; }
+    public DateOnly StartDate { get; set; }
+
+    [Required]
+    public DateOnly EndDate { get; set; }
 
     [Required]
     [StringLength(50)]

@@ -4,6 +4,7 @@ using HRApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HRApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250612134020_modifiedPeriodtostartdateandenddate")]
+    partial class modifiedPeriodtostartdateandenddate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1134,6 +1137,9 @@ namespace HRApi.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<DateOnly>("StartDate")
+                        .HasColumnType("date");
+
                     b.Property<decimal>("TotalAllowances")
                         .HasColumnType("decimal(18,2)");
 
@@ -1187,6 +1193,9 @@ namespace HRApi.Migrations
                     b.Property<int?>("PayrollId")
                         .HasColumnType("int");
 
+                    b.Property<DateOnly>("StartDate")
+                        .HasColumnType("date");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AllowanceListId");
@@ -1230,6 +1239,9 @@ namespace HRApi.Migrations
 
                     b.Property<int?>("PayrollId")
                         .HasColumnType("int");
+
+                    b.Property<DateOnly>("StartDate")
+                        .HasColumnType("date");
 
                     b.HasKey("Id");
 

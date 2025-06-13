@@ -115,26 +115,26 @@ public class UnitController : ControllerBase
         return Ok(unit);
     }
 
-    [HttpGet("get-by-department/{departmentId}")]
-    public async Task<IActionResult> GetUnitsByDepartment(int departmentId)
-    {
-        var units = await _context
-            .Units.Where(u => u.DepartmentId == departmentId)
-            .Select(u => new
-            {
-                u.Id,
-                u.UnitName,
-                u.CreatedAt,
-                u.DepartmentId,
-                DepartmentName = u.Department.DepartmentName,
-            })
-            .ToListAsync();
+    // [HttpGet("get-by-department/{departmentId}")]
+    // public async Task<IActionResult> GetUnitsByDepartment(int departmentId)
+    // {
+    //     var units = await _context
+    //         .Units.Where(u => u.DepartmentId == departmentId)
+    //         .Select(u => new
+    //         {
+    //             u.Id,
+    //             u.UnitName,
+    //             u.CreatedAt,
+    //             u.DepartmentId,
+    //             DepartmentName = u.Department.DepartmentName,
+    //         })
+    //         .ToListAsync();
 
-        if (units == null || !units.Any())
-        {
-            return NotFound($"No units found for department ID {departmentId}.");
-        }
+    //     if (units == null || !units.Any())
+    //     {
+    //         return NotFound($"No units found for department ID {departmentId}.");
+    //     }
 
-        return Ok(units);
-    }
+    //     return Ok(units);
+    // }
 }

@@ -68,7 +68,26 @@ public class PayrollController : ControllerBase
 
             await _context.SaveChangesAsync();
 
-            return Ok(payroll);
+            var result = new
+            {
+                payroll.Id,
+                payroll.EmployeeId,
+                Employee = new { payroll.Employee.FullName, payroll.Employee.Email },
+                payroll.BaseSalary,
+                payroll.HousingAllowance,
+                payroll.TransportAllowance,
+                payroll.AnnualTax,
+                payroll.TotalAllowances,
+                payroll.TotalDeductions,
+                payroll.GrossSalary,
+                payroll.AccountNumber,
+                payroll.BankName,
+                payroll.NetSalary,
+                payroll.CreatedAt,
+                payroll.UpdatedAt,
+            };
+
+            return Ok(result);
         }
         catch (Exception ex)
         {

@@ -195,5 +195,58 @@ namespace HRApi.Services
                 return $"[{timestamp}] Amount unchanged at {oldAmount}";
             }
         }
+
+        public async Task CreatePayrollAllowanceHistoryForEmployee(string employeeId)
+        {
+            try
+            {
+                var payrollAllowances = await _context
+                    .Set<PayrollAllowance>()
+                    .Include(pa => pa.AllowanceList)
+                    .Where(pa => pa.EmployeeId == employeeId)
+                    .ToListAsync();
+
+                if (!payrollAllowances.Any())
+                {
+                    return;
+                }
+
+                var currentDate = DateOnly.FromDateTime(DateTime.UtcNow);
+                var historyRecords = new List<PayrollAllowanceHistory>();
+
+                foreach (var allowance in payrollAllowances)
+                {
+                    var historyRecord = new PayrollAllowanceHistory
+                    {
+                        EmployeeId = allowance.EmployeeId,
+                        StartDate = DateOnly.FromDateTime(allowance.CreatedAt),
+                        EndDate = currentDate,
+                        AllowanceName = allowance.AllowanceList.Name,
+                        Amount = allowance.Amount,
+                        Description = allowance.Description,
+                        LastModifiedOn = currentDate,
+                        CreatedAt = DateTime.UtcNow,
+                    };
+
+                    historyRecords.Add(historyRecord);
+                }
+
+                var historySet = _context.Set<PayrollAllowanceHistory>();
+                var allowanceSet = _context.Set<PayrollAllowance>();
+
+                await historySet.AddRangeAsync(historyRecords);
+
+                allowanceSet.RemoveRange(payrollAllowances);
+
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException(
+                    $"Failed to create payroll allowance history for employee {employeeId}",
+                    ex
+                );
+            }
+        }
     }
 }
