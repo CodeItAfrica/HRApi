@@ -21,7 +21,4 @@
     <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.8.0" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.9.0" />
   </ItemGroup>
-  <Target Name="GenerateOpenApi" AfterTargets="Build">
-    <Exec Command="dotnet swagger tofile --output &quot;$(ProjectDir)swagger.json&quot; &quot;$(TargetDir)Your.Api.dll&quot; v1" />
-  </Target>
 </Project>
