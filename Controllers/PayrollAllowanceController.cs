@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using HRApi.Data;
+using HRApi.Models;
 using HRApi.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -129,5 +130,100 @@ public class PayrollAllowanceController : ControllerBase
         {
             return StatusCode(500, $"An error occurred while updating the amount: {ex.Message}");
         }
+    }
+
+    [HttpGet("history/employee/{employeeId}/month/{month}/year/{year}")]
+    public async Task<
+        ActionResult<IEnumerable<PayrollAllowanceHistory>>
+    > GetEmployeeAllowanceHistoryByMonthYear(string employeeId, int month, int year)
+    {
+        if (month < 1 || month > 12)
+            return BadRequest("Month must be between 1 and 12");
+
+        if (year < 2020 || year > 2100)
+            return BadRequest("Year must be between 2020 and 2100");
+
+        var allowanceHistory = await _context
+            .PayrollAllowanceHistories.Include(a => a.Employee)
+            .Where(a => a.EmployeeId == employeeId && a.Month == month && a.Year == year)
+            .OrderBy(a => a.AllowanceName)
+            .ToListAsync();
+
+        if (!allowanceHistory.Any())
+            return NotFound(
+                $"No allowance history found for employee {employeeId} in {month}/{year}"
+            );
+
+        return Ok(allowanceHistory);
+    }
+
+    [HttpGet("history/employee/{employeeId}")]
+    public async Task<
+        ActionResult<IEnumerable<PayrollAllowanceHistory>>
+    > GetAllEmployeeAllowanceHistory(string employeeId)
+    {
+        var employee = await _context.Employees.FindAsync(employeeId);
+        if (employee == null)
+            return NotFound($"Employee with ID {employeeId} not found");
+
+        var allowanceHistory = await _context
+            .PayrollAllowanceHistories.Include(a => a.Employee)
+            .Where(a => a.EmployeeId == employeeId)
+            .OrderByDescending(a => a.Year)
+            .ThenByDescending(a => a.Month)
+            .ThenBy(a => a.AllowanceName)
+            .ToListAsync();
+
+        return Ok(allowanceHistory);
+    }
+
+    [HttpGet("history/allowance/{allowanceName}")]
+    public async Task<ActionResult<IEnumerable<PayrollAllowanceHistory>>> GetAllowanceHistoryByName(
+        string allowanceName
+    )
+    {
+        var allowanceHistory = await _context
+            .PayrollAllowanceHistories.Include(a => a.Employee)
+            .Where(a => a.AllowanceName.ToLower() == allowanceName.ToLower())
+            .OrderByDescending(a => a.Year)
+            .ThenByDescending(a => a.Month)
+            .ThenBy(a => a.Employee.Surname)
+            .ToListAsync();
+
+        return Ok(allowanceHistory);
+    }
+
+    [HttpGet("history/month/{month}/year/{year}")]
+    public async Task<
+        ActionResult<IEnumerable<PayrollAllowanceHistory>>
+    > GetAllowanceHistoryByMonthYear(int month, int year)
+    {
+        if (month < 1 || month > 12)
+            return BadRequest("Month must be between 1 and 12");
+
+        if (year < 2020 || year > 2100)
+            return BadRequest("Year must be between 2020 and 2100");
+
+        var allowanceHistory = await _context
+            .PayrollAllowanceHistories.Include(a => a.Employee)
+            .Where(a => a.Month == month && a.Year == year)
+            .OrderBy(a => a.Employee.Surname)
+            .ThenBy(a => a.AllowanceName)
+            .ToListAsync();
+
+        return Ok(allowanceHistory);
+    }
+
+    [HttpGet("history/{id}")]
+    public async Task<ActionResult<PayrollAllowanceHistory>> GetPayrollAllowanceHistory(int id)
+    {
+        var allowanceHistory = await _context
+            .PayrollAllowanceHistories.Include(a => a.Employee)
+            .FirstOrDefaultAsync(a => a.Id == id);
+
+        if (allowanceHistory == null)
+            return NotFound();
+
+        return Ok(allowanceHistory);
     }
 }

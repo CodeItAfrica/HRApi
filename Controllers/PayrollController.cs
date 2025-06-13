@@ -203,7 +203,6 @@ public class PayrollController : ControllerBase
 
             _context.PayrollHistories.Add(payrollHistory);
 
-            // Create history records (this will also remove current allowances/deductions)
             await _payrollService.CreatePayrollAllowanceHistoryForEmployee(
                 payroll.EmployeeId,
                 request.Month,
@@ -251,12 +250,9 @@ public class PayrollController : ControllerBase
             _context.Payrolls.Add(newPayroll);
             _context.Payrolls.Remove(payroll);
 
-            // Save all changes within the transaction
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
 
-            // After transaction commits successfully, recreate the allowances and deductions
-            // This is done outside the transaction to avoid conflicts
             try
             {
                 await _payrollService.CreatePayrollAllowancesForEmployee(payroll.EmployeeId);
@@ -264,9 +260,6 @@ public class PayrollController : ControllerBase
             }
             catch (Exception ex)
             {
-                // Log this error but don't fail the entire operation
-                // The payroll processing was successful, but recreation of allowances/deductions failed
-                // This can be handled separately or logged for manual intervention
                 Console.WriteLine(
                     $"Warning: Failed to recreate allowances/deductions for employee {payroll.EmployeeId}: {ex.Message}"
                 );
@@ -293,5 +286,109 @@ public class PayrollController : ControllerBase
                 new { message = "An error occurred while processing payroll", error = ex.Message }
             );
         }
+    }
+
+    [HttpGet("history/month/{month}/year/{year}")]
+    public async Task<ActionResult<IEnumerable<PayrollHistory>>> GetPayrollHistoryByMonthYear(
+        int month,
+        int year
+    )
+    {
+        if (month < 1 || month > 12)
+            return BadRequest("Month must be between 1 and 12");
+
+        if (year < 2020 || year > 2100)
+            return BadRequest("Year must be between 2020 and 2100");
+
+        var payrollHistory = await _context
+            .PayrollHistories.Include(p => p.Employee)
+            .Include(p => p.ProcessedBy)
+            .Include(p => p.PayrollPayments)
+            .Where(p => p.Month == month && p.Year == year)
+            .OrderBy(p => p.Employee.OtherNames)
+            .ThenBy(p => p.Employee.Surname)
+            .ToListAsync();
+
+        return Ok(payrollHistory);
+    }
+
+    [HttpGet("history/employee/{employeeId}/month/{month}/year/{year}")]
+    public async Task<ActionResult<PayrollHistory>> GetEmployeePayrollHistoryByMonthYear(
+        string employeeId,
+        int month,
+        int year
+    )
+    {
+        if (month < 1 || month > 12)
+            return BadRequest("Month must be between 1 and 12");
+
+        if (year < 2020 || year > 2100)
+            return BadRequest("Year must be between 2020 and 2100");
+
+        var payrollHistory = await _context
+            .PayrollHistories.Include(p => p.Employee)
+            .Include(p => p.ProcessedBy)
+            .Include(p => p.PayrollPayments)
+            .FirstOrDefaultAsync(p =>
+                p.EmployeeId == employeeId && p.Month == month && p.Year == year
+            );
+
+        if (payrollHistory == null)
+            return NotFound(
+                $"Payroll history not found for employee {employeeId} in {month}/{year}"
+            );
+
+        return Ok(payrollHistory);
+    }
+
+    [HttpGet("history/employee/{employeeId}")]
+    public async Task<ActionResult<IEnumerable<PayrollHistory>>> GetAllEmployeePayrollHistory(
+        string employeeId
+    )
+    {
+        var employee = await _context.Employees.FindAsync(employeeId);
+        if (employee == null)
+            return NotFound($"Employee with ID {employeeId} not found");
+
+        var payrollHistory = await _context
+            .PayrollHistories.Include(p => p.Employee)
+            .Include(p => p.ProcessedBy)
+            .Include(p => p.PayrollPayments)
+            .Where(p => p.EmployeeId == employeeId)
+            .OrderByDescending(p => p.Year)
+            .ThenByDescending(p => p.Month)
+            .ToListAsync();
+
+        return Ok(payrollHistory);
+    }
+
+    [HttpGet("history/{id}")]
+    public async Task<ActionResult<PayrollHistory>> GetPayrollHistory(int id)
+    {
+        var payrollHistory = await _context
+            .PayrollHistories.Include(p => p.Employee)
+            .Include(p => p.ProcessedBy)
+            .Include(p => p.PayrollPayments)
+            .FirstOrDefaultAsync(p => p.Id == id);
+
+        if (payrollHistory == null)
+            return NotFound();
+
+        return Ok(payrollHistory);
+    }
+
+    [HttpGet("history/status/{status}")]
+    public async Task<ActionResult<IEnumerable<PayrollHistory>>> GetPayrollHistoryByStatus(
+        PayrollHistoryStatus status
+    )
+    {
+        var payrollHistory = await _context
+            .PayrollHistories.Include(p => p.Employee)
+            .Include(p => p.ProcessedBy)
+            .Where(p => p.PaymentStatus == status)
+            .OrderByDescending(p => p.CreatedAt)
+            .ToListAsync();
+
+        return Ok(payrollHistory);
     }
 }

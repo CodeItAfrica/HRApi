@@ -246,14 +246,9 @@ namespace HRApi.Services
                     })
                     .ToList();
 
-                // Add history records first
                 await _context.Set<PayrollAllowanceHistory>().AddRangeAsync(historyRecords);
 
-                // Remove existing allowances
                 _context.Set<PayrollAllowance>().RemoveRange(allowances);
-
-                // Note: Don't call SaveChanges here - let the controller handle it
-                // Don't recreate allowances here - do it after the transaction commits
             }
             catch (Exception ex)
             {
@@ -298,14 +293,9 @@ namespace HRApi.Services
                     })
                     .ToList();
 
-                // Add history records first
                 await _context.Set<PayrollDeductionHistory>().AddRangeAsync(historyRecords);
 
-                // Remove existing deductions
                 _context.Set<PayrollDeduction>().RemoveRange(payrollDeductions);
-
-                // Note: Don't call SaveChanges here - let the controller handle it
-                // Don't recreate deductions here - do it after the transaction commits
             }
             catch (Exception ex)
             {
