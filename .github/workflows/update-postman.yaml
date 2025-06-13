@@ -3,7 +3,7 @@ name: Update Postman Collection
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   build-and-update:
