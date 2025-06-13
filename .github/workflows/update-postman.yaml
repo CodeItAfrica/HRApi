@@ -10,18 +10,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-      - name: Set up .NET
+      - name: Set up .NET 8 SDK
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: "8.0.x"
 
       - name: Build
-        run: dotnet build
+        run: dotnet build -c Debug
+
+      - name: Install Swashbuckle CLI
+        run: dotnet tool install --global Swashbuckle.AspNetCore.Cli
 
       - name: Generate swagger
-        run: dotnet swagger tofile --output swagger.json src/Your.Api.dll v1
+        run: dotnet swagger tofile --output swagger.json "bin/Debug/net8.0/HRApi.dll" v1
 
       - name: Update Postman collection
         env:
