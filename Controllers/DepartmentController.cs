@@ -31,8 +31,9 @@ public class DepartmentController : ControllerBase
 
         var normalizedDepartmentName = request.DepartmentName.Trim().ToLower();
 
-        var existingDepartment = await _context.Departments
-            .FirstOrDefaultAsync(r => r.DepartmentName.ToLower() == normalizedDepartmentName);
+        var existingDepartment = await _context.Departments.FirstOrDefaultAsync(r =>
+            r.DepartmentName.ToLower() == normalizedDepartmentName
+        );
 
         if (existingDepartment != null)
         {
@@ -42,7 +43,7 @@ public class DepartmentController : ControllerBase
         var department = new Department
         {
             DepartmentName = request.DepartmentName,
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow,
         };
 
         _context.Departments.Add(department);
@@ -70,8 +71,9 @@ public class DepartmentController : ControllerBase
         }
 
         var normalizedDepartmentName = request.DepartmentName.Trim().ToLower();
-        var existingDepartment = await _context.Departments
-            .FirstOrDefaultAsync(r => r.DepartmentName.ToLower() == normalizedDepartmentName && r.Id != id);
+        var existingDepartment = await _context.Departments.FirstOrDefaultAsync(r =>
+            r.DepartmentName.ToLower() == normalizedDepartmentName && r.Id != id
+        );
 
         if (existingDepartment != null)
         {

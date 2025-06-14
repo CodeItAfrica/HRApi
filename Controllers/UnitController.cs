@@ -31,8 +31,9 @@ public class UnitController : ControllerBase
 
         var normalizedUnitName = request.UnitName.Trim().ToLower();
 
-        var existingUnit = await _context.Units
-            .FirstOrDefaultAsync(u => u.UnitName.ToLower() == normalizedUnitName);
+        var existingUnit = await _context.Units.FirstOrDefaultAsync(u =>
+            u.UnitName.ToLower() == normalizedUnitName
+        );
 
         if (existingUnit != null)
         {
@@ -43,7 +44,7 @@ public class UnitController : ControllerBase
         {
             UnitName = request.UnitName,
             DepartmentId = request.DepartmentId,
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow,
         };
 
         _context.Units.Add(unit);
@@ -67,8 +68,9 @@ public class UnitController : ControllerBase
         }
 
         var normalizedUnitName = request.UnitName.Trim().ToLower();
-        var existingUnit = await _context.Units
-            .FirstOrDefaultAsync(u => u.UnitName.ToLower() == normalizedUnitName && u.Id != id);
+        var existingUnit = await _context.Units.FirstOrDefaultAsync(u =>
+            u.UnitName.ToLower() == normalizedUnitName && u.Id != id
+        );
 
         if (existingUnit != null)
         {
@@ -102,7 +104,9 @@ public class UnitController : ControllerBase
     [HttpGet("get/{id}")]
     public async Task<IActionResult> GetUnitById(int id)
     {
-        var unit = await _context.Units.Include(u => u.Department).FirstOrDefaultAsync(u => u.Id == id);
+        var unit = await _context
+            .Units.Include(u => u.Department)
+            .FirstOrDefaultAsync(u => u.Id == id);
         if (unit == null)
         {
             return NotFound($"Unit with ID {id} not found.");
@@ -114,15 +118,15 @@ public class UnitController : ControllerBase
     [HttpGet("get-by-department/{departmentId}")]
     public async Task<IActionResult> GetUnitsByDepartment(int departmentId)
     {
-        var units = await _context.Units
-            .Where(u => u.DepartmentId == departmentId)
+        var units = await _context
+            .Units.Where(u => u.DepartmentId == departmentId)
             .Select(u => new
             {
                 u.Id,
                 u.UnitName,
                 u.CreatedAt,
                 u.DepartmentId,
-                DepartmentName = u.Department.DepartmentName
+                DepartmentName = u.Department.DepartmentName,
             })
             .ToListAsync();
 
@@ -133,5 +137,4 @@ public class UnitController : ControllerBase
 
         return Ok(units);
     }
-
 }

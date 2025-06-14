@@ -14,25 +14,19 @@ public class PayrollDeduction
     public string EmployeeId { get; set; } = null!;
     public virtual Employee Employee { get; set; } = null!;
 
-    [Required]
-    public DateOnly Period { get; set; }
-
-    [Required]
-    [StringLength(50)]
-    public string DeductionType { get; set; } = null!;
+    [ForeignKey("DeductionList")]
+    public int DeductionListId { get; set; }
+    public virtual DeductionList DeductionList { get; set; } = null!;
 
     [Required]
     public decimal Amount { get; set; }
 
-    [StringLength(255)]
     public string? Description { get; set; }
 
-    [ForeignKey("DeductedBy")]
-    public int? DeductedByUserId { get; set; }
-    public virtual User? DeductedBy { get; set; }
+    public string? LastDeductedBy { get; set; }
 
     [Required]
-    public DateOnly DeductedOn { get; set; }
+    public DateOnly LastDeductedOn { get; set; }
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

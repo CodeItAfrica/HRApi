@@ -20,18 +20,21 @@ public class AuthController : ControllerBase
     private readonly IConfiguration _config;
     private readonly AuthRepository _authRepository;
     private readonly IDService _idService;
+    private readonly PayrollService _payrollService;
 
     public AuthController(
         AppDbContext context,
         IConfiguration config,
         AuthRepository authRepository,
-        IDService idService
+        IDService idService,
+        PayrollService payrollService
     )
     {
         _context = context;
         _config = config;
         _authRepository = authRepository;
         _idService = idService;
+        _payrollService = payrollService;
     }
 
     protected ActionResult ExceptionResult(Exception ex)
@@ -102,26 +105,22 @@ public class AuthController : ControllerBase
     [Consumes("multipart/form-data")]
     public async Task<IActionResult> Register([FromForm] RegisterRequest request, IFormFile? Photo)
     {
-        // This ensures that the email and password fields are not empty, i needed to be sure because i was getting an error yesterday
         if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password))
             return BadRequest("Email and password are required.");
 
-        // This is to ensure that a user with the same email does not exist so that each user will have a unique email address
         if (_context.Users.Any(u => u.Email == request.Email))
         {
             return BadRequest("User with this email already exists.");
         }
 
-        // This is where the system will check if the user is verified, it collects the email and the code and returns true or false depending on if the user is verified or not
-        // bool isVerified = await _authRepository.VerifyRegisterCodeAsync(request.Email, request.code);
-        // if (!isVerified)
-        // {
-        //     return BadRequest("Invalid or expired code. Please confirm your OTP.");
-        // }
+        var grade = await _context.Grades.FindAsync(request.GradeId);
+        if (grade == null)
+        {
+            return NotFound($"No grade found with ID {request.GradeId}");
+        }
 
         using var transaction = await _context.Database.BeginTransactionAsync();
 
-        // This is where the auto generated id will be set, both for the employeeId and the staffId ----- we might need to add a a foreign key constraint linking the employee table to the user table
         var staffIdNo = await _idService.GenerateUniqueStaffIdAsync();
 
         try
@@ -164,8 +163,10 @@ public class AuthController : ControllerBase
                 NationalIdNo = request.NationalIdNo,
                 AcctNo1 = request.AcctNo1,
                 AcctName1 = request.AcctName1,
+                BankName1 = request.BankName1,
                 AcctNo2 = request.AcctNo2,
                 AcctName2 = request.AcctName2,
+                BankName2 = request.BankName2,
                 BranchId = request.BranchId,
                 // Branch = request.Branch,
                 DeptId = request.DeptId,
@@ -231,7 +232,32 @@ public class AuthController : ControllerBase
             _context.UserRoles.Add(userRole);
             await _context.SaveChangesAsync();
 
+            var payroll = new Payroll
+            {
+                EmployeeId = employee.Id,
+                GradeId = request.GradeId,
+                BaseSalary = grade.BaseSalary,
+                HousingAllowance = grade.HousingAllowance,
+                TransportAllowance = grade.TransportAllowance,
+                AnnualTax = grade.AnnualTax,
+                TotalAllowances = 0m,
+                TotalDeductions = 0m,
+                GrossSalary = grade.BaseSalary + grade.HousingAllowance + grade.TransportAllowance,
+                NetSalary = grade.BaseSalary + grade.HousingAllowance + grade.TransportAllowance,
+                AccountNumber = request.AcctNo1,
+                BankName = request.BankName1,
+                CreatedBy = request.Email,
+                LastModifiedBy = request.Email,
+            };
+
+            _context.Payrolls.Add(payroll);
+            await _context.SaveChangesAsync();
+
             await transaction.CommitAsync();
+
+            await _payrollService.CreatePayrollAllowancesForEmployee(employee.Id);
+            await _payrollService.CreatePayrollDeductionsForEmployee(employee.Id);
+
             return Ok("Employee and user registered successfully.");
         }
         catch (Exception ex)

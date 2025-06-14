@@ -183,7 +183,7 @@ namespace HRApi.Controllers
             return Ok(branch);
         }
 
-        [Authorize(Roles = "ADMIN")]
+        // [Authorize(Roles = "ADMIN")]
         [HttpPost("branches-create")]
         public async Task<IActionResult> AddBranch([FromBody] CreateBranchRequest request)
         {
