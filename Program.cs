@@ -31,7 +31,7 @@ builder.Services.AddSwaggerGen(s =>
 {
     s.SwaggerDoc("v1", new OpenApiInfo
     {
-        Title = "Sterling Api", // 👈 Change this to whatever name you want
+        Title = "HR Api", // 👈 Change this to whatever name you want
         Version = "v1",
 
     });
@@ -97,13 +97,13 @@ builder.Services.AddAuthentication(x =>
     };
 });
 
-//builder.Services.AddCors(options =>
-//{
-//  options.AddPolicy("AllowAll", policy =>
-//      policy.AllowAnyOrigin()
-//            .AllowAnyMethod()
-//            .AllowAnyHeader());
-//})  
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader());
+});
 
 builder.Services.AddAuthorization();
 
@@ -131,7 +131,7 @@ app.UseCors("AllowOrigin");
 
 app.UseAuthentication();
 app.UseAuthorization();
-//app.UseCorsMiddleware();
+app.UseCorsMiddleware();
 
 app.MapControllers();
 
