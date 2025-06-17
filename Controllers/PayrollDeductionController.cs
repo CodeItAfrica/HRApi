@@ -91,6 +91,15 @@ public class PayrollDeductionController : ControllerBase
             return NotFound($"PayrollDeduction with ID {id} not found.");
         }
 
+        var payroll = await _context.Payrolls.FirstOrDefaultAsync(p =>
+            p.EmployeeId == deduction.EmployeeId
+        );
+
+        if (payroll == null)
+        {
+            return NotFound($"Payroll for allowance with ID {id} not found.");
+        }
+
         var oldAmount = deduction.Amount;
         var newAmount = request.NewAmount;
 
@@ -110,8 +119,25 @@ public class PayrollDeductionController : ControllerBase
         deduction.LastDeductedBy = userEmail;
         deduction.LastDeductedOn = DateOnly.FromDateTime(DateTime.Now);
 
+        await _context.SaveChangesAsync();
+
         try
         {
+            var newTotalAllowance = await _payrollService.CalculateTotalAllowancesAsync(
+                deduction.EmployeeId
+            );
+            var newTotalDeduction = await _payrollService.CalculateTotalDeductionsAsync(
+                deduction.EmployeeId
+            );
+
+            payroll.TotalAllowances = newTotalAllowance;
+            payroll.TotalDeductions = newTotalDeduction;
+
+            payroll.GrossSalary = payroll.BaseSalary + newTotalAllowance;
+            payroll.NetSalary = payroll.GrossSalary - newTotalDeduction;
+            payroll.LastModifiedBy = userEmail;
+            payroll.UpdatedAt = DateTime.UtcNow;
+
             await _context.SaveChangesAsync();
 
             return Ok(

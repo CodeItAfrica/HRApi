@@ -58,6 +58,7 @@ public class PayrollController : ControllerBase
                 AccountNumber = p.Payroll.AccountNumber ?? string.Empty,
                 BankName = p.Payroll.BankName ?? string.Empty,
                 CreatedAt = p.Payroll.CreatedAt,
+                UpdatedAt = p.Payroll.UpdatedAt,
                 LastModifiedBy = p.Payroll.LastModifiedBy,
             });
 
@@ -79,14 +80,22 @@ public class PayrollController : ControllerBase
         {
             var payroll = await _context
                 .Payrolls.Include(p => p.Employee)
-                .Include(p => p.PayrollDeductions)
-                .Include(p => p.PayrollAllowances)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
             if (payroll == null)
             {
                 return NotFound(new { message = $"Payroll with ID {id} not found" });
             }
+
+            var payrollAllowances = await _context
+                .PayrollAllowances.Include(pa => pa.AllowanceList)
+                .Where(pa => pa.EmployeeId == payroll.EmployeeId)
+                .ToListAsync();
+
+            var payrollDeductions = await _context
+                .PayrollDeductions.Include(pd => pd.DeductionList)
+                .Where(pd => pd.EmployeeId == payroll.EmployeeId)
+                .ToListAsync();
 
             var newTotalAllowance = await _payrollService.CalculateTotalAllowancesAsync(
                 payroll.EmployeeId
@@ -121,6 +130,31 @@ public class PayrollController : ControllerBase
                 payroll.NetSalary,
                 payroll.CreatedAt,
                 payroll.UpdatedAt,
+                payroll.LastModifiedBy,
+                PayrollAllowances = payrollAllowances
+                    .Select(pa => new
+                    {
+                        pa.Id,
+                        pa.Amount,
+                        pa.Description,
+                        pa.LastGrantedBy,
+                        pa.LastGrantedOn,
+                        pa.CreatedAt,
+                        AllowanceType = new { pa.AllowanceList.Id, pa.AllowanceList.Name },
+                    })
+                    .ToList(),
+                PayrollDeductions = payrollDeductions
+                    .Select(pd => new
+                    {
+                        pd.Id,
+                        pd.Amount,
+                        pd.Description,
+                        pd.LastDeductedBy,
+                        pd.LastDeductedOn,
+                        pd.CreatedAt,
+                        DeductionType = new { pd.DeductionList.Id, pd.DeductionList.Name },
+                    })
+                    .ToList(),
             };
 
             return Ok(result);
