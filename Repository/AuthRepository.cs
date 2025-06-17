@@ -72,7 +72,7 @@ namespace HRApi.Repository
             await _context.SaveChangesAsync();
             // Console.WriteLine("I ran 33")
 
-            string registerUrl = $"https://yourfrontend.com/register";
+            string registerUrl = $"http://hrms5.newgibsonline.com/register";
             string body = $"Click this link to register: {registerUrl}. Your code: {code}";
 
             await SendEmailAsync(email, "Registration Link", body);
