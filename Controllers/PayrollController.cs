@@ -25,10 +25,43 @@ public class PayrollController : ControllerBase
         try
         {
             var payrolls = await _context
-                .Payrolls.OrderByDescending(p => p.CreatedAt)
+                .Payrolls.Include(p => p.Employee)
+                .Join(
+                    _context.Grades,
+                    payroll => payroll.GradeId,
+                    grade => grade.Id,
+                    (payroll, grade) => new { Payroll = payroll, Grade = grade }
+                )
+                .OrderByDescending(p => p.Payroll.CreatedAt)
                 .ToListAsync();
 
-            return Ok(payrolls);
+            var response = payrolls.Select(p => new PayrollsResponseDto
+            {
+                Id = p.Payroll.Id,
+                EmployeeId = p.Payroll.EmployeeId,
+                Employee = new EmployeeProfile
+                {
+                    FullName = p.Payroll.Employee.FullName,
+                    Email = p.Payroll.Employee.Email,
+                },
+                GradeId = p.Payroll.GradeId,
+                GradeName = p.Grade.GradeName, // Add this line
+                BasicSalary = p.Payroll.BaseSalary,
+                HousingAllowance = p.Payroll.HousingAllowance,
+                TransportAllowance = p.Payroll.TransportAllowance,
+                AnnualTax = p.Payroll.AnnualTax,
+                TotalAllowances = p.Payroll.TotalAllowances,
+                TotalDeductions = p.Payroll.TotalDeductions,
+                GrossSalary = p.Payroll.GrossSalary,
+                NetSalary = p.Payroll.NetSalary,
+                PaymentMethod = p.Payroll.PaymentMethod,
+                AccountNumber = p.Payroll.AccountNumber ?? string.Empty,
+                BankName = p.Payroll.BankName ?? string.Empty,
+                CreatedAt = p.Payroll.CreatedAt,
+                LastModifiedBy = p.Payroll.LastModifiedBy,
+            });
+
+            return Ok(response);
         }
         catch (Exception ex)
         {

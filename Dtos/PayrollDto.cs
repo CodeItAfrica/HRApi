@@ -52,3 +52,32 @@ public class ProcessPayrollDto
 
     public List<string>? EmployeeIds { get; set; } // If null, process for all employees
 }
+
+public class PayrollsResponseDto
+{
+    public int Id { get; set; }
+    public string EmployeeId { get; set; }
+    public EmployeeProfile Employee { get; set; } = null!;
+    public int GradeId { get; set; }
+    public string GradeName { get; set; } = null!;
+    public decimal BasicSalary { get; set; }
+    public decimal HousingAllowance { get; set; }
+    public decimal TransportAllowance { get; set; }
+    public decimal AnnualTax { get; set; }
+    public decimal TotalAllowances { get; set; }
+    public decimal TotalDeductions { get; set; }
+    public decimal GrossSalary { get; set; }
+    public decimal NetSalary { get; set; }
+    public string? PaymentMethod { get; set; }
+    public string AccountNumber { get; set; }
+    public string BankName { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime? UpdatedAt { get; set; }
+    public string LastModifiedBy { get; set; }
+}
+
+public class EmployeeProfile
+{
+    public string FullName { get; set; } = null!;
+    public string Email { get; set; } = null!;
+}
