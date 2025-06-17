@@ -46,7 +46,7 @@ public class PayrollController : ControllerBase
                 },
                 GradeId = p.Payroll.GradeId,
                 GradeName = p.Grade.GradeName, // Add this line
-                BasicSalary = p.Payroll.BaseSalary,
+                BaseSalary = p.Payroll.BaseSalary,
                 HousingAllowance = p.Payroll.HousingAllowance,
                 TransportAllowance = p.Payroll.TransportAllowance,
                 AnnualTax = p.Payroll.AnnualTax,

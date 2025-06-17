@@ -60,7 +60,7 @@ public class PayrollsResponseDto
     public EmployeeProfile Employee { get; set; } = null!;
     public int GradeId { get; set; }
     public string GradeName { get; set; } = null!;
-    public decimal BasicSalary { get; set; }
+    public decimal BaseSalary { get; set; }
     public decimal HousingAllowance { get; set; }
     public decimal TransportAllowance { get; set; }
     public decimal AnnualTax { get; set; }
