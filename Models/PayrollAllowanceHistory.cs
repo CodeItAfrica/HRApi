@@ -29,7 +29,6 @@ public class PayrollAllowanceHistory
     [Required]
     public decimal Amount { get; set; }
 
-    [StringLength(255)]
     public string? Description { get; set; }
 
     [Required]

@@ -376,7 +376,28 @@ public class PayrollController : ControllerBase
             .ThenBy(p => p.Employee.Surname)
             .ToListAsync();
 
-        return Ok(payrollHistory);
+        var response = payrollHistory.Select(ph => new
+        {
+            ph.Id,
+            EmployeeId = ph.Employee.Id,
+            Employee = new { ph.Employee.FullName, ph.Employee.Email },
+            ph.Month,
+            ph.Year,
+            ph.BaseSalary,
+            ph.HousingAllowance,
+            ph.TransportAllowance,
+            ph.AnnualTax,
+            ph.TotalAllowances,
+            ph.TotalDeductions,
+            ph.GrossSalary,
+            ph.NetSalary,
+            ph.PaymentStatus,
+            ph.PaidOn,
+            ProcessedBy = ph.ProcessedBy?.Email,
+            ph.CreatedAt,
+        });
+
+        return Ok(response);
     }
 
     [HttpGet("history/employee/{employeeId}/month/{month}/year/{year}")]
