@@ -91,7 +91,8 @@ builder.Services.AddCors(o =>
                     "http://localhost:5173",
                     "http://localhost:5174",
                     "https://localhost:5173",
-                    "https://localhost:5174"
+                    "https://localhost:5174",
+                    "https://hrms5.newgibsonline.com"
                 )
                 .AllowAnyMethod()
                 .AllowAnyHeader()
@@ -134,7 +135,7 @@ builder
 //      policy.AllowAnyOrigin()
 //            .AllowAnyMethod()
 //            .AllowAnyHeader());
-//})  
+//})
 
 builder.Services.AddAuthorization();
 
@@ -164,6 +165,7 @@ app.UseCors("AllowSpecificOrigins");
 
 app.UseAuthentication();
 app.UseAuthorization();
+
 //app.UseCorsMiddleware();
 
 app.MapControllers();

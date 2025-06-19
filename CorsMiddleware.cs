@@ -9,6 +9,7 @@
             "http://localhost:5174",
             "https://localhost:5173",
             "https://localhost:5174",
+            "http://hrms5.newgibsonline.com",
         };
 
         public CorsMiddleware(RequestDelegate next)
