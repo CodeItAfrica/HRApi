@@ -81,3 +81,15 @@ public class EmployeeProfile
     public string FullName { get; set; } = null!;
     public string Email { get; set; } = null!;
 }
+
+public class CreateVariantRequest
+{
+    public string Name { get; set; } = null!;
+    public decimal Amount { get; set; }
+}
+
+public class AssignVariantRequest
+{
+    public int Id { get; set; }
+    public string EmployeeId { get; set; } = null!;
+}
