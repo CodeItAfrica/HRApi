@@ -239,10 +239,10 @@ public class GradeController : ControllerBase
         employee.GradeId = request.GradeId;
 
         payroll.GradeId = request.GradeId;
-        payroll.BaseSalary = grade.BaseSalary;
-        payroll.HousingAllowance = grade.HousingAllowance;
-        payroll.TransportAllowance = grade.TransportAllowance;
-        payroll.AnnualTax = grade.AnnualTax;
+        payroll.BaseSalary = request.BaseSalary;
+        payroll.HousingAllowance = request.HousingAllowance;
+        payroll.TransportAllowance = request.TransportAllowance;
+        payroll.AnnualTax = request.AnnualTax;
 
         var newTotalAllowance = await _payrollService.CalculateTotalAllowancesAsync(
             request.EmployeeId
@@ -275,5 +275,43 @@ public class GradeController : ControllerBase
         }
 
         return Ok(grade);
+    }
+
+    [HttpGet("get-detail/{employeeId}")]
+    public async Task<IActionResult> GetEmployeeGradeDetails(string employeeId)
+    {
+        var employee = await _context
+            .Employees.Where(e => e.Id == employeeId.ToString())
+            .FirstOrDefaultAsync();
+
+        if (employee == null)
+        {
+            return NotFound($"No employee found with ID {employeeId}");
+        }
+
+        var grade = await _context.Grades.FindAsync(employee.GradeId);
+        if (grade == null)
+        {
+            return NotFound($"No grade found with ID {employee.GradeId}");
+        }
+
+        var payroll = await _context.Payrolls.FirstOrDefaultAsync(p => p.EmployeeId == employeeId);
+        if (payroll == null)
+        {
+            return NotFound($"No payroll found for employee with ID {employeeId}");
+        }
+
+        var response = new
+        {
+            grade.Id,
+            grade.GradeName,
+            grade.Description,
+            payroll.BaseSalary,
+            payroll.HousingAllowance,
+            payroll.TransportAllowance,
+            payroll.AnnualTax,
+        };
+
+        return Ok(response);
     }
 }

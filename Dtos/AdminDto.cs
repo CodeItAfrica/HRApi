@@ -52,6 +52,10 @@ public class AssignGradeRequest
 {
     public string EmployeeId { get; set; } = null!;
     public int GradeId { get; set; }
+    public decimal BaseSalary { get; set; }
+    public decimal HousingAllowance { get; set; }
+    public decimal TransportAllowance { get; set; }
+    public decimal AnnualTax { get; set; }
 }
 
 public class CreateBranchRequest
