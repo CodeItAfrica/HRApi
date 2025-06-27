@@ -4,6 +4,7 @@ using HRApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HRApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250627105532_CreateVariant")]
+    partial class CreateVariant
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1183,9 +1186,6 @@ namespace HRApi.Migrations
                     b.Property<int?>("PayrollId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("VariantAllowanceId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("AllowanceListId");
@@ -1193,8 +1193,6 @@ namespace HRApi.Migrations
                     b.HasIndex("EmployeeId");
 
                     b.HasIndex("PayrollId");
-
-                    b.HasIndex("VariantAllowanceId");
 
                     b.ToTable("PayrollAllowances");
                 });
@@ -1274,9 +1272,6 @@ namespace HRApi.Migrations
                     b.Property<int?>("PayrollId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("VariantDeductionId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("DeductionListId");
@@ -1284,8 +1279,6 @@ namespace HRApi.Migrations
                     b.HasIndex("EmployeeId");
 
                     b.HasIndex("PayrollId");
-
-                    b.HasIndex("VariantDeductionId");
 
                     b.ToTable("PayrollDeductions");
                 });
@@ -1929,15 +1922,9 @@ namespace HRApi.Migrations
                         .WithMany("PayrollAllowances")
                         .HasForeignKey("PayrollId");
 
-                    b.HasOne("HRApi.Models.VariantAllowance", "VariantAllowance")
-                        .WithMany()
-                        .HasForeignKey("VariantAllowanceId");
-
                     b.Navigation("AllowanceList");
 
                     b.Navigation("Employee");
-
-                    b.Navigation("VariantAllowance");
                 });
 
             modelBuilder.Entity("HRApi.Models.PayrollAllowanceHistory", b =>
@@ -1967,15 +1954,9 @@ namespace HRApi.Migrations
                         .WithMany("PayrollDeductions")
                         .HasForeignKey("PayrollId");
 
-                    b.HasOne("HRApi.Models.VariantDeduction", "VariantDeduction")
-                        .WithMany()
-                        .HasForeignKey("VariantDeductionId");
-
                     b.Navigation("DeductionList");
 
                     b.Navigation("Employee");
-
-                    b.Navigation("VariantDeduction");
                 });
 
             modelBuilder.Entity("HRApi.Models.PayrollDeductionHistory", b =>
