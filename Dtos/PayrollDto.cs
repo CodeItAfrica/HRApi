@@ -91,5 +91,13 @@ public class CreateVariantRequest
 public class AssignVariantRequest
 {
     public int Id { get; set; }
-    public string EmployeeId { get; set; } = null!;
+    public int PayrollHistoryId { get; set; }
+    public decimal Amount { get; set; }
+}
+
+public class CreateAllowanceDeductionBodyRequest
+{
+    public required string Name { get; set; }
+    public required decimal Amount { get; set; }
+    public required int[] GradeAssign { get; set; }
 }

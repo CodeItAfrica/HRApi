@@ -258,7 +258,43 @@ public class AuthController : ControllerBase
             await _payrollService.CreatePayrollAllowancesForEmployee(employee.Id);
             await _payrollService.CreatePayrollDeductionsForEmployee(employee.Id);
 
-            return Ok("Employee and user registered successfully.");
+            var newPayroll = await _context.Payrolls.FirstOrDefaultAsync(p =>
+                p.EmployeeId == employee.Id
+            );
+
+            if (newPayroll == null)
+            {
+                return NotFound($"Created Payroll not found.");
+            }
+
+            try
+            {
+                var newTotalAllowance = await _payrollService.CalculateTotalAllowancesAsync(
+                    employee.Id
+                );
+                var newTotalDeduction = await _payrollService.CalculateTotalDeductionsAsync(
+                    employee.Id
+                );
+
+                newPayroll.TotalAllowances = newTotalAllowance;
+                newPayroll.TotalDeductions = newTotalDeduction;
+
+                newPayroll.GrossSalary = newPayroll.BaseSalary + newTotalAllowance;
+                newPayroll.NetSalary = newPayroll.GrossSalary - newTotalDeduction;
+                newPayroll.LastModifiedBy = "System";
+                newPayroll.UpdatedAt = DateTime.UtcNow;
+
+                await _context.SaveChangesAsync();
+
+                return Ok("Employee and user registered successfully.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(
+                    500,
+                    $"An error occurred while updating the amount: {ex.Message}"
+                );
+            }
         }
         catch (Exception ex)
         {

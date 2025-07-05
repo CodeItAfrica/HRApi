@@ -131,47 +131,51 @@ public class VariantAllowanceController : ControllerBase
             return NotFound("Variant Allowance not found.");
         }
 
-        var payroll = await _context.Payrolls.FirstOrDefaultAsync(p =>
-            p.EmployeeId == request.EmployeeId
-        );
+        var payrollHistory = await _context.PayrollHistories.FindAsync(request.PayrollHistoryId);
 
-        if (payroll == null)
+        if (payrollHistory == null)
         {
-            return NotFound($"Payroll for employee not found.");
+            return NotFound($"Payroll History not found.");
         }
 
         var email = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
 
-        var payrollAllowance = new PayrollAllowance
+        var variantPayrollAllowance = new VariantPayrollAllowance
         {
-            EmployeeId = request.EmployeeId,
+            PayrollHistoryId = request.PayrollHistoryId,
             VariantAllowanceId = variantAllowance.Id,
             Amount = variantAllowance.Amount,
-            Description = $"Auto-created for new variant allowance type: {variantAllowance.Name}",
-            LastGrantedBy = email ?? "System",
-            LastGrantedOn = DateOnly.FromDateTime(DateTime.UtcNow),
+            GrantedBy = email ?? "System",
             CreatedAt = DateTime.UtcNow,
         };
 
-        _context.PayrollAllowances.Add(payrollAllowance);
+        _context.VariantPayrollAllowances.Add(variantPayrollAllowance);
         await _context.SaveChangesAsync();
 
         try
         {
-            var newTotalAllowance = await _payrollService.CalculateTotalAllowancesAsync(
-                request.EmployeeId
-            );
-            var newTotalDeduction = await _payrollService.CalculateTotalDeductionsAsync(
-                request.EmployeeId
-            );
+            var newTotalVariantAllowance =
+                await _payrollService.CalculateTotalVariantAllowanceAsync(request.PayrollHistoryId);
 
-            payroll.TotalAllowances = newTotalAllowance;
-            payroll.TotalDeductions = newTotalDeduction;
+            var newTotalVariantDeduction =
+                await _payrollService.CalculateTotalVariantDeductionAsync(request.PayrollHistoryId);
 
-            payroll.GrossSalary = payroll.BaseSalary + newTotalAllowance;
-            payroll.NetSalary = payroll.GrossSalary - newTotalDeduction;
-            payroll.LastModifiedBy = email ?? "System";
-            payroll.UpdatedAt = DateTime.UtcNow;
+            decimal monthlyTax = payrollHistory?.AnnualTax / 12 ?? 0;
+
+            decimal allDeductions =
+                payrollHistory?.TotalDeductions + monthlyTax + newTotalVariantDeduction ?? 0;
+
+            payrollHistory.TotalVariantAllowances = newTotalVariantAllowance;
+            payrollHistory.TotalVariantDeductions = newTotalVariantDeduction;
+
+            payrollHistory.GrossSalary =
+                payrollHistory.BaseSalary
+                + payrollHistory.HousingAllowance
+                + payrollHistory.TransportAllowance
+                + payrollHistory.TotalAllowances
+                + newTotalVariantAllowance;
+
+            payrollHistory.NetSalary = payrollHistory.GrossSalary - allDeductions;
 
             await _context.SaveChangesAsync();
 

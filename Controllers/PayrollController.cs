@@ -320,10 +320,36 @@ public class PayrollController : ControllerBase
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
 
+            var updatePayroll = await _context.Payrolls.FirstOrDefaultAsync(p =>
+                p.EmployeeId == payroll.EmployeeId
+            );
+
+            if (updatePayroll == null)
+            {
+                return NotFound($"Created Payroll not found.");
+            }
+
             try
             {
                 await _payrollService.CreatePayrollAllowancesForEmployee(payroll.EmployeeId);
                 await _payrollService.CreatePayrollDeductionsForEmployee(payroll.EmployeeId);
+
+                var updateTotalAllowance = await _payrollService.CalculateTotalAllowancesAsync(
+                    payroll.EmployeeId
+                );
+                var updateTotalDeduction = await _payrollService.CalculateTotalDeductionsAsync(
+                    payroll.EmployeeId
+                );
+
+                updatePayroll.TotalAllowances = updateTotalAllowance;
+                updatePayroll.TotalDeductions = updateTotalDeduction;
+
+                updatePayroll.GrossSalary = updatePayroll.BaseSalary + updateTotalAllowance;
+                updatePayroll.NetSalary = updatePayroll.GrossSalary - updateTotalDeduction;
+                updatePayroll.LastModifiedBy = "System";
+                updatePayroll.UpdatedAt = DateTime.UtcNow;
+
+                await _context.SaveChangesAsync();
             }
             catch (Exception ex)
             {
