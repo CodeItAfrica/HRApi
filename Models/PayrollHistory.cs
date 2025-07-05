@@ -36,7 +36,11 @@ public class PayrollHistory
 
     public decimal TotalAllowances { get; set; }
 
+    public decimal TotalVariantAllowances { get; set; }
+
     public decimal TotalDeductions { get; set; }
+
+    public decimal TotalVariantDeductions { get; set; }
 
     public decimal GrossSalary { get; set; }
 
@@ -56,6 +60,12 @@ public class PayrollHistory
     // Navigation properties
     public virtual ICollection<PayrollPayment> PayrollPayments { get; set; } =
         new List<PayrollPayment>();
+
+    public virtual ICollection<VariantPayrollDeduction> VariantPayrollDeductions { get; set; } =
+        new List<VariantPayrollDeduction>();
+
+    public virtual ICollection<VariantPayrollAllowance> VariantPayrollAllowances { get; set; } =
+        new List<VariantPayrollAllowance>();
 }
 
 public enum PayrollHistoryStatus

@@ -28,5 +28,9 @@ namespace HRApi.Models
         public bool IsActive { get; set; } = true;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public virtual ICollection<Employee> Employees { get; set; } = new List<Employee>();
+        public virtual ICollection<GradeAllowance> GradeAllowances { get; set; } =
+            new List<GradeAllowance>();
+        public virtual ICollection<GradeDeduction> GradeDeductions { get; set; } =
+            new List<GradeDeduction>();
     }
 }

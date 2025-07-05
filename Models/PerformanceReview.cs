@@ -36,6 +36,6 @@ public class PerformanceReview
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     // Navigation properties
-    public virtual ICollection<PerformanceReviewHistory> ReviewHistories { get; set; } = new List<PerformanceReviewHistory>();
+    public virtual ICollection<PerformanceReviewHistory> ReviewHistories { get; set; } =
+        new List<PerformanceReviewHistory>();
 }
-

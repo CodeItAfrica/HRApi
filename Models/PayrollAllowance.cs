@@ -18,10 +18,6 @@ public class PayrollAllowance
     public int? AllowanceListId { get; set; }
     public virtual AllowanceList? AllowanceList { get; set; }
 
-    [ForeignKey("VariantAllowance")]
-    public int? VariantAllowanceId { get; set; }
-    public virtual VariantAllowance? VariantAllowance { get; set; }
-
     [Required]
     public decimal Amount { get; set; }
 

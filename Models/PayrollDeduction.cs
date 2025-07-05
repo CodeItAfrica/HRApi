@@ -18,10 +18,6 @@ public class PayrollDeduction
     public int? DeductionListId { get; set; }
     public virtual DeductionList? DeductionList { get; set; }
 
-    [ForeignKey("VariantDeduction")]
-    public int? VariantDeductionId { get; set; }
-    public virtual VariantDeduction? VariantDeduction { get; set; }
-
     [Required]
     public decimal Amount { get; set; }
 
