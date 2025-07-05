@@ -21,10 +21,6 @@ namespace HRApi.Services
         /// <returns>Total allowances amount</returns>
         public async Task<decimal> CalculateTotalAllowancesAsync(string employeeId)
         {
-            var currentDate = DateOnly.FromDateTime(DateTime.Now);
-            var currentYear = currentDate.Year;
-            var currentMonth = currentDate.Month;
-
             var monthlyAllowances = await _context
                 .PayrollAllowances.Where(pa => pa.EmployeeId == employeeId)
                 .SumAsync(pa => pa.Amount);
@@ -49,10 +45,6 @@ namespace HRApi.Services
         /// <returns>Total deductions amount</returns>
         public async Task<decimal> CalculateTotalDeductionsAsync(string employeeId)
         {
-            var currentDate = DateOnly.FromDateTime(DateTime.Now);
-            var currentYear = currentDate.Year;
-            var currentMonth = currentDate.Month;
-
             var monthlyDeductions = await _context
                 .PayrollDeductions.Where(pd => pd.EmployeeId == employeeId)
                 .SumAsync(pd => pd.Amount);
@@ -68,18 +60,47 @@ namespace HRApi.Services
             return totalDeductions;
         }
 
+        public async Task<decimal> CalculateTotalVariantAllowanceAsync(int payrollHistoryId)
+        {
+            var totalVariantAllowances = await _context
+                .VariantPayrollAllowances.Where(vpa => vpa.PayrollHistoryId == payrollHistoryId)
+                .SumAsync(vpa => vpa.Amount);
+
+            return totalVariantAllowances;
+        }
+
+        public async Task<decimal> CalculateTotalVariantDeductionAsync(int payrollHistoryId)
+        {
+            var totalVariantDeductions = await _context
+                .VariantPayrollDeductions.Where(vpa => vpa.PayrollHistoryId == payrollHistoryId)
+                .SumAsync(vpa => vpa.Amount);
+
+            return totalVariantDeductions;
+        }
+
         public async Task CreatePayrollAllowancesForEmployee(string employeeId)
         {
             try
             {
-                var employeeExists = await _context.Employees.AnyAsync(e => e.Id == employeeId);
+                var employee = await _context.Employees.FindAsync(employeeId);
 
-                if (!employeeExists)
+                if (employee == null)
                 {
                     throw new ArgumentException($"Employee with ID {employeeId} not found.");
                 }
 
-                var allowanceTypes = await _context.AllowanceLists.ToListAsync();
+                if (!employee.GradeId.HasValue)
+                {
+                    throw new ArgumentException(
+                        $"Employee with ID {employeeId} does not have a grade assigned."
+                    );
+                }
+
+                var allowanceTypesForGrade = await _context
+                    .GradeAllowances.Where(ga => ga.GradeId == employee.GradeId.Value)
+                    .Include(ga => ga.AllowanceList)
+                    .Select(ga => ga.AllowanceList)
+                    .ToListAsync();
 
                 var existingAllowances = await _context
                     .PayrollAllowances.Where(pa => pa.EmployeeId == employeeId)
@@ -88,7 +109,7 @@ namespace HRApi.Services
 
                 var newAllowances = new List<PayrollAllowance>();
 
-                foreach (var allowanceType in allowanceTypes)
+                foreach (var allowanceType in allowanceTypesForGrade)
                 {
                     if (existingAllowances.Contains(allowanceType.Id))
                         continue;
@@ -97,7 +118,7 @@ namespace HRApi.Services
                     {
                         EmployeeId = employeeId,
                         AllowanceListId = allowanceType.Id,
-                        Amount = 0m,
+                        Amount = allowanceType.Amount,
                         Description = $"Initial allowance setup for {allowanceType.Name}",
                         LastGrantedBy = "System",
                         LastGrantedOn = DateOnly.FromDateTime(DateTime.UtcNow),
@@ -126,14 +147,25 @@ namespace HRApi.Services
         {
             try
             {
-                var employeeExists = await _context.Employees.AnyAsync(e => e.Id == employeeId);
+                var employee = await _context.Employees.FindAsync(employeeId);
 
-                if (!employeeExists)
+                if (employee == null)
                 {
                     throw new ArgumentException($"Employee with ID {employeeId} not found.");
                 }
 
-                var deductionTypes = await _context.DeductionLists.ToListAsync();
+                if (!employee.GradeId.HasValue)
+                {
+                    throw new ArgumentException(
+                        $"Employee with ID {employeeId} does not have a grade assigned."
+                    );
+                }
+
+                var deductionTypesForGrade = await _context
+                    .GradeDeductions.Where(gd => gd.GradeId == employee.GradeId.Value)
+                    .Include(gd => gd.DeductionList)
+                    .Select(gd => gd.DeductionList)
+                    .ToListAsync();
 
                 var existingDeductions = await _context
                     .PayrollDeductions.Where(pa => pa.EmployeeId == employeeId)
@@ -142,7 +174,7 @@ namespace HRApi.Services
 
                 var newDeductions = new List<PayrollDeduction>();
 
-                foreach (var deductionType in deductionTypes)
+                foreach (var deductionType in deductionTypesForGrade)
                 {
                     if (existingDeductions.Contains(deductionType.Id))
                         continue;
@@ -151,7 +183,7 @@ namespace HRApi.Services
                     {
                         EmployeeId = employeeId,
                         DeductionListId = deductionType.Id,
-                        Amount = 0m,
+                        Amount = deductionType.Amount,
                         Description = $"Initial allowance setup for {deductionType.Name}",
                         LastDeductedBy = "System",
                         LastDeductedOn = DateOnly.FromDateTime(DateTime.UtcNow),
