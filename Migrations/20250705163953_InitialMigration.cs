@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace HRApi.Migrations
 {
     /// <inheritdoc />
-    public partial class newInitial : Migration
+    public partial class InitialMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -19,7 +19,9 @@ namespace HRApi.Migrations
                         .Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    LastModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                 },
                 constraints: table =>
                 {
@@ -130,7 +132,9 @@ namespace HRApi.Migrations
                         .Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    LastModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                 },
                 constraints: table =>
                 {
@@ -265,11 +269,11 @@ namespace HRApi.Migrations
                     Id = table
                         .Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    ClientName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Department = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    IssueDescription = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    IssueUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    SubmittedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ClientName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Department = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IssueDescription = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IssueUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    SubmittedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                 },
                 constraints: table =>
                 {
@@ -407,6 +411,42 @@ namespace HRApi.Migrations
             );
 
             migrationBuilder.CreateTable(
+                name: "VariantAllowances",
+                columns: table => new
+                {
+                    Id = table
+                        .Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    LastModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_VariantAllowances", x => x.Id);
+                }
+            );
+
+            migrationBuilder.CreateTable(
+                name: "VariantDeductions",
+                columns: table => new
+                {
+                    Id = table
+                        .Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    LastModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_VariantDeductions", x => x.Id);
+                }
+            );
+
+            migrationBuilder.CreateTable(
                 name: "Units",
                 columns: table => new
                 {
@@ -431,6 +471,68 @@ namespace HRApi.Migrations
             );
 
             migrationBuilder.CreateTable(
+                name: "GradeAllowances",
+                columns: table => new
+                {
+                    Id = table
+                        .Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    GradeId = table.Column<int>(type: "int", nullable: false),
+                    AllowanceListId = table.Column<int>(type: "int", nullable: false),
+                    AssignedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_GradeAllowances", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_GradeAllowances_AllowanceLists_AllowanceListId",
+                        column: x => x.AllowanceListId,
+                        principalTable: "AllowanceLists",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade
+                    );
+                    table.ForeignKey(
+                        name: "FK_GradeAllowances_Grades_GradeId",
+                        column: x => x.GradeId,
+                        principalTable: "Grades",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade
+                    );
+                }
+            );
+
+            migrationBuilder.CreateTable(
+                name: "GradeDeductions",
+                columns: table => new
+                {
+                    Id = table
+                        .Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    GradeId = table.Column<int>(type: "int", nullable: false),
+                    DeductionListId = table.Column<int>(type: "int", nullable: false),
+                    AssignedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_GradeDeductions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_GradeDeductions_DeductionLists_DeductionListId",
+                        column: x => x.DeductionListId,
+                        principalTable: "DeductionLists",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade
+                    );
+                    table.ForeignKey(
+                        name: "FK_GradeDeductions_Grades_GradeId",
+                        column: x => x.GradeId,
+                        principalTable: "Grades",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade
+                    );
+                }
+            );
+
+            migrationBuilder.CreateTable(
                 name: "IssueAttachments",
                 columns: table => new
                 {
@@ -440,7 +542,7 @@ namespace HRApi.Migrations
                     IssueReportId = table.Column<int>(type: "int", nullable: true),
                     FileName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     FilePath = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    UploadedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UploadedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                 },
                 constraints: table =>
                 {
@@ -719,6 +821,72 @@ namespace HRApi.Migrations
             );
 
             migrationBuilder.CreateTable(
+                name: "PayrollAllowanceHistories",
+                columns: table => new
+                {
+                    Id = table
+                        .Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    EmployeeId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Month = table.Column<int>(type: "int", nullable: false),
+                    Year = table.Column<int>(type: "int", nullable: false),
+                    AllowanceName = table.Column<string>(
+                        type: "nvarchar(50)",
+                        maxLength: 50,
+                        nullable: false
+                    ),
+                    Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    LastModifiedOn = table.Column<DateOnly>(type: "date", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PayrollAllowanceHistories", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PayrollAllowanceHistories_Employees_EmployeeId",
+                        column: x => x.EmployeeId,
+                        principalTable: "Employees",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade
+                    );
+                }
+            );
+
+            migrationBuilder.CreateTable(
+                name: "PayrollDeductionHistories",
+                columns: table => new
+                {
+                    Id = table
+                        .Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    EmployeeId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Month = table.Column<int>(type: "int", nullable: false),
+                    Year = table.Column<int>(type: "int", nullable: false),
+                    DeductionName = table.Column<string>(
+                        type: "nvarchar(50)",
+                        maxLength: 50,
+                        nullable: false
+                    ),
+                    Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    LastModifiedOn = table.Column<DateOnly>(type: "date", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PayrollDeductionHistories", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PayrollDeductionHistories_Employees_EmployeeId",
+                        column: x => x.EmployeeId,
+                        principalTable: "Employees",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade
+                    );
+                }
+            );
+
+            migrationBuilder.CreateTable(
                 name: "Payrolls",
                 columns: table => new
                 {
@@ -813,14 +981,14 @@ namespace HRApi.Migrations
                         column: x => x.EmployeeId,
                         principalTable: "Employees",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.NoAction
+                        onDelete: ReferentialAction.Cascade
                     );
                     table.ForeignKey(
                         name: "FK_PerformanceReviews_Employees_ReviewerId",
                         column: x => x.ReviewerId,
                         principalTable: "Employees",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade
+                        onDelete: ReferentialAction.NoAction
                     );
                 }
             );
@@ -854,6 +1022,88 @@ namespace HRApi.Migrations
                         name: "FK_Users_Employees_EmployeeId",
                         column: x => x.EmployeeId,
                         principalTable: "Employees",
+                        principalColumn: "Id"
+                    );
+                }
+            );
+
+            migrationBuilder.CreateTable(
+                name: "PayrollAllowances",
+                columns: table => new
+                {
+                    Id = table
+                        .Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    EmployeeId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    AllowanceListId = table.Column<int>(type: "int", nullable: true),
+                    Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    LastGrantedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    LastGrantedOn = table.Column<DateOnly>(type: "date", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    PayrollId = table.Column<int>(type: "int", nullable: true),
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PayrollAllowances", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PayrollAllowances_AllowanceLists_AllowanceListId",
+                        column: x => x.AllowanceListId,
+                        principalTable: "AllowanceLists",
+                        principalColumn: "Id"
+                    );
+                    table.ForeignKey(
+                        name: "FK_PayrollAllowances_Employees_EmployeeId",
+                        column: x => x.EmployeeId,
+                        principalTable: "Employees",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade
+                    );
+                    table.ForeignKey(
+                        name: "FK_PayrollAllowances_Payrolls_PayrollId",
+                        column: x => x.PayrollId,
+                        principalTable: "Payrolls",
+                        principalColumn: "Id"
+                    );
+                }
+            );
+
+            migrationBuilder.CreateTable(
+                name: "PayrollDeductions",
+                columns: table => new
+                {
+                    Id = table
+                        .Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    EmployeeId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    DeductionListId = table.Column<int>(type: "int", nullable: true),
+                    Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    LastDeductedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    LastDeductedOn = table.Column<DateOnly>(type: "date", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    PayrollId = table.Column<int>(type: "int", nullable: true),
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PayrollDeductions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PayrollDeductions_DeductionLists_DeductionListId",
+                        column: x => x.DeductionListId,
+                        principalTable: "DeductionLists",
+                        principalColumn: "Id"
+                    );
+                    table.ForeignKey(
+                        name: "FK_PayrollDeductions_Employees_EmployeeId",
+                        column: x => x.EmployeeId,
+                        principalTable: "Employees",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade
+                    );
+                    table.ForeignKey(
+                        name: "FK_PayrollDeductions_Payrolls_PayrollId",
+                        column: x => x.PayrollId,
+                        principalTable: "Payrolls",
                         principalColumn: "Id"
                     );
                 }
@@ -1060,106 +1310,6 @@ namespace HRApi.Migrations
             );
 
             migrationBuilder.CreateTable(
-                name: "PayrollAllowances",
-                columns: table => new
-                {
-                    Id = table
-                        .Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    EmployeeId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Period = table.Column<DateOnly>(type: "date", nullable: false),
-                    AllowanceType = table.Column<string>(
-                        type: "nvarchar(50)",
-                        maxLength: 50,
-                        nullable: false
-                    ),
-                    Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Description = table.Column<string>(
-                        type: "nvarchar(255)",
-                        maxLength: 255,
-                        nullable: true
-                    ),
-                    GrantedByUserId = table.Column<int>(type: "int", nullable: true),
-                    GrantedOn = table.Column<DateOnly>(type: "date", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    PayrollId = table.Column<int>(type: "int", nullable: true),
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_PayrollAllowances", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_PayrollAllowances_Employees_EmployeeId",
-                        column: x => x.EmployeeId,
-                        principalTable: "Employees",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade
-                    );
-                    table.ForeignKey(
-                        name: "FK_PayrollAllowances_Payrolls_PayrollId",
-                        column: x => x.PayrollId,
-                        principalTable: "Payrolls",
-                        principalColumn: "Id"
-                    );
-                    table.ForeignKey(
-                        name: "FK_PayrollAllowances_Users_GrantedByUserId",
-                        column: x => x.GrantedByUserId,
-                        principalTable: "Users",
-                        principalColumn: "Id"
-                    );
-                }
-            );
-
-            migrationBuilder.CreateTable(
-                name: "PayrollDeductions",
-                columns: table => new
-                {
-                    Id = table
-                        .Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    EmployeeId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Period = table.Column<DateOnly>(type: "date", nullable: false),
-                    DeductionType = table.Column<string>(
-                        type: "nvarchar(50)",
-                        maxLength: 50,
-                        nullable: false
-                    ),
-                    Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Description = table.Column<string>(
-                        type: "nvarchar(255)",
-                        maxLength: 255,
-                        nullable: true
-                    ),
-                    DeductedByUserId = table.Column<int>(type: "int", nullable: true),
-                    DeductedOn = table.Column<DateOnly>(type: "date", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    PayrollId = table.Column<int>(type: "int", nullable: true),
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_PayrollDeductions", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_PayrollDeductions_Employees_EmployeeId",
-                        column: x => x.EmployeeId,
-                        principalTable: "Employees",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade
-                    );
-                    table.ForeignKey(
-                        name: "FK_PayrollDeductions_Payrolls_PayrollId",
-                        column: x => x.PayrollId,
-                        principalTable: "Payrolls",
-                        principalColumn: "Id"
-                    );
-                    table.ForeignKey(
-                        name: "FK_PayrollDeductions_Users_DeductedByUserId",
-                        column: x => x.DeductedByUserId,
-                        principalTable: "Users",
-                        principalColumn: "Id"
-                    );
-                }
-            );
-
-            migrationBuilder.CreateTable(
                 name: "PayrollHistories",
                 columns: table => new
                 {
@@ -1167,7 +1317,8 @@ namespace HRApi.Migrations
                         .Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     EmployeeId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Period = table.Column<DateOnly>(type: "date", nullable: false),
+                    Month = table.Column<int>(type: "int", nullable: false),
+                    Year = table.Column<int>(type: "int", nullable: false),
                     BaseSalary = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     HousingAllowance = table.Column<decimal>(
                         type: "decimal(18,2)",
@@ -1179,7 +1330,15 @@ namespace HRApi.Migrations
                     ),
                     AnnualTax = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     TotalAllowances = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    TotalVariantAllowances = table.Column<decimal>(
+                        type: "decimal(18,2)",
+                        nullable: false
+                    ),
                     TotalDeductions = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    TotalVariantDeductions = table.Column<decimal>(
+                        type: "decimal(18,2)",
+                        nullable: false
+                    ),
                     GrossSalary = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     NetSalary = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     PaymentStatus = table.Column<int>(type: "int", maxLength: 20, nullable: true),
@@ -1422,6 +1581,70 @@ namespace HRApi.Migrations
             );
 
             migrationBuilder.CreateTable(
+                name: "VariantPayrollAllowances",
+                columns: table => new
+                {
+                    Id = table
+                        .Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    PayrollHistoryId = table.Column<int>(type: "int", nullable: false),
+                    VariantAllowanceId = table.Column<int>(type: "int", nullable: true),
+                    Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    GrantedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_VariantPayrollAllowances", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_VariantPayrollAllowances_PayrollHistories_PayrollHistoryId",
+                        column: x => x.PayrollHistoryId,
+                        principalTable: "PayrollHistories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade
+                    );
+                    table.ForeignKey(
+                        name: "FK_VariantPayrollAllowances_VariantAllowances_VariantAllowanceId",
+                        column: x => x.VariantAllowanceId,
+                        principalTable: "VariantAllowances",
+                        principalColumn: "Id"
+                    );
+                }
+            );
+
+            migrationBuilder.CreateTable(
+                name: "VariantPayrollDeductions",
+                columns: table => new
+                {
+                    Id = table
+                        .Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    PayrollHistoryId = table.Column<int>(type: "int", nullable: false),
+                    VariantDeductionId = table.Column<int>(type: "int", nullable: true),
+                    Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    GrantedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_VariantPayrollDeductions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_VariantPayrollDeductions_PayrollHistories_PayrollHistoryId",
+                        column: x => x.PayrollHistoryId,
+                        principalTable: "PayrollHistories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade
+                    );
+                    table.ForeignKey(
+                        name: "FK_VariantPayrollDeductions_VariantDeductions_VariantDeductionId",
+                        column: x => x.VariantDeductionId,
+                        principalTable: "VariantDeductions",
+                        principalColumn: "Id"
+                    );
+                }
+            );
+
+            migrationBuilder.CreateTable(
                 name: "JobApplicationHistories",
                 columns: table => new
                 {
@@ -1528,6 +1751,30 @@ namespace HRApi.Migrations
             );
 
             migrationBuilder.CreateIndex(
+                name: "IX_GradeAllowances_AllowanceListId",
+                table: "GradeAllowances",
+                column: "AllowanceListId"
+            );
+
+            migrationBuilder.CreateIndex(
+                name: "IX_GradeAllowances_GradeId",
+                table: "GradeAllowances",
+                column: "GradeId"
+            );
+
+            migrationBuilder.CreateIndex(
+                name: "IX_GradeDeductions_DeductionListId",
+                table: "GradeDeductions",
+                column: "DeductionListId"
+            );
+
+            migrationBuilder.CreateIndex(
+                name: "IX_GradeDeductions_GradeId",
+                table: "GradeDeductions",
+                column: "GradeId"
+            );
+
+            migrationBuilder.CreateIndex(
                 name: "IX_IssueAttachments_IssueReportId",
                 table: "IssueAttachments",
                 column: "IssueReportId"
@@ -1600,15 +1847,21 @@ namespace HRApi.Migrations
             );
 
             migrationBuilder.CreateIndex(
-                name: "IX_PayrollAllowances_EmployeeId",
-                table: "PayrollAllowances",
+                name: "IX_PayrollAllowanceHistories_EmployeeId",
+                table: "PayrollAllowanceHistories",
                 column: "EmployeeId"
             );
 
             migrationBuilder.CreateIndex(
-                name: "IX_PayrollAllowances_GrantedByUserId",
+                name: "IX_PayrollAllowances_AllowanceListId",
                 table: "PayrollAllowances",
-                column: "GrantedByUserId"
+                column: "AllowanceListId"
+            );
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PayrollAllowances_EmployeeId",
+                table: "PayrollAllowances",
+                column: "EmployeeId"
             );
 
             migrationBuilder.CreateIndex(
@@ -1618,9 +1871,15 @@ namespace HRApi.Migrations
             );
 
             migrationBuilder.CreateIndex(
-                name: "IX_PayrollDeductions_DeductedByUserId",
+                name: "IX_PayrollDeductionHistories_EmployeeId",
+                table: "PayrollDeductionHistories",
+                column: "EmployeeId"
+            );
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PayrollDeductions_DeductionListId",
                 table: "PayrollDeductions",
-                column: "DeductedByUserId"
+                column: "DeductionListId"
             );
 
             migrationBuilder.CreateIndex(
@@ -1721,20 +1980,40 @@ namespace HRApi.Migrations
                 unique: true,
                 filter: "[EmployeeId] IS NOT NULL"
             );
+
+            migrationBuilder.CreateIndex(
+                name: "IX_VariantPayrollAllowances_PayrollHistoryId",
+                table: "VariantPayrollAllowances",
+                column: "PayrollHistoryId"
+            );
+
+            migrationBuilder.CreateIndex(
+                name: "IX_VariantPayrollAllowances_VariantAllowanceId",
+                table: "VariantPayrollAllowances",
+                column: "VariantAllowanceId"
+            );
+
+            migrationBuilder.CreateIndex(
+                name: "IX_VariantPayrollDeductions_PayrollHistoryId",
+                table: "VariantPayrollDeductions",
+                column: "PayrollHistoryId"
+            );
+
+            migrationBuilder.CreateIndex(
+                name: "IX_VariantPayrollDeductions_VariantDeductionId",
+                table: "VariantPayrollDeductions",
+                column: "VariantDeductionId"
+            );
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(name: "AllowanceLists");
-
             migrationBuilder.DropTable(name: "Announcements");
 
             migrationBuilder.DropTable(name: "AuditLogs");
 
             migrationBuilder.DropTable(name: "Banks");
-
-            migrationBuilder.DropTable(name: "DeductionLists");
 
             migrationBuilder.DropTable(name: "Documents");
 
@@ -1743,6 +2022,10 @@ namespace HRApi.Migrations
             migrationBuilder.DropTable(name: "FAQs");
 
             migrationBuilder.DropTable(name: "ForgottenPassword");
+
+            migrationBuilder.DropTable(name: "GradeAllowances");
+
+            migrationBuilder.DropTable(name: "GradeDeductions");
 
             migrationBuilder.DropTable(name: "IssueAttachments");
 
@@ -1756,7 +2039,11 @@ namespace HRApi.Migrations
 
             migrationBuilder.DropTable(name: "PayAuditLogs");
 
+            migrationBuilder.DropTable(name: "PayrollAllowanceHistories");
+
             migrationBuilder.DropTable(name: "PayrollAllowances");
+
+            migrationBuilder.DropTable(name: "PayrollDeductionHistories");
 
             migrationBuilder.DropTable(name: "PayrollDeductions");
 
@@ -1770,6 +2057,10 @@ namespace HRApi.Migrations
 
             migrationBuilder.DropTable(name: "UserRoles");
 
+            migrationBuilder.DropTable(name: "VariantPayrollAllowances");
+
+            migrationBuilder.DropTable(name: "VariantPayrollDeductions");
+
             migrationBuilder.DropTable(name: "DocumentTypes");
 
             migrationBuilder.DropTable(name: "IssueReports");
@@ -1778,13 +2069,21 @@ namespace HRApi.Migrations
 
             migrationBuilder.DropTable(name: "LeaveRequests");
 
-            migrationBuilder.DropTable(name: "Payrolls");
+            migrationBuilder.DropTable(name: "AllowanceLists");
 
-            migrationBuilder.DropTable(name: "PayrollHistories");
+            migrationBuilder.DropTable(name: "DeductionLists");
+
+            migrationBuilder.DropTable(name: "Payrolls");
 
             migrationBuilder.DropTable(name: "PerformanceReviews");
 
             migrationBuilder.DropTable(name: "Roles");
+
+            migrationBuilder.DropTable(name: "VariantAllowances");
+
+            migrationBuilder.DropTable(name: "PayrollHistories");
+
+            migrationBuilder.DropTable(name: "VariantDeductions");
 
             migrationBuilder.DropTable(name: "JobPostings");
 

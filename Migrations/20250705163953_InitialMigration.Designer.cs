@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HRApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250612134202_setItToOnlyAffectTheHistory")]
-    partial class setItToOnlyAffectTheHistory
+    [Migration("20250705163953_InitialMigration")]
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -149,7 +149,13 @@ namespace HRApi.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("LastModifiedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
@@ -269,7 +275,13 @@ namespace HRApi.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("LastModifiedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
@@ -725,6 +737,58 @@ namespace HRApi.Migrations
                     b.ToTable("Grades");
                 });
 
+            modelBuilder.Entity("HRApi.Models.GradeAllowance", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AllowanceListId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("AssignedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("GradeId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AllowanceListId");
+
+                    b.HasIndex("GradeId");
+
+                    b.ToTable("GradeAllowances");
+                });
+
+            modelBuilder.Entity("HRApi.Models.GradeDeduction", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("AssignedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("DeductionListId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("GradeId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DeductionListId");
+
+                    b.HasIndex("GradeId");
+
+                    b.ToTable("GradeDeductions");
+                });
+
             modelBuilder.Entity("HRApi.Models.IssueAttachment", b =>
                 {
                     b.Property<int>("Id")
@@ -742,7 +806,7 @@ namespace HRApi.Migrations
                     b.Property<int?>("IssueReportId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("UploadedAt")
+                    b.Property<DateTime?>("UploadedAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
@@ -761,22 +825,18 @@ namespace HRApi.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ClientName")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Department")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("IssueDescription")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("IssueUrl")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("SubmittedAt")
+                    b.Property<DateTime?>("SubmittedAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
@@ -1165,7 +1225,7 @@ namespace HRApi.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("AllowanceListId")
+                    b.Property<int?>("AllowanceListId")
                         .HasColumnType("int");
 
                     b.Property<decimal>("Amount")
@@ -1201,6 +1261,48 @@ namespace HRApi.Migrations
                     b.ToTable("PayrollAllowances");
                 });
 
+            modelBuilder.Entity("HRApi.Models.PayrollAllowanceHistory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AllowanceName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("EmployeeId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateOnly>("LastModifiedOn")
+                        .HasColumnType("date");
+
+                    b.Property<int>("Month")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmployeeId");
+
+                    b.ToTable("PayrollAllowanceHistories");
+                });
+
             modelBuilder.Entity("HRApi.Models.PayrollDeduction", b =>
                 {
                     b.Property<int>("Id")
@@ -1215,7 +1317,7 @@ namespace HRApi.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("DeductionListId")
+                    b.Property<int?>("DeductionListId")
                         .HasColumnType("int");
 
                     b.Property<string>("Description")
@@ -1245,6 +1347,48 @@ namespace HRApi.Migrations
                     b.ToTable("PayrollDeductions");
                 });
 
+            modelBuilder.Entity("HRApi.Models.PayrollDeductionHistory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeductionName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("EmployeeId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateOnly>("LastModifiedOn")
+                        .HasColumnType("date");
+
+                    b.Property<int>("Month")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmployeeId");
+
+                    b.ToTable("PayrollDeductionHistories");
+                });
+
             modelBuilder.Entity("HRApi.Models.PayrollHistory", b =>
                 {
                     b.Property<int>("Id")
@@ -1266,14 +1410,14 @@ namespace HRApi.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<DateOnly>("EndDate")
-                        .HasColumnType("date");
-
                     b.Property<decimal>("GrossSalary")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("HousingAllowance")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("Month")
+                        .HasColumnType("int");
 
                     b.Property<decimal>("NetSalary")
                         .HasColumnType("decimal(18,2)");
@@ -1288,17 +1432,23 @@ namespace HRApi.Migrations
                     b.Property<int?>("ProcessedByUserId")
                         .HasColumnType("int");
 
-                    b.Property<DateOnly>("StartDate")
-                        .HasColumnType("date");
-
                     b.Property<decimal>("TotalAllowances")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("TotalDeductions")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<decimal>("TotalVariantAllowances")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("TotalVariantDeductions")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<decimal>("TransportAllowance")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -1576,6 +1726,122 @@ namespace HRApi.Migrations
                     b.ToTable("UserRoles");
                 });
 
+            modelBuilder.Entity("HRApi.Models.VariantAllowance", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("LastModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("VariantAllowances");
+                });
+
+            modelBuilder.Entity("HRApi.Models.VariantDeduction", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("LastModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("VariantDeductions");
+                });
+
+            modelBuilder.Entity("HRApi.Models.VariantPayrollAllowance", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("GrantedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("PayrollHistoryId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("VariantAllowanceId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PayrollHistoryId");
+
+                    b.HasIndex("VariantAllowanceId");
+
+                    b.ToTable("VariantPayrollAllowances");
+                });
+
+            modelBuilder.Entity("HRApi.Models.VariantPayrollDeduction", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("GrantedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("PayrollHistoryId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("VariantDeductionId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PayrollHistoryId");
+
+                    b.HasIndex("VariantDeductionId");
+
+                    b.ToTable("VariantPayrollDeductions");
+                });
+
             modelBuilder.Entity("HRApi.Models.Document", b =>
                 {
                     b.HasOne("HRApi.Models.DocumentType", "DocumentType")
@@ -1653,6 +1919,44 @@ namespace HRApi.Migrations
                         .HasForeignKey("GradeId");
 
                     b.Navigation("Employee");
+
+                    b.Navigation("Grade");
+                });
+
+            modelBuilder.Entity("HRApi.Models.GradeAllowance", b =>
+                {
+                    b.HasOne("HRApi.Models.AllowanceList", "AllowanceList")
+                        .WithMany("GradeAllowances")
+                        .HasForeignKey("AllowanceListId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HRApi.Models.Grade", "Grade")
+                        .WithMany("GradeAllowances")
+                        .HasForeignKey("GradeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AllowanceList");
+
+                    b.Navigation("Grade");
+                });
+
+            modelBuilder.Entity("HRApi.Models.GradeDeduction", b =>
+                {
+                    b.HasOne("HRApi.Models.DeductionList", "DeductionList")
+                        .WithMany("GradeDeductions")
+                        .HasForeignKey("DeductionListId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HRApi.Models.Grade", "Grade")
+                        .WithMany("GradeDeductions")
+                        .HasForeignKey("GradeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("DeductionList");
 
                     b.Navigation("Grade");
                 });
@@ -1778,9 +2082,7 @@ namespace HRApi.Migrations
                 {
                     b.HasOne("HRApi.Models.AllowanceList", "AllowanceList")
                         .WithMany()
-                        .HasForeignKey("AllowanceListId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("AllowanceListId");
 
                     b.HasOne("HRApi.Models.Employee", "Employee")
                         .WithMany("PayrollAllowances")
@@ -1797,13 +2099,22 @@ namespace HRApi.Migrations
                     b.Navigation("Employee");
                 });
 
+            modelBuilder.Entity("HRApi.Models.PayrollAllowanceHistory", b =>
+                {
+                    b.HasOne("HRApi.Models.Employee", "Employee")
+                        .WithMany()
+                        .HasForeignKey("EmployeeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Employee");
+                });
+
             modelBuilder.Entity("HRApi.Models.PayrollDeduction", b =>
                 {
                     b.HasOne("HRApi.Models.DeductionList", "DeductionList")
                         .WithMany()
-                        .HasForeignKey("DeductionListId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("DeductionListId");
 
                     b.HasOne("HRApi.Models.Employee", "Employee")
                         .WithMany()
@@ -1816,6 +2127,17 @@ namespace HRApi.Migrations
                         .HasForeignKey("PayrollId");
 
                     b.Navigation("DeductionList");
+
+                    b.Navigation("Employee");
+                });
+
+            modelBuilder.Entity("HRApi.Models.PayrollDeductionHistory", b =>
+                {
+                    b.HasOne("HRApi.Models.Employee", "Employee")
+                        .WithMany()
+                        .HasForeignKey("EmployeeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Employee");
                 });
@@ -1937,9 +2259,53 @@ namespace HRApi.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("HRApi.Models.VariantPayrollAllowance", b =>
+                {
+                    b.HasOne("HRApi.Models.PayrollHistory", "PayrollHistory")
+                        .WithMany("VariantPayrollAllowances")
+                        .HasForeignKey("PayrollHistoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HRApi.Models.VariantAllowance", "VariantAllowance")
+                        .WithMany()
+                        .HasForeignKey("VariantAllowanceId");
+
+                    b.Navigation("PayrollHistory");
+
+                    b.Navigation("VariantAllowance");
+                });
+
+            modelBuilder.Entity("HRApi.Models.VariantPayrollDeduction", b =>
+                {
+                    b.HasOne("HRApi.Models.PayrollHistory", "PayrollHistory")
+                        .WithMany("VariantPayrollDeductions")
+                        .HasForeignKey("PayrollHistoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HRApi.Models.VariantDeduction", "VariantDeduction")
+                        .WithMany()
+                        .HasForeignKey("VariantDeductionId");
+
+                    b.Navigation("PayrollHistory");
+
+                    b.Navigation("VariantDeduction");
+                });
+
+            modelBuilder.Entity("HRApi.Models.AllowanceList", b =>
+                {
+                    b.Navigation("GradeAllowances");
+                });
+
             modelBuilder.Entity("HRApi.Models.Branch", b =>
                 {
                     b.Navigation("Employees");
+                });
+
+            modelBuilder.Entity("HRApi.Models.DeductionList", b =>
+                {
+                    b.Navigation("GradeDeductions");
                 });
 
             modelBuilder.Entity("HRApi.Models.Department", b =>
@@ -1981,6 +2347,10 @@ namespace HRApi.Migrations
             modelBuilder.Entity("HRApi.Models.Grade", b =>
                 {
                     b.Navigation("Employees");
+
+                    b.Navigation("GradeAllowances");
+
+                    b.Navigation("GradeDeductions");
                 });
 
             modelBuilder.Entity("HRApi.Models.IssueReport", b =>
@@ -2018,6 +2388,10 @@ namespace HRApi.Migrations
             modelBuilder.Entity("HRApi.Models.PayrollHistory", b =>
                 {
                     b.Navigation("PayrollPayments");
+
+                    b.Navigation("VariantPayrollAllowances");
+
+                    b.Navigation("VariantPayrollDeductions");
                 });
 
             modelBuilder.Entity("HRApi.Models.PerformanceReview", b =>

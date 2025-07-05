@@ -90,16 +90,33 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<TrainingProgram> TrainingPrograms { get; set; }
 
-    public DbSet<IssueReport> IssueReports { get; set; }
-    public DbSet<IssueAttachment> IssueAttachments { get; set; }
-    public DbSet<PaySheet> PaySheets { get; set; }
-    public DbSet<EmployeeGradeHistory> EmployeeGradeHistories { get; set; }
-    public DbSet<DeductionList> DeductionLists { get; set; }
-    public DbSet<AllowanceList> AllowanceLists { get; set; }
-    public DbSet<PayrollAllowanceHistory> PayrollAllowanceHistories { get; set; }
-    public DbSet<PayrollDeductionHistory> PayrollDeductionHistories { get; set; }
-    public DbSet<VariantDeduction> VariantDeductions { get; set; }
-    public DbSet<VariantAllowance> VariantAllowances { get; set; }
+    public virtual DbSet<IssueReport> IssueReports { get; set; }
+
+    public virtual DbSet<IssueAttachment> IssueAttachments { get; set; }
+
+    public virtual DbSet<PaySheet> PaySheets { get; set; }
+
+    public virtual DbSet<EmployeeGradeHistory> EmployeeGradeHistories { get; set; }
+
+    public virtual DbSet<DeductionList> DeductionLists { get; set; }
+
+    public virtual DbSet<AllowanceList> AllowanceLists { get; set; }
+
+    public virtual DbSet<PayrollAllowanceHistory> PayrollAllowanceHistories { get; set; }
+
+    public virtual DbSet<PayrollDeductionHistory> PayrollDeductionHistories { get; set; }
+
+    public virtual DbSet<VariantDeduction> VariantDeductions { get; set; }
+
+    public virtual DbSet<VariantAllowance> VariantAllowances { get; set; }
+
+    public virtual DbSet<VariantPayrollAllowance> VariantPayrollAllowances { get; set; }
+
+    public virtual DbSet<VariantPayrollDeduction> VariantPayrollDeductions { get; set; }
+
+    public virtual DbSet<GradeAllowance> GradeAllowances { get; set; }
+
+    public virtual DbSet<GradeDeduction> GradeDeductions { get; set; }
 
     //     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     // #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
