@@ -105,9 +105,19 @@ public class AllowanceDeductionController : ControllerBase
             return BadRequest("Allowance List name cannot be empty.");
         }
 
+        int[] gradesToAssign;
         if (request.GradeAssign == null || request.GradeAssign.Length == 0)
         {
-            return BadRequest("At least one grade must be assigned.");
+            gradesToAssign = await _context.Grades.Select(g => g.Id).ToArrayAsync();
+
+            if (gradesToAssign.Length == 0)
+            {
+                return BadRequest("No grades exist in the system to assign the allowance to.");
+            }
+        }
+        else
+        {
+            gradesToAssign = request.GradeAssign;
         }
 
         var normalizedAllowanceListName = request.Name.Trim().ToLower();
@@ -463,9 +473,20 @@ public class AllowanceDeductionController : ControllerBase
             return BadRequest("Deduction List name cannot be empty.");
         }
 
+        // If no grades are assigned, get all grades in the system
+        int[] gradesToAssign;
         if (request.GradeAssign == null || request.GradeAssign.Length == 0)
         {
-            return BadRequest("At least one grade must be assigned.");
+            gradesToAssign = await _context.Grades.Select(g => g.Id).ToArrayAsync();
+
+            if (gradesToAssign.Length == 0)
+            {
+                return BadRequest("No grades exist in the system to assign the deduction to.");
+            }
+        }
+        else
+        {
+            gradesToAssign = request.GradeAssign;
         }
 
         var normalizedDeductionListName = request.Name.Trim().ToLower();
@@ -479,13 +500,15 @@ public class AllowanceDeductionController : ControllerBase
             return Conflict($"The deductionList '{request.Name}' already exists.");
         }
 
+        // Create the deduction list
         var deductionList = new DeductionList { Name = request.Name, Amount = request.Amount };
 
         _context.DeductionLists.Add(deductionList);
         await _context.SaveChangesAsync();
 
+        // Create GradeDeduction entries for the assigned grades
         var gradeDeductions = new List<GradeDeduction>();
-        foreach (var gradeId in request.GradeAssign)
+        foreach (var gradeId in gradesToAssign)
         {
             var gradeDeduction = new GradeDeduction
             {
@@ -503,7 +526,7 @@ public class AllowanceDeductionController : ControllerBase
         }
 
         var employeesInAssignedGrades = await _context
-            .Employees.Where(e => request.GradeAssign.Contains(e.GradeId.Value))
+            .Employees.Where(e => gradesToAssign.Contains(e.GradeId.Value))
             .Select(e => e.Id)
             .ToListAsync();
 
@@ -537,7 +560,7 @@ public class AllowanceDeductionController : ControllerBase
             new
             {
                 deductionList = deductionList,
-                assignedGrades = request.GradeAssign,
+                assignedGrades = gradesToAssign,
                 employeesAffected = employeesInAssignedGrades.Count,
             }
         );
