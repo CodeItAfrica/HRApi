@@ -488,7 +488,95 @@ public class PayrollController : ControllerBase
         if (payrollHistory == null)
             return NotFound();
 
-        return Ok(payrollHistory);
+        var payrollHistoryAllowances = await _context
+            .PayrollAllowanceHistories.Where(pa => pa.EmployeeId == payrollHistory.EmployeeId)
+            .ToListAsync();
+
+        var payrollHistoryDeductions = await _context
+            .PayrollDeductionHistories.Where(pd => pd.EmployeeId == payrollHistory.EmployeeId)
+            .ToListAsync();
+
+        var variantPayrollAllowances = await _context
+            .VariantPayrollAllowances.Include(pa => pa.VariantAllowance)
+            .Where(vpa => vpa.PayrollHistoryId == payrollHistory.Id)
+            .ToListAsync();
+
+        var variantPayrollDeductions = await _context
+            .VariantPayrollDeductions.Include(pa => pa.VariantDeduction)
+            .Where(vpd => vpd.PayrollHistoryId == payrollHistory.Id)
+            .ToListAsync();
+
+        var result = new
+        {
+            payrollHistory.Id,
+            payrollHistory.EmployeeId,
+            Employee = new { payrollHistory.Employee.FullName, payrollHistory.Employee.Email },
+            payrollHistory.Month,
+            payrollHistory.Year,
+            payrollHistory.BaseSalary,
+            payrollHistory.HousingAllowance,
+            payrollHistory.TransportAllowance,
+            payrollHistory.AnnualTax,
+            payrollHistory.TotalAllowances,
+            payrollHistory.TotalDeductions,
+            payrollHistory.TotalVariantAllowances,
+            payrollHistory.TotalVariantDeductions,
+            payrollHistory.GrossSalary,
+            payrollHistory.NetSalary,
+            payrollHistory.PaymentStatus,
+            payrollHistory.PaidOn,
+            ProcessedBy = payrollHistory.ProcessedBy?.Email,
+            payrollHistory.CreatedAt,
+            PayrollPayment = payrollHistory
+                .PayrollPayments.Select(pp => new
+                {
+                    pp.Id,
+                    pp.PaymentMethod,
+                    pp.PaymentStatus,
+                    pp.TransactionId,
+                    pp.PaymentDate,
+                    pp.ProcessedByUserId,
+                })
+                .ToList(),
+            PayrollAllowanceHistories = payrollHistoryAllowances
+                .Select(pa => new
+                {
+                    pa.Id,
+                    Name = pa.AllowanceName,
+                    pa.Amount,
+                    pa.Description,
+                    pa.CreatedAt,
+                })
+                .ToList(),
+            PayrollDeductionHistories = payrollHistoryDeductions
+                .Select(pd => new
+                {
+                    pd.Id,
+                    Name = pd.DeductionName,
+                    pd.Amount,
+                    pd.Description,
+                    pd.CreatedAt,
+                })
+                .ToList(),
+            VariantPayrollAllowance = variantPayrollAllowances.Select(vpa => new
+            {
+                vpa.Id,
+                VariantAllowanceType = new { vpa.VariantAllowance.Id, vpa.VariantAllowance.Name },
+                vpa.Amount,
+                LastGrantedBy = vpa.GrantedBy,
+                vpa.CreatedAt,
+            }),
+            VariantPayrollDeduction = variantPayrollDeductions.Select(vpd => new
+            {
+                vpd.Id,
+                VariantDeductionType = new { vpd.VariantDeduction.Id, vpd.VariantDeduction.Name },
+                vpd.Amount,
+                LastGranted = vpd.GrantedBy,
+                vpd.CreatedAt,
+            }),
+        };
+
+        return Ok(result);
     }
 
     [HttpGet("history/status/{status}")]
