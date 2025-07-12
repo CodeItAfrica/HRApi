@@ -140,16 +140,33 @@ public class VariantDeductionController : ControllerBase
 
         var email = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
 
-        var variantPayrollDeduction = new VariantPayrollDeduction
-        {
-            PayrollHistoryId = request.PayrollHistoryId,
-            VariantDeductionId = variantDeduction.Id,
-            Amount = variantDeduction.Amount,
-            GrantedBy = email ?? "System",
-            CreatedAt = DateTime.UtcNow,
-        };
+        var existingVariantPayrollDeduction =
+            await _context.VariantPayrollDeductions.FirstOrDefaultAsync(vpd =>
+                vpd.PayrollHistoryId == request.PayrollHistoryId
+                && vpd.VariantDeductionId == variantDeduction.Id
+            );
 
-        _context.VariantPayrollDeductions.Add(variantPayrollDeduction);
+        if (existingVariantPayrollDeduction != null)
+        {
+            // Update existing assignment
+            existingVariantPayrollDeduction.Amount = request.Amount;
+            existingVariantPayrollDeduction.GrantedBy = email ?? "System";
+            // Note: CreatedAt remains unchanged, but you could add a LastModifiedAt field if needed
+        }
+        else
+        {
+            var variantPayrollDeduction = new VariantPayrollDeduction
+            {
+                PayrollHistoryId = request.PayrollHistoryId,
+                VariantDeductionId = variantDeduction.Id,
+                Amount = request.Amount,
+                GrantedBy = email ?? "System",
+                CreatedAt = DateTime.UtcNow,
+            };
+
+            _context.VariantPayrollDeductions.Add(variantPayrollDeduction);
+        }
+
         await _context.SaveChangesAsync();
 
         try

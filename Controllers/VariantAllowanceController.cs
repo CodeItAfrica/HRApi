@@ -140,16 +140,35 @@ public class VariantAllowanceController : ControllerBase
 
         var email = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
 
-        var variantPayrollAllowance = new VariantPayrollAllowance
-        {
-            PayrollHistoryId = request.PayrollHistoryId,
-            VariantAllowanceId = variantAllowance.Id,
-            Amount = variantAllowance.Amount,
-            GrantedBy = email ?? "System",
-            CreatedAt = DateTime.UtcNow,
-        };
+        // Check if this variant allowance is already assigned to this payroll history
+        var existingVariantPayrollAllowance =
+            await _context.VariantPayrollAllowances.FirstOrDefaultAsync(vpa =>
+                vpa.PayrollHistoryId == request.PayrollHistoryId
+                && vpa.VariantAllowanceId == variantAllowance.Id
+            );
 
-        _context.VariantPayrollAllowances.Add(variantPayrollAllowance);
+        if (existingVariantPayrollAllowance != null)
+        {
+            // Update existing assignment
+            existingVariantPayrollAllowance.Amount = request.Amount;
+            existingVariantPayrollAllowance.GrantedBy = email ?? "System";
+            // Note: CreatedAt remains unchanged, but you could add a LastModifiedAt field if needed
+        }
+        else
+        {
+            // Create new assignment
+            var variantPayrollAllowance = new VariantPayrollAllowance
+            {
+                PayrollHistoryId = request.PayrollHistoryId,
+                VariantAllowanceId = variantAllowance.Id,
+                Amount = request.Amount,
+                GrantedBy = email ?? "System",
+                CreatedAt = DateTime.UtcNow,
+            };
+
+            _context.VariantPayrollAllowances.Add(variantPayrollAllowance);
+        }
+
         await _context.SaveChangesAsync();
 
         try
@@ -179,7 +198,12 @@ public class VariantAllowanceController : ControllerBase
 
             await _context.SaveChangesAsync();
 
-            return Ok("Variant Allowance assigned successfully");
+            string message =
+                existingVariantPayrollAllowance != null
+                    ? "Variant Allowance updated successfully"
+                    : "Variant Allowance assigned successfully";
+
+            return Ok(message);
         }
         catch (Exception ex)
         {
