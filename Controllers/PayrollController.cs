@@ -489,11 +489,19 @@ public class PayrollController : ControllerBase
             return NotFound();
 
         var payrollHistoryAllowances = await _context
-            .PayrollAllowanceHistories.Where(pa => pa.EmployeeId == payrollHistory.EmployeeId)
+            .PayrollAllowanceHistories.Where(pa =>
+                pa.EmployeeId == payrollHistory.EmployeeId
+                && pa.Month == payrollHistory.Month
+                && pa.Year == payrollHistory.Year
+            )
             .ToListAsync();
 
         var payrollHistoryDeductions = await _context
-            .PayrollDeductionHistories.Where(pd => pd.EmployeeId == payrollHistory.EmployeeId)
+            .PayrollDeductionHistories.Where(pd =>
+                pd.EmployeeId == payrollHistory.EmployeeId
+                && pd.Month == payrollHistory.Month
+                && pd.Year == payrollHistory.Year
+            )
             .ToListAsync();
 
         var variantPayrollAllowances = await _context
