@@ -101,3 +101,32 @@ public class CreateAllowanceDeductionBodyRequest
     public required decimal Amount { get; set; }
     public required int[] GradeAssign { get; set; }
 }
+
+public class PaysheetPayrollRequest
+{
+    [Required]
+    [Range(1, 12, ErrorMessage = "Month must be between 1 and 12")]
+    public int PreviousMonth { get; set; }
+
+    [Required]
+    [Range(2020, 2100, ErrorMessage = "Year must be between 2020 and 2100")]
+    public int PreviousYear { get; set; }
+
+    [Required]
+    [Range(1, 12, ErrorMessage = "Month must be between 1 and 12")]
+    public int ProcessMonth { get; set; }
+
+    [Required]
+    [Range(2020, 2100, ErrorMessage = "Year must be between 2020 and 2100")]
+    public int ProcessYear { get; set; }
+}
+
+public class PaysheetPayrollResult
+{
+    public int TotalEmployees { get; set; }
+    public int SuccessfullyProcessed { get; set; }
+    public int Skipped { get; set; }
+    public List<string> SkippedEmployees { get; set; } = new List<string>();
+    public List<string> ProcessedEmployees { get; set; } = new List<string>();
+    public string Message { get; set; } = string.Empty;
+}

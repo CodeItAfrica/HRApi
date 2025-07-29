@@ -381,6 +381,254 @@ public class PayrollController : ControllerBase
         }
     }
 
+    [Authorize(Roles = "ADMIN")]
+    [HttpPost("process-paysheet/{paySheetId}/")]
+    public async Task<IActionResult> ProcessPaysheetPayroll(
+        int paySheetId,
+        [FromBody] PaysheetPayrollRequest request
+    )
+    {
+        using var transaction = await _context.Database.BeginTransactionAsync();
+        try
+        {
+            var paySheet = await _context.PaySheets.FindAsync(paySheetId);
+            if (paySheet == null)
+            {
+                return NotFound(new { message = $"PaySheet with ID {paySheetId} not found" });
+            }
+
+            var employees = await _context
+                .Employees.Where(e =>
+                    e.PaySheetId == paySheetId && e.Active == true && e.Deleted != true
+                )
+                .ToListAsync();
+
+            if (!employees.Any())
+            {
+                return BadRequest(
+                    new { message = $"No active employees found in PaySheet {paySheet.Name}" }
+                );
+            }
+
+            var result = new PaysheetPayrollResult { TotalEmployees = employees.Count };
+
+            var currentUserEmail =
+                User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value ?? "System";
+
+            foreach (var employee in employees)
+            {
+                try
+                {
+                    var isAlreadyProcessed = await _payrollService.IsPayrollAlreadyProcessedAsync(
+                        employee.Id,
+                        request.ProcessMonth,
+                        request.ProcessYear
+                    );
+
+                    if (isAlreadyProcessed)
+                    {
+                        result.Skipped++;
+                        result.SkippedEmployees.Add(
+                            $"Employee {employee.Email} - already processed for {request.ProcessMonth:D2}/{request.ProcessYear}"
+                        );
+                        continue;
+                    }
+
+                    var sourcePayrollHistory = await _context
+                        .PayrollHistories.Include(ph => ph.Employee)
+                        .FirstOrDefaultAsync(ph =>
+                            ph.EmployeeId == employee.Id
+                            && ph.Month == request.PreviousMonth
+                            && ph.Year == request.PreviousYear
+                        );
+
+                    if (sourcePayrollHistory == null)
+                    {
+                        result.Skipped++;
+                        result.SkippedEmployees.Add(
+                            $"Employee {employee.Email} - no payroll history found for {request.PreviousMonth:D2}/{request.PreviousYear}"
+                        );
+                        continue;
+                    }
+
+                    var sourceAllowanceHistories = await _context
+                        .PayrollAllowanceHistories.Where(pah =>
+                            pah.EmployeeId == employee.Id
+                            && pah.Month == request.PreviousMonth
+                            && pah.Year == request.PreviousYear
+                        )
+                        .ToListAsync();
+
+                    var sourceDeductionHistories = await _context
+                        .PayrollDeductionHistories.Where(pdh =>
+                            pdh.EmployeeId == employee.Id
+                            && pdh.Month == request.PreviousMonth
+                            && pdh.Year == request.PreviousYear
+                        )
+                        .ToListAsync();
+
+                    var sourceVariantAllowances = await _context
+                        .VariantPayrollAllowances.Include(vpa => vpa.VariantAllowance)
+                        .Where(vpa => vpa.PayrollHistoryId == sourcePayrollHistory.Id)
+                        .ToListAsync();
+
+                    var sourceVariantDeductions = await _context
+                        .VariantPayrollDeductions.Include(vpd => vpd.VariantDeduction)
+                        .Where(vpd => vpd.PayrollHistoryId == sourcePayrollHistory.Id)
+                        .ToListAsync();
+
+                    var newPayrollHistory = new PayrollHistory
+                    {
+                        EmployeeId = employee.Id,
+                        Month = request.ProcessMonth,
+                        Year = request.ProcessYear,
+                        BaseSalary = sourcePayrollHistory.BaseSalary,
+                        HousingAllowance = sourcePayrollHistory.HousingAllowance,
+                        TransportAllowance = sourcePayrollHistory.TransportAllowance,
+                        AnnualTax = sourcePayrollHistory.AnnualTax,
+                        TotalAllowances = sourcePayrollHistory.TotalAllowances,
+                        TotalVariantAllowances = sourcePayrollHistory.TotalVariantAllowances,
+                        TotalDeductions = sourcePayrollHistory.TotalDeductions,
+                        TotalVariantDeductions = sourcePayrollHistory.TotalVariantDeductions,
+                        GrossSalary = sourcePayrollHistory.GrossSalary,
+                        NetSalary = sourcePayrollHistory.NetSalary,
+                        PaymentStatus = PayrollHistoryStatus.Processing,
+                        ProcessedByUserId = sourcePayrollHistory.ProcessedByUserId,
+                        CreatedAt = DateTime.UtcNow,
+                    };
+
+                    _context.PayrollHistories.Add(newPayrollHistory);
+                    await _context.SaveChangesAsync(); 
+
+                    foreach (var sourceAllowance in sourceAllowanceHistories)
+                    {
+                        var newAllowanceHistory = new PayrollAllowanceHistory
+                        {
+                            EmployeeId = employee.Id,
+                            Month = request.ProcessMonth,
+                            Year = request.ProcessYear,
+                            AllowanceName = sourceAllowance.AllowanceName,
+                            Amount = sourceAllowance.Amount,
+                            Description =
+                                $"Duplicated from {request.PreviousMonth:D2}/{request.PreviousYear} - {sourceAllowance.Description}",
+                            LastModifiedOn = DateOnly.FromDateTime(DateTime.UtcNow),
+                            CreatedAt = DateTime.UtcNow,
+                        };
+
+                        _context.PayrollAllowanceHistories.Add(newAllowanceHistory);
+                    }
+
+                    foreach (var sourceDeduction in sourceDeductionHistories)
+                    {
+                        var newDeductionHistory = new PayrollDeductionHistory
+                        {
+                            EmployeeId = employee.Id,
+                            Month = request.ProcessMonth,
+                            Year = request.ProcessYear,
+                            DeductionName = sourceDeduction.DeductionName,
+                            Amount = sourceDeduction.Amount,
+                            Description =
+                                $"Duplicated from {request.PreviousMonth:D2}/{request.PreviousYear} - {sourceDeduction.Description}",
+                            LastModifiedOn = DateOnly.FromDateTime(DateTime.UtcNow),
+                            CreatedAt = DateTime.UtcNow,
+                        };
+
+                        _context.PayrollDeductionHistories.Add(newDeductionHistory);
+                    }
+
+                    foreach (var sourceVariantAllowance in sourceVariantAllowances)
+                    {
+                        var newVariantAllowance = new VariantPayrollAllowance
+                        {
+                            PayrollHistoryId = newPayrollHistory.Id,
+                            VariantAllowanceId = sourceVariantAllowance.VariantAllowanceId,
+                            Amount = sourceVariantAllowance.Amount,
+                            GrantedBy = currentUserEmail,
+                            CreatedAt = DateTime.UtcNow,
+                        };
+
+                        _context.VariantPayrollAllowances.Add(newVariantAllowance);
+                    }
+
+                    foreach (var sourceVariantDeduction in sourceVariantDeductions)
+                    {
+                        var newVariantDeduction = new VariantPayrollDeduction
+                        {
+                            PayrollHistoryId = newPayrollHistory.Id,
+                            VariantDeductionId = sourceVariantDeduction.VariantDeductionId,
+                            Amount = sourceVariantDeduction.Amount,
+                            GrantedBy = currentUserEmail,
+                            CreatedAt = DateTime.UtcNow,
+                        };
+
+                        _context.VariantPayrollDeductions.Add(newVariantDeduction);
+                    }
+
+                    // Create payroll payment record
+                    var payrollPayment = new PayrollPayment
+                    {
+                        PayrollHistoryId = newPayrollHistory.Id,
+                        EmployeeId = employee.Id,
+                        PaymentMethod = "Bank Transfer",
+                        PaymentStatus = PaymentStatus.Pending,
+                        CreatedAt = DateTime.UtcNow,
+                    };
+
+                    _context.PayrollPayments.Add(payrollPayment);
+
+                    result.SuccessfullyProcessed++;
+                    result.ProcessedEmployees.Add(
+                        $"Employee {employee.Email} - successfully processed for {request.ProcessMonth:D2}/{request.ProcessYear}"
+                    );
+                }
+                catch (Exception ex)
+                {
+                    result.Skipped++;
+                    result.SkippedEmployees.Add(
+                        $"Employee {employee.Email} - error during processing: {ex.Message}"
+                    );
+                    continue;
+                }
+            }
+
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+
+            result.Message =
+                $"Paysheet '{paySheet.Name}' payroll processing completed. "
+                + $"Total: {result.TotalEmployees}, Processed: {result.SuccessfullyProcessed}, Skipped: {result.Skipped}";
+
+            return Ok(
+                new
+                {
+                    success = true,
+                    paySheetId,
+                    paySheetName = paySheet.Name,
+                    sourceMonth = request.PreviousMonth,
+                    sourceYear = request.PreviousYear,
+                    targetMonth = request.ProcessMonth,
+                    targetYear = request.ProcessYear,
+                    processedBy = currentUserEmail,
+                    processedAt = DateTime.UtcNow,
+                    result,
+                }
+            );
+        }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync();
+            return StatusCode(
+                500,
+                new
+                {
+                    success = false,
+                    message = "An error occurred while processing paysheet payroll",
+                    error = ex.Message,
+                }
+            );
+        }
+    }
+
     [HttpGet("history/month/{month}/year/{year}")]
     public async Task<ActionResult<IEnumerable<PayrollHistory>>> GetPayrollHistoryByMonthYear(
         int month,

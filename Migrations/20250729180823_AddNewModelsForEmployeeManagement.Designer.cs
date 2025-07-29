@@ -4,6 +4,7 @@ using HRApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HRApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250729180823_AddNewModelsForEmployeeManagement")]
+    partial class AddNewModelsForEmployeeManagement
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2405,7 +2408,7 @@ namespace HRApi.Migrations
                     b.HasOne("HRApi.Models.PayrollHistory", "PayrollHistory")
                         .WithMany("PayrollPayments")
                         .HasForeignKey("PayrollHistoryId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("HRApi.Models.User", "ProcessedBy")
@@ -2424,7 +2427,7 @@ namespace HRApi.Migrations
                     b.HasOne("HRApi.Models.Employee", "Employee")
                         .WithMany("PerformanceReviews")
                         .HasForeignKey("EmployeeId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("HRApi.Models.Employee", "Reviewer")
