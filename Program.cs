@@ -22,6 +22,7 @@ builder.Services.AddScoped<AuthRepository>();
 builder.Services.AddScoped<AdminRepository>();
 builder.Services.AddScoped<IDService>();
 builder.Services.AddScoped<PayrollService>();
+builder.Services.AddScoped<AcademicQualificationService>();
 builder.Services.AddScoped<IssueService>();
 builder
     .Services.AddControllers()
