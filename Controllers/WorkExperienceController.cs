@@ -26,7 +26,7 @@ namespace HRApi.Controllers
                 {
                     Id = w.Id,
                     EmployeeId = w.EmployeeId,
-                    EmployeeName = w.Employee.FullName,
+                    EmployeeName = w.Employee.Surname + " " + w.Employee.OtherNames,
                     JobTitle = w.JobTitle,
                     CompanyName = w.CompanyName,
                     YearStarted = w.YearStarted,
@@ -54,7 +54,7 @@ namespace HRApi.Controllers
                 {
                     Id = w.Id,
                     EmployeeId = w.EmployeeId,
-                    EmployeeName = w.Employee.FullName,
+                    EmployeeName = w.Employee.Surname + " " + w.Employee.OtherNames,
                     JobTitle = w.JobTitle,
                     CompanyName = w.CompanyName,
                     YearStarted = w.YearStarted,
@@ -93,7 +93,7 @@ namespace HRApi.Controllers
                 {
                     Id = w.Id,
                     EmployeeId = w.EmployeeId,
-                    EmployeeName = w.Employee.FullName,
+                    EmployeeName = w.Employee.Surname + " " + w.Employee.OtherNames,
                     JobTitle = w.JobTitle,
                     CompanyName = w.CompanyName,
                     YearStarted = w.YearStarted,
@@ -128,7 +128,7 @@ namespace HRApi.Controllers
             var summary = new WorkExperienceSummaryDto
             {
                 EmployeeId = employeeId,
-                EmployeeName = employee.FullName,
+                EmployeeName = employee.Surname + " " + employee.OtherNames,
                 TotalExperiences = workExperiences.Count,
                 TotalYearsOfExperience = workExperiences.Sum(w => w.YearEnded - w.YearStarted),
                 Industries = workExperiences.Select(w => w.Industry).Distinct().ToList(),
@@ -188,7 +188,7 @@ namespace HRApi.Controllers
                 {
                     Id = w.Id,
                     EmployeeId = w.EmployeeId,
-                    EmployeeName = w.Employee.FullName,
+                    EmployeeName = w.Employee.Surname + " " + w.Employee.OtherNames,
                     JobTitle = w.JobTitle,
                     CompanyName = w.CompanyName,
                     YearStarted = w.YearStarted,
@@ -258,7 +258,7 @@ namespace HRApi.Controllers
             {
                 Id = workExperience.Id,
                 EmployeeId = workExperience.EmployeeId,
-                EmployeeName = workExperience.Employee.FullName,
+                EmployeeName = workExperience.Employee.Surname + " " + workExperience.Employee.OtherNames,
                 JobTitle = workExperience.JobTitle,
                 CompanyName = workExperience.CompanyName,
                 YearStarted = workExperience.YearStarted,
