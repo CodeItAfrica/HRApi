@@ -168,6 +168,101 @@ public class PayrollController : ControllerBase
         }
     }
 
+    [HttpGet("employee/{employeeId}")]
+    public async Task<ActionResult<Payroll>> GetEmployeePayrollDetails(string employeeId)
+    {
+        try
+        {
+            var payroll = await _context
+                .Payrolls.Include(p => p.Employee)
+                .FirstOrDefaultAsync(p => p.EmployeeId == employeeId);
+
+            if (payroll == null)
+            {
+                return NotFound(new { message = $"Payroll with ID {employeeId} not found" });
+            }
+
+            var payrollAllowances = await _context
+                .PayrollAllowances.Include(pa => pa.AllowanceList)
+                .Where(pa => pa.EmployeeId == payroll.EmployeeId)
+                .ToListAsync();
+
+            var payrollDeductions = await _context
+                .PayrollDeductions.Include(pd => pd.DeductionList)
+                .Where(pd => pd.EmployeeId == payroll.EmployeeId)
+                .ToListAsync();
+
+            var newTotalAllowance = await _payrollService.CalculateTotalAllowancesAsync(
+                payroll.EmployeeId
+            );
+            var newTotalDeduction = await _payrollService.CalculateTotalDeductionsAsync(
+                payroll.EmployeeId
+            );
+
+            payroll.TotalAllowances = newTotalAllowance;
+            payroll.TotalDeductions = newTotalDeduction;
+
+            payroll.GrossSalary = payroll.BaseSalary + newTotalAllowance;
+            payroll.NetSalary = payroll.GrossSalary - newTotalDeduction;
+
+            await _context.SaveChangesAsync();
+
+            var result = new
+            {
+                payroll.Id,
+                payroll.EmployeeId,
+                Employee = new { payroll.Employee.FullName, payroll.Employee.Email },
+                payroll.BaseSalary,
+                payroll.HousingAllowance,
+                payroll.TransportAllowance,
+                payroll.AnnualTax,
+                payroll.TotalAllowances,
+                payroll.TotalDeductions,
+                payroll.GrossSalary,
+                payroll.PaymentMethod,
+                payroll.AccountNumber,
+                payroll.BankName,
+                payroll.NetSalary,
+                payroll.CreatedAt,
+                payroll.UpdatedAt,
+                payroll.LastModifiedBy,
+                PayrollAllowances = payrollAllowances
+                    .Select(pa => new
+                    {
+                        pa.Id,
+                        pa.Amount,
+                        pa.Description,
+                        pa.LastGrantedBy,
+                        pa.LastGrantedOn,
+                        pa.CreatedAt,
+                        AllowanceType = new { pa.AllowanceList.Id, pa.AllowanceList.Name },
+                    })
+                    .ToList(),
+                PayrollDeductions = payrollDeductions
+                    .Select(pd => new
+                    {
+                        pd.Id,
+                        pd.Amount,
+                        pd.Description,
+                        pd.LastDeductedBy,
+                        pd.LastDeductedOn,
+                        pd.CreatedAt,
+                        DeductionType = new { pd.DeductionList.Id, pd.DeductionList.Name },
+                    })
+                    .ToList(),
+            };
+
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(
+                500,
+                new { message = "An error occurred while retrieving payroll", error = ex.Message }
+            );
+        }
+    }
+
     [HttpPatch("update-payment-method/{id}")]
     public async Task<IActionResult> UpdatePaymentMethod(
         int id,
@@ -498,7 +593,7 @@ public class PayrollController : ControllerBase
                     };
 
                     _context.PayrollHistories.Add(newPayrollHistory);
-                    await _context.SaveChangesAsync(); 
+                    await _context.SaveChangesAsync();
 
                     foreach (var sourceAllowance in sourceAllowanceHistories)
                     {
