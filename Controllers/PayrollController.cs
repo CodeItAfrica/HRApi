@@ -140,7 +140,7 @@ public class PayrollController : ControllerBase
                         pa.LastGrantedBy,
                         pa.LastGrantedOn,
                         pa.CreatedAt,
-                        AllowanceType = new { pa.AllowanceList.Id, pa.AllowanceList.Name },
+                        AllowanceType = new { pa.AllowanceList?.Id, pa.AllowanceList.Name },
                     })
                     .ToList(),
                 PayrollDeductions = payrollDeductions
@@ -152,7 +152,7 @@ public class PayrollController : ControllerBase
                         pd.LastDeductedBy,
                         pd.LastDeductedOn,
                         pd.CreatedAt,
-                        DeductionType = new { pd.DeductionList.Id, pd.DeductionList.Name },
+                        DeductionType = new { pd.DeductionList?.Id, pd.DeductionList.Name },
                     })
                     .ToList(),
             };
@@ -816,7 +816,28 @@ public class PayrollController : ControllerBase
             .ThenByDescending(p => p.Month)
             .ToListAsync();
 
-        return Ok(payrollHistory);
+        var response = payrollHistory.Select(ph => new
+        {
+            ph.Id,
+            EmployeeId = ph.Employee.Id,
+            Employee = new { ph.Employee.FullName, ph.Employee.Email },
+            ph.Month,
+            ph.Year,
+            ph.BaseSalary,
+            ph.HousingAllowance,
+            ph.TransportAllowance,
+            ph.AnnualTax,
+            ph.TotalAllowances,
+            ph.TotalDeductions,
+            ph.GrossSalary,
+            ph.NetSalary,
+            ph.PaymentStatus,
+            ph.PaidOn,
+            ProcessedBy = ph.ProcessedBy?.Email,
+            ph.CreatedAt,
+        });
+
+        return Ok(response);
     }
 
     [HttpGet("history/{id}")]
