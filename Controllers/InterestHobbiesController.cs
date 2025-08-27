@@ -125,46 +125,6 @@ namespace HRApi.Controllers
             return Ok(summary);
         }
 
-        // [HttpGet("statistics")]
-        // public async Task<ActionResult<HobbiesStatisticsDto>> GetHobbiesStatistics()
-        // {
-        //     var hobbies = await _context.InterestHobbies.Include(h => h.Employee).ToListAsync();
-
-        //     var statistics = new HobbiesStatisticsDto
-        //     {
-        //         TotalHobbiesRecorded = hobbies.Count,
-        //         UniqueHobbies = hobbies.Select(h => h.Hobby.ToLower()).Distinct().Count(),
-        //         EmployeesWithHobbies = hobbies.Select(h => h.EmployeeId).Distinct().Count(),
-        //         AverageHobbiesPerEmployee = await _context
-        //             .InterestHobbies.GroupBy(h => h.EmployeeId)
-        //             .Select(g => g.Count())
-        //             .DefaultIfEmpty(0)
-        //             .AverageAsync(),
-        //         MostPopularHobbies = hobbies
-        //             .GroupBy(h => h.Hobby.ToLower())
-        //             .OrderByDescending(g => g.Count())
-        //             .Take(10)
-        //             .Select(g => new HobbyStatistic
-        //             {
-        //                 Hobby = g.First().Hobby,
-        //                 Count = g.Count(),
-        //                 Percentage = Math.Round((double)g.Count() / hobbies.Count * 100, 2),
-        //             })
-        //             .ToList(),
-        //         HobbiesWithDescription = hobbies.Count(h => !string.IsNullOrEmpty(h.Description)),
-        //         PercentageWithDescription = hobbies.Any()
-        //             ? Math.Round(
-        //                 (double)hobbies.Count(h => !string.IsNullOrEmpty(h.Description))
-        //                     / hobbies.Count
-        //                     * 100,
-        //                 2
-        //             )
-        //             : 0,
-        //     };
-
-        //     return Ok(statistics);
-        // }
-
         [HttpGet("search/{hobby}")]
         public async Task<ActionResult<IEnumerable<InterestHobbiesDto>>> SearchByHobby(string hobby)
         {
